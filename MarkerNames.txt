@@ -18,7 +18,7 @@ A3:
 108_SPM_000_PM_012 - Stashed for Later
 015_SRT_SPM_000_PM_018 - ABTU
 015_SRT_SPM_000_PM_017 - ABTU Star
-020_SPM_000PM_014 - Swallowed the Key
+020_SPM_000_PM_014 - Swallowed the Key
 017_SPM_000_PM_023 - AEP
 Cloud_1_03_SRT_SPM_000_PM_005 - Clock Star
 
@@ -95,6 +95,7 @@ B5:
 239_SPM_000_PM_018 - Two Jammers
 311_SPM_000_PM_041 - Iron Curtain
 315_TAM_002_PM_001 - Chambers
+Cloud_2_05_SRT_TAM_003_PM_003 - Obelisk Star
 
 B6:
 208_SPM_000_PM_014 - Crisscross
