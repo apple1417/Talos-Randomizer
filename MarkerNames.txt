@@ -36,6 +36,7 @@ A5:
 202e_SPM_000_PM_004 - Over the Fence
 207_SPM_000_PM_005 - Buzzer
 244_SPM_000_PM_008 - FC
+244_SRT_SPM_000_PM_006 - FC Star
 
 A6:
 111_SPM_000_PM_012 - Mobile Mindfield
@@ -49,7 +50,7 @@ A7:
 305_SPM_000_PM_004 - Trapped Inside
 209_SPM_000_PM_012 - Two Buzzers
 Cloud_1_07_SRT_SPM_000_PM_021 - A7 Star
-202_SPM_000_PM_032 - WiaL
+220_SPM_000_PM_032 - WiaL
 211_SPM_000_PM_008 - Pinhole
 
 A Star:
