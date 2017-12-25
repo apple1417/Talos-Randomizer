@@ -35,7 +35,7 @@ RunHandled(
 
   OnEvery(Event(UnlockItems.Activated)),
   function()
-    talosProgress.SetVar("Randomizer_UnlockItems")
+    talosProgress:SetVar("Randomizer_UnlockItems")
   end,
   OnEvery(Event(UnlockItems.Deactivated)),
   function()
