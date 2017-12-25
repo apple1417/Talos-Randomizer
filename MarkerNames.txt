@@ -147,7 +147,7 @@ C4:
 
 C5:
 328_SPM_000_PM_016 - Time Flies
-Cloud_3_05_SRT_SPM_033_PM_012 - Time Flies Star
+Cloud_3_05_SRT_SPM_003_PM_012 - Time Flies Star
 232_SPM_000_PM_012 - Time Crawls
 309_SPM_000_PM_018 - Dumbwaiter
 Cloud_3_05_SRT_SPM_002_PM_016 - Dumbwaiter Star
@@ -162,7 +162,7 @@ Cloud_3_06_SRT_SPM_000_PM_008 - C6 Star
 
 C7:
 230_SPM_000_PM_019 - Carrier Pigeons
-308_WPM_000_PM_017 - DMS
+308_SPM_000_PM_017 - DMS
 Cloud_3_07_SRT_SPM_000_PM_021 - C7 Star
 227_SPM_002_PM_033 - Prison Break
 233_SPM_000_PM_015 - Crisscross
