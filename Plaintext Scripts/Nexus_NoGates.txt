@@ -1,0 +1,3 @@
+if talosProgress:IsVarSet("Randomizer_NoGates") then
+  Gates:AssureOpened()
+end

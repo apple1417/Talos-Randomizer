@@ -1,0 +1,50 @@
+local seed = "No Seed"
+local seedPtr = seedDisplay:GetTextConfig()
+local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
+
+RunHandled(
+  function()
+    WaitForever()
+  end,
+  OnEvery(Any(Events(Numbers.Activated))),
+  function(event)
+    local index = event.any.signaledIndex
+    Numbers[index]:Deactivate()
+    if #seed <= 32 then
+      if seed == "No Seed" then
+        seed = ""
+      end
+      if index == 10 then
+        seed = seed .. "0"
+      else
+        seed = seed .. tostring(index)
+      end
+      seedDisplay:SetText(seedPtr, seed, true)
+      talosProgress:SetCode("Randomizer_Seed", tonumber(seed))
+    end
+  end,
+  OnEvery(Event(Backspace.Activated)),
+  function()
+    Backspace:Deactivate()
+    if seed ~= "No Seed" then
+      if #seed <= 1 then
+        seed = "No Seed"
+        seedDisplay:SetText(seedPtr, seed, true)
+        talosProgress:SetCode("Randomizer_Seed", -1)
+      else
+        seed = string.sub(seed, 1, -2) 
+      end
+      seedDisplay:SetText(seedPtr, seed, true)
+      talosProgress:SetCode("Randomizer_Seed", tonumber(seed)) 
+    end   
+  end,  
+  OnEvery(Event(Clear.Activated)),
+  function()
+    Clear:Deactivate()
+    if seed ~= "No Seed" then
+      seed = "No Seed"
+      seedDisplay:SetText(seedPtr, seed, true)
+      talosProgress:SetCode("Randomizer_Seed", -1)
+    end
+  end
+)
