@@ -74,8 +74,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   end
   print("Using Seed", seed)
   
-  -- Blum Blum Shub Randomizer
-  -- Unlike the built-in, we can seed this
+  --[[
+  Blum Blum Shub Randomizer
+   Unlike the built-in, we can seed this
+   Yes it's not perfect, but it's good enough, especially since the
+    lists it's called on aren't ordered to begin with
+  ]]--
   local rngState =  4 + seed^2 % 0x04dd42bb
   local function rand(min, max)
     rngState = rngState^2 % 0x04dd42bb
