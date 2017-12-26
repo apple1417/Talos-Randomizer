@@ -1,0 +1,59 @@
+terminal when (Booting) {
+  text: [[TTRS:notrans=Randomizer Mode: %o"Randomizer_Mode"
+]]
+  set: FirstScreen
+  goto: CheckOptions
+}
+
+terminal when (CheckOptions) {
+  text: [[TTRS:notrans=
+]]
+}
+
+terminal when (Randomizer_NoGates and FirstScreen) {
+  text: [[TTRS:notrans=No Gates: Enabled
+]]
+}
+
+terminal when (Randomizer_UnlockItems and FirstScreen) {
+  text: [[TTRS:notrans=Unlock All Items: Enabled
+]]
+}
+
+terminal when (FirstScreen or OptionsScreen) {
+  text: [[TTRS:notrans=
+]]
+  clear: FirstScreen
+  clear: OptionsScreen
+  options: {
+    "TTRS:notrans=Set Seed" next: Seed
+    "TTRS:notrans=Change Randomizer Mode" next: Mode
+    "TTRS:notrans=Misc Options" next: MiscOptions
+    "TTRS:notrans=exit" next: Finished
+  }
+}
+
+terminal when (Seed) {
+  prompt: [[TTRS:notrans=
+Current Seed: %o"Randomizer_Seed"
+]] # Only prints "0-1" for some reason? 
+  options: {
+    "TTRS:notrans=1" next: n1
+    "TTRS:notrans=2" next: n2 # Problem is no matter how I do this you get one number per line
+    "TTRS:notrans=3" next: n3 # I have to keep looping back to this section so stuff would end up really spread out
+    "TTRS:notrans=4" next: n4 # I can't use the inbuilt number thing because that won't output stuff
+    "TTRS:notrans=5" next: n5
+    "TTRS:notrans=6" next: n6
+    "TTRS:notrans=7" next: n7
+    "TTRS:notrans=8" next: n8
+    "TTRS:notrans=9" next: n9
+    "TTRS:notrans=0" next: n0
+    "TTRS:notrans=Clear" next: Clear
+    "TTRS:notrans=Cancel" next: OptionsScreen
+  }
+}
+
+terminal when (Finished) {
+  text: "TTRS:notrans= "
+  exit
+}

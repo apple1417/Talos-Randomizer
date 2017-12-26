@@ -11,16 +11,17 @@ RunHandled(
   OnEvery(Any(Events(Modes.Activated))),
   function(event)
     local index = event.any.signaledIndex
-    Modes[lastMode]:Deactivate()
-    lastMode = index
-    talosProgress:SetCode("Randomizer_Mode", index)
+    if index ~= lastMode then
+      Modes[lastMode]:Deactivate()
+      lastMode = index
+      talosProgress:SetCode("Randomizer_Mode", index)
+    end
   end,
   OnEvery(Any(Events(Modes.Deactivated))),
   function(event)
     local index = event.any.signaledIndex
-    if lastMode == index then
-      Modes[1]:Activate()
-      talosProgress:SetCode("Randomizer_Mode", 1)      
+    if index == lastMode then
+      Modes[index]:Activate()
     end
   end,
 
