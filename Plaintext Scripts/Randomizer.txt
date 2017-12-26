@@ -70,9 +70,9 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   local seed = talosProgress:GetCodeValue("Randomizer_Seed")
   if seed == -1 then
     seed = mthRndL()
+    talosProgress:SetCode("Randomizer_Seed", seed)
   end
   print("Using Seed", seed)
-  talosProgress:SetCode("Randomizer_Seed", -1)
   
   -- Blum Blum Shub Randomizer
   -- Unlike the built-in, we can seed this

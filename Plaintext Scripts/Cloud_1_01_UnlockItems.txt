@@ -8,3 +8,7 @@ if talosProgress:IsVarSet("Randomizer_UnlockItems") then
   talosProgress:AssureUnlockedMechanic("MechanicTime")
   prjOnMechanicLockingChanged(worldInfo)
 end
+
+if talosProgress:IsVarSet("Randomizer_NoGates") then
+  Gate:AssureOpened()
+end
