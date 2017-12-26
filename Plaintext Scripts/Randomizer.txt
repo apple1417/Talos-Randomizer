@@ -1,4 +1,4 @@
-print("Loaded randomizer v0.6")
+print("Loaded randomizer v2")
 
 worldGlobals.allTetros = {
   ["**1"]=s1, ["**2"]=s2, ["**3"]=s3, ["**4"]=s4, ["**5"]=s5,
@@ -71,11 +71,18 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   if seed == -1 then
     seed = mthRndL()
   end
+  print("Using Seed", seed)
   talosProgress:SetCode("Randomizer_Seed", -1)
   
-  local function rand(min, max) -- TODO: replace with our own, seeded prng
-    return mthRndRangeL(min, max)
+  -- Blum Blum Shub Randomizer
+  -- Unlike the built-in, we can seed this
+  local rngState =  4 + seed^2 % 0x04dd42bb
+  local function rand(min, max)
+    rngState = rngState^2 % 0x04dd42bb
+    return mthFloorF((rngState * (max - min))/0x04dd42ba + min)
   end
+  
+  --local function rand(min, max) return mthRndRangeL(min, max) end
   
   local markers = {
   -- These can be accessed without any requirements (world A)
