@@ -1,0 +1,19 @@
+GatesOfEternityFlare:Deactivate()
+SmokeParticles:Start()
+Door:Lock()
+OpenedHeavenDoorGlow:Disappear()
+ClosedHeavenDoorGlow:Appear()
+HeavenGatesLight:Deactivate()
+
+local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
+if not talosProgress:IsVarSet("GatesOfEternityOpened") then
+  Wait(CustomEvent("GatesOfEternityOpened"))
+end
+
+GatesOfEternityFlare:Activate()
+SmokeParticles:Stop()
+Door:AssureOpened()
+OpenedHeavenDoorGlow:Appear()
+ClosedHeavenDoorGlow:Disappear()
+HeavenGatesLight:Activate()
+GatesOfEternityParticles:Start()

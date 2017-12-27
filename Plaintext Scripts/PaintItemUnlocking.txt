@@ -23,9 +23,6 @@ if randomSeed < 0 then
   randomSeed = -randomSeed
 end
 local multiplier = randomSeed % 8
-
-if multiplier > 4 then print(multiplier - 4) else print(multiplier) end
-
 if multiplier == 0 then
   multiplier = 1
 end
@@ -34,7 +31,4 @@ if randomIndex < 0 then
   randomIndex = -randomIndex
 end
 local randomPaintItemIndex = 1 + randomIndex % #paintItems
-
-print(randomPaintItemIndex)
-
 paintItems[randomPaintItemIndex]:Show()
