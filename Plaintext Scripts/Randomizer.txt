@@ -58,6 +58,7 @@ for sigilName, sigil in pairs(worldGlobals.allTetros) do
   assert(sigilName == sigil:GetName(), "Sigil " .. sigil:GetName() .. " is saved as variable " .. sigilName)
 end
 
+-- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 
 if not talosProgress:IsVarSet("Randomizer_Generated") then
@@ -69,7 +70,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
 
   local seed = talosProgress:GetCodeValue("Randomizer_Seed")
   if seed == -1 then
-    seed = mthRndL()
+    seed = mthAbsF(mthRndL())
     talosProgress:SetCode("Randomizer_Seed", seed)
   end
   print("Using Seed", seed)
@@ -87,6 +88,18 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   end
   
   --local function rand(min, max) return mthRndRangeL(min, max) end
+  
+  -- Only really works with tables indexed by numbers
+  local function joinTables(...)
+    if arg.n == 1 then return arg[1] end
+    local out = {}
+    for i=1,arg.n do
+      for j=1,#arg[i] do
+        table.insert(out, arg[i][j])
+      end
+    end
+    return out
+  end
   
   local markers = {
   -- These can be accessed without any requirements (world A)
@@ -238,118 +251,104 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     }
   }
 
-
+  local tetroIndexes = {
+    ["**1"] =  1, ["**2"] =  2, ["**3"] =  3, ["**4"] =  4, ["**5"] =  5,
+    ["**6"] =  6, ["**7"] =  7, ["**8"] =  8, ["**9"] =  9, ["**10"]= 10,
+    ["**11"]= 11, ["**12"]= 12, ["**13"]= 13, ["**14"]= 14, ["**15"]= 15,
+    ["**16"]= 16, ["**17"]= 17, ["**18"]= 18, ["**19"]= 19, ["**20"]= 20,
+    ["**21"]= 21, ["**22"]= 22, ["**23"]= 23, ["**24"]= 24, ["**25"]= 25,
+    ["**26"]= 26, ["**27"]= 27, ["**28"]= 28, ["**29"]= 29, ["**30"]= 30,
+    ["DI1"] = 31, ["DI2"] = 32, ["DJ1"] = 33, ["DJ2"] = 34, ["DJ3"] = 35,
+    ["DJ4"] = 36, ["DJ5"] = 37, ["DL1"] = 38, ["DL2"] = 39, ["DL3"] = 40,
+    ["DT1"] = 41, ["DT2"] = 42, ["DT3"] = 43, ["DT4"] = 44, ["DZ1"] = 45,
+    ["DZ2"] = 46, ["DZ3"] = 47, ["DZ4"] = 48, ["EL1"] = 49, ["EL2"] = 50,
+    ["EL3"] = 51, ["EL4"] = 52, ["EO1"] = 53, ["ES1"] = 54, ["ES2"] = 55,
+    ["ES3"] = 56, ["ES4"] = 57, ["MI1"] = 58, ["MJ1"] = 59, ["ML1"] = 60,
+    ["ML2"] = 61, ["ML3"] = 62, ["ML4"] = 63, ["MO1"] = 64, ["MS1"] = 65,
+    ["MS2"] = 66, ["MT1"] = 67, ["MT2"] = 68, ["MT3"] = 69, ["MT4"] = 70,
+    ["MT5"] = 71, ["MT6"] = 72, ["MT7"] = 73, ["MT8"] = 74, ["MT9"] = 75,
+    ["MT10"]= 76, ["MZ1"] = 77, ["MZ2"] = 78, ["MZ3"] = 79, ["MZ4"] = 80,
+    ["NI1"] = 81, ["NI2"] = 82, ["NI3"] = 83, ["NI4"] = 84, ["NI5"] = 85,
+    ["NI6"] = 86, ["NJ1"] = 87, ["NJ2"] = 88, ["NJ3"] = 89, ["NJ4"] = 90,
+    ["NL1"] = 91, ["NL2"] = 92, ["NL3"] = 93, ["NL4"] = 94, ["NL5"] = 95,
+    ["NL6"] = 96, ["NL7"] = 97, ["NL8"] = 98, ["NL9"] = 99, ["NL10"]=100,
+    ["NO1"] =101, ["NO2"] =102, ["NO3"] =103, ["NO4"] =104, ["NO5"] =105,
+    ["NO6"] =106, ["NO7"] =107, ["NS1"] =108, ["NS2"] =109, ["NS3"] =110,
+    ["NS4"] =111, ["NT1"] =112, ["NT2"] =113, ["NT3"] =114, ["NT4"] =115,
+    ["NT5"] =116, ["NT6"] =117, ["NT7"] =118, ["NT8"] =119, ["NT9"] =120,
+    ["NT10"]=121, ["NT11"]=122, ["NT12"]=123, ["NZ1"] =124, ["NZ2"] =125,
+    ["NZ3"] =126, ["NZ4"] =127, ["NZ5"] =128, ["NZ6"] =129,
+  }  
 
   -- Default, tries to prevent softlocks
   if mode == 1 then
     print("Using Mode 1")
+    
     local index = 0
     local currentMarkers = {}
-    
-    for _,v in pairs({31, 33, 38, 45}) do -- A Gate: DI1, DJ1, DL1, DZ1
-      index = rand(1, #markers.WorldA)
-      talosProgress:SetCode(markers.WorldA[index], v)
-      table.remove(markers.WorldA, index)
+        
+    local function placeSigils(sigils, markerTable)
+      for _,v in pairs(sigils) do
+        index = rand(1, #markerTable)
+        talosProgress:SetCode(markerTable[index], tetroIndexes[v])
+        table.remove(markerTable, index)
+        tetroIndexes[v] = nil
+      end
+      return markerTable
     end
+    
+    -- A Gate
+    markers.WorldA = placeSigils({"DI1", "DJ1", "DL1", "DZ1"}, markers.WorldA)
     
     local nextHub = rand(1, 8)
     -- B First
     if 1 <= nextHub and nextHub <= 4 then
-      -- B Gate: DI2, DL2, DT1, DT2, DZ2
-      for _,v in pairs({32, 39, 41, 42, 46}) do
-        index = rand(1, #markers.WorldA)
-        talosProgress:SetCode(markers.WorldA[index], v)
-        table.remove(markers.WorldA, index)
-      end
-      
-      -- Part of C Gate: DJ2, DJ3
-      for _,v in pairs({34, 35}) do
-        index = rand(1, #markers.WorldB)
-        talosProgress:SetCode(markers.WorldB[index], v)
-        table.remove(markers.WorldB, index)
-      end
-      
-      for i=1, #markers.WorldA do table.insert(currentMarkers, markers.WorldA[i]) end
-      for i=1, #markers.WorldB do table.insert(currentMarkers, markers.WorldB[i]) end
-      -- Rest of C Gate: DL3, DT3, DT4, DZ3
-      for _,v in pairs({40, 43, 44, 47}) do
-        index = rand(1, #currentMarkers)
-        talosProgress:SetCode(currentMarkers[index], v)
-        table.remove(currentMarkers, index)
-      end
-      
-      for i=1, #markers.WorldC do table.insert(currentMarkers, markers.WorldC[i]) end
+      -- B Gate
+      markers.WorldA = placeSigils({"DI2", "DL2", "DT1", "DT2", "DZ2"}, markers.WorldA)
+      -- Unique to C Gate
+      markers.WorldB = placeSigils({"DJ2", "DJ3"}, markers.WorldB)
+      -- Rest of C Gate
+      currentMarkers = joinTables(markers.WorldA, markers.WorldB)
+      currentMarkers = placeSigils({"DL3", "DT3", "DT4", "DZ3"}, currentMarkers)
+      currentMarkers = joinTables(currentMarkers, markers.WorldC)
       
     -- C First
     elseif 5 <= nextHub and nextHub <= 7 then
-      -- C Gate: DJ2, DJ3, DL3, DT3, DT4, DZ3
-      for _,v in pairs({34, 35, 40, 43, 44, 47}) do
-        index = rand(1, #markers.WorldA)
-        talosProgress:SetCode(markers.WorldA[index], v)
-        table.remove(markers.WorldA, index)
-      end
+      -- C Gate
+      markers.WorldA = placeSigils({"DJ2", "DJ3", "DL3", "DT3", "DT4", "DZ3"}, markers.WorldA)
+      -- Unique to B Gate
+      markers.WorldC = placeSigils({"DI2"}, markers.WorldC)
+      -- Rest of B Gate
+      currentMarkers = joinTables(markers.WorldA, markers.WorldC)
+      markers.WorldC = placeSigils({"DL2", "DT1", "DT2", "DZ2"}, currentMarkers)
+      currentMarkers = joinTables(currentMarkers, markers.WorldB)     
       
-       -- Part of B Gate: DI2
-      index = rand(1, #markers.WorldC)
-      talosProgress:SetCode(markers.WorldC[index], 32)
-      table.remove(markers.WorldC, index)
-      
-      for i=1, #markers.WorldA do table.insert(currentMarkers, markers.WorldA[i]) end
-      for i=1, #markers.WorldC do table.insert(currentMarkers, markers.WorldC[i]) end
-      -- Rest of B Gate: DL2, DT1, DT2, DZ2
-      for _,v in pairs({39, 41, 42, 46}) do
-        index = rand(1, #currentMarkers)
-        talosProgress:SetCode(currentMarkers[index], v)
-        table.remove(currentMarkers, index)
-      end
-      
-      for i=1, #markers.WorldB do table.insert(currentMarkers, markers.WorldB[i]) end      
-      
-    -- Both
+    -- Both Hubs
     elseif nextHub == 8 then
-      -- B + C Gates: DI2, DJ2, DJ3, DL2, DL3, DT1, DT2, DT3, DT4, DZ2, DZ3
-      for _,v in pairs({32, 34, 35, 39, 40, 41, 42, 43, 44, 46, 47}) do
-        index = rand(1, #markers.WorldA)
-        talosProgress:SetCode(markers.WorldB[index], v)
-        table.remove(markers.WorldA, index)
-      end
-      
-      for i=1, #markers.WorldA do table.insert(currentMarkers, markers.WorldA[i]) end
-      for i=1, #markers.WorldB do table.insert(currentMarkers, markers.WorldB[i]) end 
-      for i=1, #markers.WorldC do table.insert(currentMarkers, markers.WorldC[i]) end      
+      -- B + C Gates
+      markers.WorldA = placeSigils({"DI2", "DL2", "DT1", "DT2", "DZ2",
+                                    "DJ2", "DJ3", "DL3", "DT3", "DT4", "DZ3"}, markers.WorldA)
+      currentMarkers = joinTables(markers.WorldA, markers.WorldB, markers.WorldC)
     end
 
-    -- Connector + Fan: ML1, ML2, MS1, MT1, MT2, MT3, MT4, MZ1
-    for _,v in pairs({60, 61, 65, 67, 68, 69, 70, 77}) do
-      index = rand(1, #currentMarkers)
-      talosProgress:SetCode(currentMarkers[index], v)
-      table.remove(currentMarkers, index)
-    end
-    
-    for i=1, #markers.Tower do table.insert(currentMarkers, markers.Tower[i]) end
-    for i=1, #markers.Items do table.insert(currentMarkers, markers.Items[i]) end
-    
-    -- Stars: **1 through **30
+    -- Connector + Fan
+    currentMarkers = placeSigils({"ML1", "MT1", "MT2",
+                                  "ML2", "MS1", "MT3", "MT4", "MZ1"}, currentMarkers)
+    currentMarkers = joinTables(currentMarkers, markers.Tower, markers.Items)
+    -- Stars
     for v=1,30 do
       index = rand(1, #currentMarkers)
       talosProgress:SetCode(currentMarkers[index], v)
+      tetroIndexes["**"..tostring(v)] = nil
       table.remove(currentMarkers, index)
     end
-    
-    for i=1, #markers.StarWorlds do table.insert(currentMarkers, markers.StarWorlds[i]) end
+    currentMarkers = joinTables(currentMarkers, markers.StarWorlds)
     
     -- Everything Else
-    for _,v in pairs({36, 37, 48, 49, 50, 51, 52, 53, 54, 55,
-                      56, 57, 58, 59, 62, 63, 64, 66, 71, 72,
-                      73, 74, 75, 76}) do
+    for _,v in pairs(tetroIndexes) do
       index = rand(1, #currentMarkers)
       talosProgress:SetCode(currentMarkers[index], v)
       table.remove(currentMarkers, index)      
-    end
-    for v=78,129 do
-      index = rand(1, #currentMarkers)
-      talosProgress:SetCode(currentMarkers[index], v)
-      table.remove(currentMarkers, index)    
     end
     
 
