@@ -1,62 +1,32 @@
 print("Loaded randomizer v2")
 
 worldGlobals.allTetros = {
-  ["**1"]=s1, ["**2"]=s2, ["**3"]=s3, ["**4"]=s4, ["**5"]=s5,
-  ["**6"]=s6, ["**7"]=s7, ["**8"]=s8, ["**9"]=s9, ["**10"]=s10,
-  ["**11"]=s11, ["**12"]=s12, ["**13"]=s13, ["**14"]=s14, ["**15"]=s15,
-  ["**16"]=s16, ["**17"]=s17, ["**18"]=s18, ["**19"]=s19, ["**20"]=s20,
-  ["**21"]=s21, ["**22"]=s22, ["**23"]=s23, ["**24"]=s24, ["**25"]=s25,
-  ["**26"]=s26, ["**27"]=s27, ["**28"]=s28, ["**29"]=s29, ["**30"]=s30,
-  ["DI1"]=DI1, ["DI2"]=DI2,
-  ["DJ1"]=DJ1, ["DJ2"]=DJ2, ["DJ3"]=DJ3, ["DJ4"]=DJ4, ["DJ5"]=DJ5,
-  ["DL1"]=DL1, ["DL2"]=DL2, ["DL3"]=DL3,
-  ["DT1"]=DT1, ["DT2"]=DT2, ["DT3"]=DT3, ["DT4"]=DT4,
-  ["DZ1"]=DZ1, ["DZ2"]=DZ2, ["DZ3"]=DZ3, ["DZ4"]=DZ4,
-  ["EL1"]=EL1, ["EL2"]=EL2, ["EL3"]=EL3, ["EL4"]=EL4,
-  ["EO1"]=EO1,
-  ["ES1"]=ES1, ["ES2"]=ES2, ["ES3"]=ES3, ["ES4"]=ES4,
-  ["MI1"]=MI1,
-  ["MJ1"]=MJ1,
-  ["ML1"]=ML1, ["ML2"]=ML2, ["ML3"]=ML3, ["ML4"]=ML4,
-  ["MO1"]=MO1,
-  ["MS1"]=MS1, ["MS2"]=MS2,
-  ["MT1"]=MT1, ["MT2"]=MT2, ["MT3"]=MT3, ["MT4"]=MT4, ["MT5"]=MT5,
-  ["MT6"]=MT6, ["MT7"]=MT7, ["MT8"]=MT8, ["MT9"]=MT9, ["MT10"]=MT10,
-  ["MZ1"]=MZ1, ["MZ2"]=MZ2, ["MZ3"]=MZ3, ["MZ4"]=MZ4,
-  ["NI1"]=NI1, ["NI2"]=NI2, ["NI3"]=NI3, ["NI4"]=NI4, ["NI5"]=NI5,
-  ["NI6"]=NI6,
-  ["NJ1"]=NJ1, ["NJ2"]=NJ2, ["NJ3"]=NJ3, ["NJ4"]=NJ4,
-  ["NL1"]=NL1, ["NL2"]=NL2, ["NL3"]=NL3, ["NL4"]=NL4, ["NL5"]=NL5,
-  ["NL6"]=NL6, ["NL7"]=NL7, ["NL8"]=NL8, ["NL9"]=NL9, ["NL10"]=NL10,
-  ["NO1"]=NO1, ["NO2"]=NO2, ["NO3"]=NO3, ["NO4"]=NO4, ["NO5"]=NO5,
-  ["NO6"]=NO6, ["NO7"]=NO7,
-  ["NS1"]=NS1, ["NS2"]=NS2, ["NS3"]=NS3, ["NS4"]=NS4,
-  ["NT1"]=NT1, ["NT2"]=NT2, ["NT3"]=NT3, ["NT4"]=NT4, ["NT5"]=NT5,
-  ["NT6"]=NT6, ["NT7"]=NT7, ["NT8"]=NT8, ["NT9"]=NT9, ["NT10"]=NT10,
-  ["NT11"]=NT11, ["NT12"]=NT12,
-  ["NZ1"]=NZ1, ["NZ2"]=NZ2, ["NZ3"]=NZ3, ["NZ4"]=NZ4, ["NZ5"]=NZ5,
-  ["NZ6"]=NZ6
+   s1,  s2,  s3,  s4,  s5,  s6,  s7,  s8,  s9, s10,
+  s11, s12, s13, s14, s15, s16, s17, s18, s19, s20,
+  s21, s22, s23, s24, s25, s26, s27, s28, s29, s30,
+  DI1, DI2,
+  DJ1, DJ2, DJ3, DJ4, DJ5,
+  DL1, DL2, DL3,
+  DT1, DT2, DT3, DT4,
+  DZ1, DZ2, DZ3, DZ4,
+  EL1, EL2, EL3, EL4,
+  EO1,
+  ES1, ES2, ES3, ES4,
+  MI1,
+  MJ1,
+  ML1, ML2, ML3, ML4,
+  MO1,
+  MS1, MS2,
+  MT1, MT2, MT3, MT4, MT5, MT6, MT7, MT8, MT9, MT10,
+  MZ1, MZ2, MZ3, MZ4,
+  NI1, NI2, NI3, NI4, NI5, NI6,
+  NJ1, NJ2, NJ3, NJ4,
+  NL1, NL2, NL3, NL4, NL5, NL6, NL7, NL8, NL9, NL10,
+  NO1, NO2, NO3, NO4, NO5, NO6, NO7,
+  NS1, NS2, NS3, NS4,
+  NT1, NT2, NT3, NT4, NT5, NT6, NT7, NT8, NT9, NT10, NT11, NT12,
+  NZ1, NZ2, NZ3, NZ4, NZ5, NZ6
 }
-
-worldGlobals.tetros = {
-  "**1",  "**2",  "**3",  "**4",  "**5",  "**6",  "**7",  "**8",  "**9",  "**10",
-  "**11", "**12", "**13", "**14", "**15", "**16", "**17", "**18", "**19", "**20",
-  "**21", "**22", "**23", "**24", "**25", "**26", "**27", "**28", "**29", "**30", 
-  "DI1",  "DI2",  "DJ1",  "DJ2",  "DJ3",  "DJ4",  "DJ5",  "DL1",  "DL2",  "DL3",
-  "DT1",  "DT2",  "DT3",  "DT4",  "DZ1",  "DZ2",  "DZ3",  "DZ4",  "EL1",  "EL2",
-  "EL3",  "EL4",  "EO1",  "ES1",  "ES2",  "ES3",  "ES4",  "MI1",  "MJ1",  "ML1",
-  "ML2",  "ML3",  "ML4",  "MO1",  "MS1",  "MS2",  "MT1",  "MT2",  "MT3",  "MT4",
-  "MT5",  "MT6",  "MT7",  "MT8",  "MT9",  "MT10", "MZ1",  "MZ2",  "MZ3",  "MZ4",
-  "NI1",  "NI2",  "NI3",  "NI4",  "NI5",  "NI6",  "NJ1",  "NJ2",  "NJ3",  "NJ4",
-  "NL1",  "NL2",  "NL3",  "NL4",  "NL5",  "NL6",  "NL7",  "NL8",  "NL9",  "NL10",
-  "NO1",  "NO2",  "NO3",  "NO4",  "NO5",  "NO6",  "NO7",  "NS1",  "NS2",  "NS3",
-  "NS4",  "NT1",  "NT2",  "NT3",  "NT4",  "NT5",  "NT6",  "NT7",  "NT8",  "NT9",
-  "NT10", "NT11", "NT12", "NZ1",  "NZ2",  "NZ3",  "NZ4",  "NZ5",  "NZ6"
-}
-
-for sigilName, sigil in pairs(worldGlobals.allTetros) do
-  assert(sigilName == sigil:GetName(), "Sigil " .. sigil:GetName() .. " is saved as variable " .. sigilName)
-end
 
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
@@ -376,7 +346,7 @@ end
 -- Move sigils onto markers in this world
 for _, worldMarker in pairs(worldMarkers) do
   local sigilNum = talosProgress:GetCodeValue(worldMarker:GetName())
-  local sigil = worldGlobals.allTetros[worldGlobals.tetros[sigilNum]]
+  local sigil = worldGlobals.allTetros[sigilNum]
   assert(sigil ~= nil, "Marker " .. worldMarker:GetName() .. " does not have a sigil assigned to it!")
   sigil:SetPlacement(worldMarker:GetPlacement())
 end

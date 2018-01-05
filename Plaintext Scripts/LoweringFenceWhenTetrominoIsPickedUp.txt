@@ -2,7 +2,7 @@
 Wait(Delay(0.1))
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local sigilNum = talosProgress:GetCodeValue(thisScript:GetName())
-local sigil = worldGlobals.allTetros[worldGlobals.tetros[sigilNum]]
+local sigil = worldGlobals.allTetros[sigilNum]
 
 if sigil:IsPicked() then
   LoweringFence:AssureOpened()

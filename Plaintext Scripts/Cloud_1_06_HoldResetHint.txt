@@ -2,7 +2,7 @@
 Wait(Delay(0.1))
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local sigilNum = talosProgress:GetCodeValue("303_SPM_000_PM_010")
-local Bichromatic = worldGlobals.allTetros[worldGlobals.tetros[sigilNum]]
+local Bichromatic = worldGlobals.allTetros[sigilNum]
 
 
 local bDoorOpen=0 -- 0 door is closed, 1 door is open

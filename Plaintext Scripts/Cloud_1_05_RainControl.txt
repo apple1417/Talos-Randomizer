@@ -6,7 +6,7 @@ for k, v in pairs({"201_SPM_000_PM_013", "204_SPM_000_PM_004",
                    "202e_SPM_000_PM_004", "207_SPM_000_PM_005",
                    "244_SPM_000_PM_008"}) do
   local sigilNum = talosProgress:GetCodeValue(v)
-  Sigils[k] = worldGlobals.allTetros[worldGlobals.tetros[sigilNum]]
+  Sigils[k] = worldGlobals.allTetros[sigilNum]
 end
 
 BackgroundRotator:PlayAnimLoop("Default")

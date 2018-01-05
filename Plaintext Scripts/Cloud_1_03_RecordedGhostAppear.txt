@@ -2,9 +2,9 @@
 Wait(Delay(0.1))
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local sigilNum = talosProgress:GetCodeValue("015_SRT_SPM_000_PM_018")
-local ABTU = worldGlobals.allTetros[worldGlobals.tetros[sigilNum]]
+local ABTU = worldGlobals.allTetros[sigilNum]
 sigilNum = talosProgress:GetCodeValue("020_SPM_000_PM_014")
-local SwallowedKey = worldGlobals.allTetros[worldGlobals.tetros[sigilNum]]
+local SwallowedKey = worldGlobals.allTetros[sigilNum]
 
 RunHandled(WaitForever,
   On(Any(Event(ABTU.Picked), Event(SwallowedKey.Picked))), 
