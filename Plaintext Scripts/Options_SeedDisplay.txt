@@ -1,6 +1,7 @@
+-- talosProgress : CTalosProgress
+local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local seed = "No Seed"
 local seedPtr = seedDisplay:GetTextConfig()
-local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 
 RunHandled(
   function()
@@ -10,7 +11,11 @@ RunHandled(
   function(event)
     local index = event.any.signaledIndex
     Numbers[index]:Deactivate()
-    if #seed <= 32 then
+    --[[
+    0x0ccccccd is the smallest number that you can't add
+    a (decimal) digit to without going over 0x7fffffff
+    ]]--
+    if seed == "No Seed" or tonumber(seed) < 0x0ccccccd then
       if seed == "No Seed" then
         seed = ""
       end
@@ -19,8 +24,12 @@ RunHandled(
       else
         seed = seed .. tostring(index)
       end
-      seedDisplay:SetText(seedPtr, seed, true)
-      talosProgress:SetCode("Randomizer_Seed", tonumber(seed))
+      if tonumber(seed) < 0x7fffffff then
+        seedDisplay:SetText(seedPtr, seed, true)
+        talosProgress:SetCode("Randomizer_Seed", tonumber(seed))
+      else
+        seed = talosProgress:GetCodeValue("Randomizer_Seed")
+      end
     end
   end,
   OnEvery(Event(Backspace.Activated)),

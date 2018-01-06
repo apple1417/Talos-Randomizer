@@ -1,5 +1,6 @@
-local lastMode = 1
+-- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
+local lastMode = 1
 
 talosProgress:SetCode("Randomizer_Mode", 1)
 
