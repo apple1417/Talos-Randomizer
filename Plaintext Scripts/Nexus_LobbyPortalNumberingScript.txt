@@ -168,9 +168,11 @@ for index=1, #LobbyNumberAnimators do
   for _, v in pairs(markers[index]) do
     assert(talosProgress:IsVarSet(v), "Marker " .. v .. " does not have a sigil assigned to it!")  
     local sigilNum = talosProgress:GetCodeValue(v)
-    local sigil = worldGlobals.allTetros[sigilNum]
-    if not sigil:IsPicked() then
-      allSolved = false
+    if sigilNum > 30 then
+      local sigil = worldGlobals.allTetros[sigilNum]
+      if not sigil:IsPicked() then
+        allSolved = false
+      end
     end
   end
   if allSolved then
