@@ -224,12 +224,27 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     end
     currentMarkers = joinTables(currentMarkers, markers.StarWorlds)
     
+    for _,v in pairs({36, 37, 48, 49, 50, 51, 52, 53, 54, 55,
+                      56, 57, 58, 59, 62, 63, 64, 66, 71, 72,
+                      73, 74, 75, 76}) do
+      index = rand(1, #currentMarkers)
+      talosProgress:SetCode(currentMarkers[index], v)
+      table.remove(currentMarkers, index)      
+    end
+    for v=78,129 do
+      index = rand(1, #currentMarkers)
+      talosProgress:SetCode(currentMarkers[index], v)
+      table.remove(currentMarkers, index)    
+    end    
+    
+    
+    --[[
     -- Everything Else
     for _,v in pairs(tetroIndexes) do
       index = rand(1, #currentMarkers)
       talosProgress:SetCode(currentMarkers[index], v)
       table.remove(currentMarkers, index)      
-    end
+    end]]--
     
 
   -- Fully Random
