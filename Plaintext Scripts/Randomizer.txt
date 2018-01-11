@@ -265,6 +265,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   
   -- Experimental
   elseif mode == 3 then
+    local arranger = ""
+    local accessableArrangers = {"A Gate", "A Star", "Connector", "Cube"}
+    local accessableMarkers = {}
+        
     local locked = {
       ["A1 Gate"] = {"DJ1", "DJ2", "DZ1"},
       ["A Gate"] = {"DI1", "DJ3", "DL1", "DZ2"},
@@ -333,13 +337,40 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "Cloud_3_05_SRT_SPM_000_PM_035", "Cloud_3_05_SRT_SPM_002_PM_016", "Cloud_3_05_SRT_SPM_003_PM_012", "Cloud_3_06_SRT_SPM_000_PM_008",
         "Cloud_3_07_SRT_SPM_000_PM_021", "Islands_01_SRT_SPM_000_PM_003"
       },
-      [function() return not locked["A Star"] end] = {
+      [function()
+        if not locked["A Star"] and not locked["B Star"] and not locked["C Star"] then
+          return true
+        end        
+        return not locked["A Star"] and locked["A Gate"]
+      end] = {
         "115_SRT_TAM_004_PM_016", "117_SRT_SPM_000_PM_028", "119_SRT_SPM_000_PM_033"
       },
-      [function() return not locked["B Star"] end] = {
+      [function()
+        if not locked["A Star"] and not locked["B Star"] and not locked["C Star"] then
+          return true
+        end
+        if not locked["B Star"] then
+          if locked["A Star"] then
+            return false
+          end
+          return locked["C Gate"]
+        end
+        return false
+      end] = {
         "214_SRT_SPM_000_PM_025", "306_SRT_SPM_000_PM_016", "411_SRT_SPM_000_PM_014"
       },
-      [function() return not locked["C Star"] end] = {
+      [function()
+        if not locked["A Star"] and not locked["B Star"] and not locked["C Star"] then
+          return true
+        end
+        if not locked["C Star"] then
+          if locked["A Star"] then
+            return false
+          end
+          return locked["B Gate"]
+        end
+        return false
+      end] = {
         "235_SRT_SPM_000_PM_037", "320_SRT_SPM_000_PM_046", "504_SRT_SPM_000_PM_021"
       },
       [function() return not locked["F3"] end] = {
@@ -348,12 +379,8 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       [function() return (not locked["Connector"] and not locked["C Gate"] and not locked["F1"]) or not locked["F3"] end] = {
         "Secret_28_SRT_SPM_000_PM_004"
       }
-    }    
+    }
     
-    local accessableArrangers = {"A Gate", "A Star", "Connector", "Cube"}
-    local accessableMarkers = {}
-    local starWorlds = 0
-    local tower = false
     while #accessableArrangers > 0 do
       local index = rand(1, #accessableArrangers)
       local arranger = accessableArrangers[index]
@@ -373,17 +400,11 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       elseif arranger == "F1" then
         table.insert(accessableArrangers, "F2")
         table.insert(accessableArrangers, "F3")
-        tower = true
+        table.insert(accessableArrangers, "F6")
       elseif arranger == "F3" then
         table.insert(accessableArrangers, "F4")
       elseif arranger == "F4" then
         table.insert(accessableArrangers, "F5")
-      elseif arranger == "A Star" or arranger == "B Star" or arranger == "C Star" then
-        starWorlds = starWorlds + 1
-      end
-      if tower and starWorlds == 3 then
-        table.insert(accessableArrangers, "F6")
-        starWorlds = 4
       end
       
       for requirements, newMarkers in pairs(markers) do
