@@ -44,6 +44,15 @@ RunHandled(
     talosProgress:ClearVar("Randomizer_UnlockItems")
   end,    
   
+  OnEvery(Event(ShowAll.Activated)),
+  function()
+    talosProgress:SetVar("Randomizer_ShowAll")
+  end,
+  OnEvery(Event(ShowAll.Deactivated)),
+  function()
+    talosProgress:ClearVar("Randomizer_ShowAll")
+  end,
+    
   --[[
   OnEvery(Event(Option.Activated)),
   function()
