@@ -42,9 +42,9 @@ RunHandled(
         talosProgress:SetCode("Randomizer_Seed", -1)
       else
         seed = string.sub(seed, 1, -2) 
+        seedDisplay:SetText(seedPtr, seed, true)
+        talosProgress:SetCode("Randomizer_Seed", tonumber(seed))         
       end
-      seedDisplay:SetText(seedPtr, seed, true)
-      talosProgress:SetCode("Randomizer_Seed", tonumber(seed)) 
     end   
   end,  
   OnEvery(Event(Clear.Activated)),
