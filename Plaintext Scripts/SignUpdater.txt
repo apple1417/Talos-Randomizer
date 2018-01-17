@@ -64,15 +64,13 @@ end
 
 local function updateText()
   for index,sigil in pairs(allSigils) do
+    local colour = string.sub(sigil:GetName(), 1, 1)
+    local type = string.sub(sigil:GetName(), 2, 2)    
     -- sigil : CTetrominoItemInstance
     if sigil:IsPicked() then
-      local colour = string.sub(sigil:GetName(), 1, 1)
-      local type = string.sub(sigil:GetName(), 2, 2)
       text[colour][index]:SetText(textPtr[colour][index], icons[type], true)
       text["Default"][index]:SetText(textPtr["Default"][index], "✘", true)
     elseif showAll then
-      local colour = string.sub(sigil:GetName(), 1, 1)
-      local type = string.sub(sigil:GetName(), 2, 2)
       text[colour][index]:SetText(textPtr[colour][index], icons[type], true)
       text["Default"][index]:ClearText(textPtr["Default"][index])
     end    
