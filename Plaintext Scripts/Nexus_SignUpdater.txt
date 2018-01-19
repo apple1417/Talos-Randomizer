@@ -5,14 +5,14 @@ local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local showAll = talosProgress:IsVarSet("Randomizer_ShowAll")
 
 local icons = {
-  ["I"]="â–„â–„",
-  ["J"]="â–â–„",
-  ["L"]="â–„â–Œ",
-  ["O"]="â–ˆ",
-  ["S"]="â–œâ––",
-  ["T"]="â–—â–™",
-  ["Z"]="â–—â–›",
-  ["*"]="â˜…"
+  ["I"]="▄▄",
+  ["J"]="▐▄",
+  ["L"]="▄▌",
+  ["O"]="█",
+  ["S"]="▜▖",
+  ["T"]="▗▙",
+  ["Z"]="▗▛",
+  ["*"]="★"
 } 
 
 local allMarkers = {
@@ -434,7 +434,7 @@ for world, markers in pairs(allMarkers) do
     local type = string.sub(sigil:GetName(), 2, 2)
     if sigil:IsPicked() then
       text[colour][index]:SetText(textPtr[colour][index], icons[type], true)
-      text["Default"][index]:SetText(textPtr["Default"][index], "âœ˜", true)
+      text["Default"][index]:SetText(textPtr["Default"][index], "✘", true)
     elseif showAll then
       text[colour][index]:SetText(textPtr[colour][index], icons[type], true)
       text["Default"][index]:ClearText(textPtr["Default"][index])
