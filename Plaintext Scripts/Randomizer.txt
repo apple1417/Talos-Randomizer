@@ -257,12 +257,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "201_SPM_000_PM_013", "201_SRT_SPM_000_PM_004", "202b_SPM_000_PM_004", "202c_SPM_000_PM_003",
         "202e_SPM_000_PM_004", "202f_SPM_000_PM_003", "220_SPM_000_PM_032", "204_SPM_000_PM_004",
         "207_SPM_000_PM_005", "209_SPM_000_PM_012", "210_SPM_000_PM_015", "211_SPM_000_PM_008",
-        "212_SPM_000_PM_017", "218_SPM_000_PM_016", "244_SPM_000_PM_008", "244_SRT_SPM_000_PM_006",
-        "303_SPM_000_PM_010", "305_SPM_000_PM_004", "Cloud_1_02_SRT_SPM_000_PM_016", "Cloud_1_02_SRT_SPM_001_PM_003",
-        "Cloud_1_03_SRT_SPM_000_PM_005", "Cloud_1_04_SRT_SPM_000_PM_007", "Cloud_1_06_SRT_SPM_000_PM_007", "Cloud_1_07_SRT_SPM_000_PM_021"
+        "218_SPM_000_PM_016", "244_SPM_000_PM_008", "244_SRT_SPM_000_PM_006", "303_SPM_000_PM_010",
+        "305_SPM_000_PM_004", "Cloud_1_02_SRT_SPM_000_PM_016", "Cloud_1_02_SRT_SPM_001_PM_003", "Cloud_1_03_SRT_SPM_000_PM_005",
+        "Cloud_1_04_SRT_SPM_000_PM_007", "Cloud_1_06_SRT_SPM_000_PM_007", "Cloud_1_07_SRT_SPM_000_PM_021"
       },
       [function() return not locked["Connector"] end] = {
-        "202d_SPM_000_PM_002"
+        "202d_SPM_000_PM_002", "212_SPM_000_PM_017"
       },
       -- B
       [function() return not locked["B Gate"] end] = {
@@ -382,7 +382,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "235_SRT_SPM_000_PM_037",
       },
       -- Nexus
-      [function() return (not locked["F3"] and not locked["Cube"]) or not locked["F5"] end] = {
+      [function()
+        return (not locked["F2"] and not locked["F3"] and not locked["Cube"])
+               or not locked["F5"]
+      end]= {
         "LeapOfFaith_PM_010"
       },
       [function() return (not locked["Connector"] and not locked["C Gate"] and not locked["F1"]) or not locked["F3"] end] = {
