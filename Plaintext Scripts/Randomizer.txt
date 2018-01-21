@@ -168,7 +168,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   if mode == 1 then
     markers = {
       -- A
-      [function() return true end] = {
+      {function() return true end, {
         "001a_SPM_000_PM_008", "001_SPM_000_PM_005", "005_SPM_000_PM_009", "006_SPM_000_PM_003",
         "007_SPM_000_PM_006", "008_SPM_000_PM_016", "011_SPM_000_PM_009", "012_SPM_000_PM_004",
         "013_SPM_000_PM_006", "015_SRT_SPM_000_PM_017", "015_SRT_SPM_000_PM_018", "017_SPM_000_PM_023",
@@ -179,12 +179,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "212_SPM_000_PM_017", "218_SPM_000_PM_016", "244_SPM_000_PM_008", "244_SRT_SPM_000_PM_006",
         "303_SPM_000_PM_010", "305_SPM_000_PM_004", "Cloud_1_02_SRT_SPM_000_PM_016", "Cloud_1_02_SRT_SPM_001_PM_003",
         "Cloud_1_03_SRT_SPM_000_PM_005", "Cloud_1_04_SRT_SPM_000_PM_007", "Cloud_1_06_SRT_SPM_000_PM_007", "Cloud_1_07_SRT_SPM_000_PM_021"
-      },
-      [function() return not locked["Connector"] end] = {
+      }},
+      {function() return not locked["Connector"] end, {
         "202d_SPM_000_PM_002"
-      },
+      }},
       -- B
-      [function() return not locked["B Gate"] end] = {
+      {function() return not locked["B Gate"] end, {
         "113_SPM_000_PM_036", "118_SPM_000_PM_062", "120_SPM_000_PM_029", "203_SPM_000_PM_011",
         "205_SPM_000_PM_003", "206_SPM_000_PM_021", "208_SPM_000_PM_014", "213_SPM_000_PM_010",
         "215_SPM_000_PM_013", "221_SPM_002_PM_001", "222_SPM_004_PM_001", "223_SPM_000_PM_009",
@@ -194,18 +194,18 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "319_SPM_000_PM_008", "321_SPM_000_PM_005", "322_SPM_000_PM_008", "401_SPM_004_PM_008",
         "402_SPM_000_PM_020", "407_SPM_000_PM_018", "409_SPM_000_PM_024", "414_SPM_000_PM_007",
         "Cloud_2_01_SRT_SPM_000_PM_004", "Cloud_2_02_SRT_SPM_000_PM_039", "Cloud_2_03_SRT_SPM_002_PM_013", "Cloud_2_04_SRT_SPM_000_PM_017"
-      },
-      [function() return not locked["B Gate"] and not locked["Connector"] end] = {
+      }},
+      {function() return not locked["B Gate"] and not locked["Connector"] end, {
         "Cloud_2_04_SRT_SPM_002_PM_002"
-      },
-      [function() return not locked["B Gate"] and not locked["Connector"] and not locked["Fan"] end] = {
+      }},
+      {function() return not locked["B Gate"] and not locked["Connector"] and not locked["Fan"] end, {
         "Cloud_2_05_SRT_TAM_003_PM_003"
-      },
-      [function() return not locked["B Gate"] and not locked["Fan"] end] = {
+      }},
+      {function() return not locked["B Gate"] and not locked["Fan"] end, {
         "Cloud_2_07_SRT_TAM_001_PM_004"
-      },
+      }},
       -- C
-      [function() return not locked["C Gate"] end] = {
+      {function() return not locked["C Gate"] end, {
         "112_SPM_000_PM_034", "114_SPM_000_PM_032", "216_SPM_000_PM_015", "217_SPM_000_PM_040",
         "219_SPM_000_PM_008", "225_SPM_000_PM_044", "226_SPM_000_PM_039", "227_SPM_002_PM_033",
         "229_SPM_000_PM_070", "230_SPM_000_PM_019", "232_SPM_000_PM_012", "233_SPM_000_PM_015",
@@ -215,41 +215,47 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "408_SPM_000_PM_033", "408_SRT_SPM_000_PM_034", "416_SPM_000_PM_026", "417_SPM_000_PM_029",
         "418_SPM_000_PM_014", "Cloud_3_01_SRT_SPM_000_PM_017", "Cloud_3_02_SRT_TAM_001", "Cloud_3_03_SRT_SPM_000_PM_069",
         "Cloud_3_05_SRT_SPM_003_PM_012", "Cloud_3_06_SRT_SPM_000_PM_008", "Cloud_3_07_SRT_SPM_000_PM_021", "Islands_01_SRT_SPM_000_PM_003"
-      },
-      [function() return not locked["C Gate"] and not locked["Cube"] end] = {
+      }},
+      {function() return not locked["C Gate"] and not locked["Cube"] end, {
         "Cloud_3_05_SRT_SPM_002_PM_016", "Cloud_3_05_SRT_SPM_000_PM_035"
-      },
+      }},
       -- A Star
-      [function()
+      {function()
         if not locked["A Star"] and not locked["B Star"] and not locked["C Star"] then
           return true
         end        
         return not locked["A Star"] and locked["B Gate"] and locked["C Gate"]
-      end] = {
+      end, {
         "115_SRT_TAM_004_PM_016", "117_SRT_SPM_000_PM_028", "119_SRT_SPM_000_PM_033"
-      },
+      }},
       -- B Star
-      [function() return not locked["A Star"] and not locked["B Star"] and not locked["C Star"] end] = {
+      {function() return not locked["A Star"] and not locked["B Star"] and not locked["C Star"] end, {
         "214_SRT_SPM_000_PM_025", "306_SRT_SPM_000_PM_016", "411_SRT_SPM_000_PM_014"
-      },
+      }},
       -- C Star
-      [function() return not locked["A Star"] and not locked["B Star"] and not locked["C Star"] end] = {
-        "235_SRT_SPM_000_PM_037", "320_SRT_SPM_000_PM_046", "504_SRT_SPM_000_PM_021"
-      },
+      {function() return not locked["A Star"] and not locked["B Star"] and not locked["C Star"] end, {
+        "235_SRT_SPM_000_PM_037", "504_SRT_SPM_000_PM_021"
+      }},
+      {function()
+        return not locked["A Star"] and not locked["B Star"] and not locked["C Star"]
+               and not locked["Connector"]
+      end,{
+        "320_SRT_SPM_000_PM_046"
+      }},      
       -- Nexus
-      [function() return not locked["F3"] end] = {
+      {function() return not locked["F3"] end, {
         "LeapOfFaith_PM_010"
-      },
-      [function() return (not locked["Connector"] and not locked["C Gate"] and not locked["F1"]) or not locked["F3"] end] = {
+      }},
+      {function() return (not locked["Connector"] and not locked["C Gate"] and not locked["F1"]) or not locked["F3"] end, {
         "Secret_28_SRT_SPM_000_PM_004"
-      }
+      }}
     }
     
   -- 60FPS
   elseif mode == 2 then
     markers = {
       -- A
-      [function() return true end] = {
+      {function() return true end, {
         "001a_SPM_000_PM_008", "001_SPM_000_PM_005", "005_SPM_000_PM_009", "006_SPM_000_PM_003",
         "007_SPM_000_PM_006", "008_SPM_000_PM_016", "011_SPM_000_PM_009", "012_SPM_000_PM_004",
         "013_SPM_000_PM_006", "015_SRT_SPM_000_PM_017", "015_SRT_SPM_000_PM_018", "017_SPM_000_PM_023",
@@ -260,54 +266,54 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "218_SPM_000_PM_016", "244_SPM_000_PM_008", "244_SRT_SPM_000_PM_006", "303_SPM_000_PM_010",
         "305_SPM_000_PM_004", "Cloud_1_02_SRT_SPM_000_PM_016", "Cloud_1_02_SRT_SPM_001_PM_003", "Cloud_1_03_SRT_SPM_000_PM_005",
         "Cloud_1_04_SRT_SPM_000_PM_007", "Cloud_1_06_SRT_SPM_000_PM_007", "Cloud_1_07_SRT_SPM_000_PM_021"
-      },
-      [function() return not locked["Connector"] end] = {
+      }},
+      {function() return not locked["Connector"] end, {
         "202d_SPM_000_PM_002", "212_SPM_000_PM_017"
-      },
+      }},
       -- B
-      [function() return not locked["B Gate"] end] = {
+      {function() return not locked["B Gate"] end, {
         "113_SPM_000_PM_036", "118_SPM_000_PM_062", "120_SPM_000_PM_029", "213_SPM_000_PM_010",
         "223_SPM_000_PM_009", "224_SRT_SPM_000_PM_071", "224_SRT_SPM_000_PM_091", "311_SPM_000_PM_041",
         "315_TAM_002_PM_001", "319_SPM_000_PM_008", "Cloud_2_02_SRT_SPM_000_PM_039"
-      },
-      [function() return not locked["B Gate"] and not locked["Connector"] end] = {
+      }},
+      {function() return not locked["B Gate"] and not locked["Connector"] end, {
         "206_SPM_000_PM_021", "208_SPM_000_PM_014", "215_SPM_000_PM_013", "301_SPM_000_PM_010",
         "414_SPM_000_PM_007"
-      },
-      [function() return not locked["B Gate"] and not locked["Connector"] and not locked["Cube"] end] = {
+      }},
+      {function() return not locked["B Gate"] and not locked["Connector"] and not locked["Cube"] end, {
         "310_SPM_000_PM_024", "Cloud_2_04_SRT_SPM_000_PM_017"
-      },
-      [function() return not locked["B Gate"] and not locked["Connector"] and not locked["Fan"] end] = {
+      }},
+      {function() return not locked["B Gate"] and not locked["Connector"] and not locked["Fan"] end, {
         "Cloud_2_05_SRT_TAM_003_PM_003"
-      },
-      [function()
+      }},
+      {function()
         return not locked["B Gate"]
                and ((not locked["Connector"] and not locked["Cube"])
                     or not locked["Recorder"])
-      end] = {
+      end, {
         "321_SPM_000_PM_005", "407_SPM_000_PM_018"
-      },
-      [function() return not locked["B Gate"] and (not locked["Connector"] or not locked["Cube"]) end] = {
+      }},
+      {function() return not locked["B Gate"] and (not locked["Connector"] or not locked["Cube"]) end, {
         "203_SPM_000_PM_011", "205_SPM_000_PM_003", "302_SPM_000_PM_008", "Cloud_2_01_SRT_SPM_000_PM_004"
-      },
-      [function() return not locked["B Gate"] and (locked["Connector"] or not locked["Cube"]) end] = {
+      }},
+      {function() return not locked["B Gate"] and (locked["Connector"] or not locked["Cube"]) end, {
         "401_SPM_004_PM_008", "409_SPM_000_PM_024"
-      },
-      [function() return not locked["B Gate"] and not locked["Connector"] and (not locked["Cube"] or not locked["Fan"]) end] = {
+      }},
+      {function() return not locked["B Gate"] and not locked["Connector"] and (not locked["Cube"] or not locked["Fan"]) end, {
         "Cloud_2_04_SRT_SPM_002_PM_002"
-      },
-      [function() return not locked["B Gate"] and not locked["Cube"] end] = {
+      }},
+      {function() return not locked["B Gate"] and not locked["Cube"] end, {
         "221_SPM_002_PM_001", "222_SPM_004_PM_001", "238_SPM_000_PM_018", "300a_SPM_000_PM_007",
         "314_SPM_000_PM_012", "316_SPM_000_PM_014", "402_SPM_000_PM_020", "Cloud_2_03_SRT_SPM_002_PM_013"
-      },
-      [function() return not locked["B Gate"] and (not locked["Cube"] or not locked["Recorder"]) end] = {
+      }},
+      {function() return not locked["B Gate"] and (not locked["Cube"] or not locked["Recorder"]) end, {
         "239_SPM_000_PM_018", "322_SPM_000_PM_008"
-      },
-      [function() return not locked["B Gate"] and not locked["Fan"] end] = {
+      }},
+      {function() return not locked["B Gate"] and not locked["Fan"] end, {
         "Cloud_2_07_SRT_TAM_001_PM_004"
-      },
+      }},
       -- C
-      [function() return not locked["C Gate"] end] = {
+      {function() return not locked["C Gate"] end, {
         "112_SPM_000_PM_034", "114_SPM_000_PM_032", "216_SPM_000_PM_015", "217_SPM_000_PM_040",
         "219_SPM_000_PM_008", "226_SPM_000_PM_039",
         "229_SPM_000_PM_070", "230_SPM_000_PM_019", "232_SPM_000_PM_012",
@@ -317,80 +323,80 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "408_SPM_000_PM_033", "416_SPM_000_PM_026", "417_SPM_000_PM_029",
         "418_SPM_000_PM_014", "Cloud_3_01_SRT_SPM_000_PM_017", "Cloud_3_02_SRT_TAM_001", "Cloud_3_03_SRT_SPM_000_PM_069",
         "Cloud_3_05_SRT_SPM_003_PM_012", "Cloud_3_06_SRT_SPM_000_PM_008", "Islands_01_SRT_SPM_000_PM_003"
-      },
-      [function() return not locked["C Gate"] and not locked["Connector"] end] = {
+      }},
+      {function() return not locked["C Gate"] and not locked["Connector"] end, {
         "313_SPM_000_PM_016"
-      },
-      [function()
+      }},
+      {function()
         return not locked["C Gate"] and not locked["Connector"]
                and (not locked["Cube"] or not locked["Recorder"] or not locked["Platform"])
-      end] = {
+      end, {
         "405_SRT_SPM_000_PM_050"
-      },
-      [function() return not locked["C Gate"] and not locked["Cube"] end] = {
+      }},
+      {function() return not locked["C Gate"] and not locked["Cube"] end, {
         "225_SPM_000_PM_044", "227_SPM_002_PM_033", "233_SPM_000_PM_015", "308_SPM_000_PM_017",
         "309_SPM_000_PM_018", "404_SPM_000_PM_022", "Cloud_3_05_SRT_SPM_002_PM_016", "Cloud_3_05_SRT_SPM_000_PM_035",
         "Cloud_3_07_SRT_SPM_000_PM_021" 
-      },
-      [function() return not locked["C Gate"] and (not locked["Cube"] or not locked["Fan"]) end] = {
+      }},
+      {function() return not locked["C Gate"] and (not locked["Cube"] or not locked["Fan"]) end, {
         "408_SRT_SPM_000_PM_034"
-      },
-      [function()
+      }},
+      {function()
         return not locked["C Gate"]
                and ((not locked["Connector"] and not locked["Cube"])
                    or (not locked["Recorder"] and not locked["Platform"]))
-      end] = {
+      end, {
         "405_SRT_SPM_000_PM_047"
-      },
+      }},
       -- A Star
-      [function()
+      {function()
         if not locked["A Star"] and not locked["B Star"] and not locked["C Star"] then
           return true
         end        
         return not locked["A Star"] and locked["B Gate"] and locked["C Gate"]
-      end] = {
+      end, {
         "115_SRT_TAM_004_PM_016", "117_SRT_SPM_000_PM_028", "119_SRT_SPM_000_PM_033"
-      },
+      }},
       -- B Star
-      [function() return not locked["A Star"] and not locked["B Star"] and not locked["C Star"] end] = {
+      {function() return not locked["A Star"] and not locked["B Star"] and not locked["C Star"] end, {
         "214_SRT_SPM_000_PM_025", "411_SRT_SPM_000_PM_014"
-      },
-      [function()
+      }},
+      {function()
         return not locked["A Star"] and not locked["B Star"] and not locked["C Star"]
                and not locked["Connector"] and not locked["Cube"]
-      end] = {
+      end, {
         "306_SRT_SPM_000_PM_016"
-      },
+      }},
       -- C Star
-      [function()
+      {function()
         return not locked["A Star"] and not locked["B Star"] and not locked["C Star"]
                and not locked["Connector"]
-      end] = {
+      end, {
         "320_SRT_SPM_000_PM_046"
-      },
-      [function()
+      }},
+      {function()
         return not locked["A Star"] and not locked["B Star"] and not locked["C Star"]
                and not locked["Connector"] and not locked["Cube"]
-      end] = {
+      end, {
         "504_SRT_SPM_000_PM_021"
-      },
-      [function()
+      }},
+      {function()
         return (not locked["A Star"] and not locked["B Star"] and not locked["C Star"])
                 and ((not locked["Connector"] and not locked["Cube"]) 
                      or (not locked["Cube"] and not locked["Fan"]))
-      end] = {
+      end, {
         "235_SRT_SPM_000_PM_037",
-      },
+      }},
       -- Nexus
-      [function()
+      {function()
         return (not locked["F2"] and not locked["F3"] and not locked["Cube"])
                or not locked["F5"]
-      end]= {
+      end, {
         "LeapOfFaith_PM_010"
-      },
-      [function() return (not locked["Connector"] and not locked["C Gate"] and not locked["F1"]) or not locked["F3"] end] = {
+      }},
+      {function() return (not locked["Connector"] and not locked["C Gate"] and not locked["F1"]) or not locked["F3"] end, {
         "Secret_28_SRT_SPM_000_PM_004"
-      }
+      }}
     }
   end
   
@@ -429,11 +435,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         table.insert(accessableArrangers, "F5")
       end
       
-      for requirements, newMarkers in pairs(markers) do
+      for index, markerList in pairs(markers) do
+        local requirements = markerList[1]
+        local newMarkers = markerList[2]
         if requirements() then
           accessableMarkers = joinTables(accessableMarkers, newMarkers)
-          accessableMarkers[requirements] = nil
-          markers[requirements] = nil
+          markers[index] = nil
         end
       end
       
