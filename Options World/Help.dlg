@@ -1,0 +1,64 @@
+terminal when (Booting) {
+  text: [[TTRS:notrans=What would you like to know more about?
+]]
+  goto: PickOption
+}
+
+terminal when (PickOption) {
+  text: [[TTRS:notrans=
+]]
+  options: {
+    "TTRS:notrans=Seed" next: Seed
+    "TTRS:notrans=Randomization Mode" next: Mode
+    "TTRS:notrans=Open All Worlds" next: AllWorlds
+    "TTRS:notrans=Unlock All Items" next: AllItems
+    "TTRS:notrans=Show Full Signs" next: AllSigns
+    "TTRS:notrans=exit" next: Finished
+  }
+}
+
+
+terminal when (Seed) {
+  text: "TTRS:notrans=The seed is used to generate a random sequence of numbers, which in turn is used to randomize the sigils. The same seed will always generate the same sigil order, as long as you use the same Randomization Mode."
+  goto: Loop
+}
+
+terminal when (Mode) {
+  text:[[TTRS:notrans=The Randomization Mode controls how exactly sigils are distributed.
+
+Default:
+Randomizes everything, though it has softlock prevention ensuring you can always collect all sigils. It will not require an item to collect the sigils to unlock that item, and it won't place sigils required to get into an area in that area.
+
+60FPS Friendly:
+A more restrictive mode ensuring you can collect everything with your framerate locked to 60. Along with the stricter item requirements it also makes sure you can access all areas and collect all sigils like in Default.
+
+Fully Random:
+As the name suggests, fully random, no safeguards or softlock prevention. Best used along with the 'Open All Worlds' option.]]
+  goto: Loop
+}
+
+terminal when (AllWorlds) {
+  text: "TTRS:notrans=Opens up all hubs and star worlds, so you don't need to collect sigils to access them. The tower is not opened up, beating the game would be too easy otherwise."
+  goto: Loop
+}
+
+terminal when (AllItems) {
+  text: "TTRS:notrans=As the name suggests, it unlocks all items from the beginning of the game so that you don't need to collect sigils to unlock them."
+  goto: Loop
+}
+
+terminal when (AllSigns) {
+  text: "TTRS:notrans=Normally world overview signs show question marks for uncollected sigils. Turing this option on replaces them with the actual sigil."
+  goto: Loop
+}
+
+terminal when (Loop) {
+  text: [[TTRS:notrans=
+]]
+  goto: PickOption
+}
+
+terminal when (Finished) {
+  text: "TTRS:notrans= "
+  exit
+}
