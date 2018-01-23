@@ -13,6 +13,7 @@ terminal when (PickOption) {
     "TTRS:notrans=Open All Worlds" next: AllWorlds
     "TTRS:notrans=Unlock All Items" next: AllItems
     "TTRS:notrans=Show Full Signs" next: AllSigns
+    "TTRS:notrans=Debug Mode" next: Debug
     "TTRS:notrans=exit" next: Finished
   }
 }
@@ -49,6 +50,11 @@ terminal when (AllItems) {
 
 terminal when (AllSigns) {
   text: "TTRS:notrans=Normally world overview signs show question marks for uncollected sigils. Turing this option on replaces them with the actual sigil."
+  goto: Loop
+}
+
+terminal when (Debug) {
+  text: "TTRS:notrans=Outputs information about the sigil randomization to console. Used to help find bugs, has no gameplay impact."
   goto: Loop
 }
 
