@@ -1,10 +1,28 @@
 local function print(...)
   local out = ""
   for i=1,arg.n do
-    out = out .. arg[i] .. " "
+    out = out .. tostring(arg[i]) .. " "
   end
   out = out .. "\n"
   conInfoF(out)
+end
+
+local function printWarning(...)
+  local out = ""
+  for i=1,arg.n do
+    out = out .. tostring(arg[i]) .. " "
+  end
+  out = out .. "\n"
+  conWarningF(out)
+end
+
+local function printError(...)
+  local out = ""
+  for i=1,arg.n do
+    out = out .. tostring(arg[i]) .. " "
+  end
+  out = out .. "\n"
+  conErrorF(out)
 end
 
 print("Loaded Randomizer v5")
@@ -41,6 +59,7 @@ worldGlobals.worldMarkers = worldMarkers
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local DEBUG = talosProgress:IsVarSet("Randomizer_Debug")
+DEBUG = true
 
 if not talosProgress:IsVarSet("Randomizer_Generated") then
   print("Generating Sigil Configuration")
@@ -155,8 +174,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   local locked = {
     ["A1 Gate"] = {"DJ1", "DJ2", "DZ1"},
     ["A Gate"] = {"DI1", "DJ3", "DL1", "DZ2"},
+    --[[
     ["B Gate"] = {"DL2", "DT1", "DT2", "DZ3"}, -- and DI2
     ["C Gate"] = {"DL3", "DT3", "DT4", "DZ4"}, -- and DJ4, DJ5
+    ]]--
+    ["B Gate"] = {"DI2", "DL2", "DT1", "DT2", "DZ3"},
+    ["C Gate"] = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"},
     ["A Star"] = {"**1", "**2", "**3", "**4", "**5", "**6", "**7", "**8", "**9", "**10"},
     ["B Star"] = {"**11", "**12", "**13", "**14", "**15", "**16", "**17", "**18", "**19", "**20"},
     ["C Star"] = {"**21", "**22", "**23", "**24", "**25", "**26", "**27", "**28", "**29", "**30"},
@@ -324,14 +347,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       -- C
       {function() return not locked["C Gate"] end, {
         "112_SPM_000_PM_034", "114_SPM_000_PM_032", "216_SPM_000_PM_015", "217_SPM_000_PM_040",
-        "219_SPM_000_PM_008", "226_SPM_000_PM_039",
-        "229_SPM_000_PM_070", "230_SPM_000_PM_019", "232_SPM_000_PM_012",
-        "234_SPM_000_PM_015", "312_SPM_000_PM_032",
-        "317_SPM_000_PM_024", "318_SPM_000_PM_026", "328_SPM_000_PM_016",
-        "403_SPM_000_PM_015",
-        "408_SPM_000_PM_033", "416_SPM_000_PM_026", "417_SPM_000_PM_029",
-        "418_SPM_000_PM_014", "Cloud_3_01_SRT_SPM_000_PM_017", "Cloud_3_02_SRT_TAM_001", "Cloud_3_03_SRT_SPM_000_PM_069",
-        "Cloud_3_05_SRT_SPM_003_PM_012", "Cloud_3_06_SRT_SPM_000_PM_008", "Islands_01_SRT_SPM_000_PM_003"
+        "219_SPM_000_PM_008", "226_SPM_000_PM_039", "229_SPM_000_PM_070", "230_SPM_000_PM_019",
+        "232_SPM_000_PM_012", "234_SPM_000_PM_015", "312_SPM_000_PM_032", "317_SPM_000_PM_024",
+        "318_SPM_000_PM_026", "328_SPM_000_PM_016", "403_SPM_000_PM_015", "408_SPM_000_PM_033",
+        "416_SPM_000_PM_026", "417_SPM_000_PM_029", "418_SPM_000_PM_014", "Cloud_3_01_SRT_SPM_000_PM_017",
+        "Cloud_3_02_SRT_TAM_001", "Cloud_3_03_SRT_SPM_000_PM_069", "Cloud_3_05_SRT_SPM_003_PM_012", "Cloud_3_06_SRT_SPM_000_PM_008",
+        "Islands_01_SRT_SPM_000_PM_003"
       }},
       {function() return not locked["C Gate"] and not locked["Connector"] end, {
         "313_SPM_000_PM_016"
@@ -417,7 +438,8 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     local arranger = ""
     local accessableArrangers = {"A Gate", "A Star", "Connector", "Cube"}
     local accessableMarkers = {}
-    local checkGates = true
+    --local checkGates = true
+    --local allNewMarkers = false
     
     while #accessableArrangers > 0 do
       local index = rand(1, #accessableArrangers)
@@ -461,10 +483,16 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
           end
         end
       end
+      --[[if allNewMarkers then
+        if DEBUG then
+          print("Adding pre-prepared markers from last loop")
+        end
+        accessableMarkers = joinTables(accessableMarkers, allNewMarkers)
+        allNewMarkers = false
+      end]]--
 
       local sigils = locked[arranger]
       locked[arranger] = nil
-      
       --[[
       Make sure you can't go to the wrong hub first and softlock.
       Sometimes does this by unlocking both, but usually by hiding
@@ -475,22 +503,19 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
        in the exact order the randomizer wants you to, you probably can't
        get an advantage knowing this.
       ]]--
+      --[[  TODO: FIX HORRIBLE BROKEN MESS
       if checkGates then
         if arranger == "B Gate" or arranger == "C Gate" then
           -- Sometimes we want both hubs to be accessable when you leave A
-          if rand(1, 4) == 1 then
+          --if rand(1, 4) == 1 then
+          if true then
             if DEBUG then
               print("Both Hubs open after A")
             end
-            -- If so we're going to manually unlock the second one
-            local toPlace = {}
-            if arranger == "B Gate" then
-              toPlace = {"DI2", "DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
-            elseif arranger == "C Gate" then
-              toPlace = {"DI2", "DJ4", "DJ5", "DL2", "DT1", "DT2", "DZ3"}
-            end
-            
-            -- Both gates area always unlocked at the same time, this is safe
+            -- If so we're going to manually add the sigils for the second one
+            sigils = {"DI2", "DL2", "DT1", "DT2", "DZ3",
+                      "DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
+            -- Both gates are always unlocked at the same time, this is safe
             for i,v in pairs(accessableArrangers) do
               if v == "B Gate" or v == "C Gate" then
                 table.remove(accessableArrangers, i)
@@ -498,47 +523,55 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
             end
             locked["B Gate"] = nil
             locked["C Gate"] = nil
-            
-            for _,v in pairs(toPlace) do
-              local index = rand(1, #accessableMarkers)
-              talosProgress:SetCode(accessableMarkers[index], tetroIndexes[v])
-              table.remove(accessableMarkers, index)
-              tetroIndexes[v] = nil
-            end
           else
             if DEBUG then
               print(string.sub(arranger, 1, 1) .. " open after A")
             end            
           
-            local allNewMarkers = {}
+            allNewMarkers = {}
             for index, markerList in pairs(markers) do
               local requirements = markerList[1]
               local newMarkers = markerList[2]
               if requirements() then
                 allNewMarkers = joinTables(allNewMarkers, newMarkers)
+                markers[index] = nil
+                if DEBUG then
+                  print("Prepared " .. #newMarkers .. " new markers for next loop")
+                end
               end
             end        
   
             local uniqueSigils = {}
             if arranger == "B Gate" then
               uniqueSigils = {"DJ4", "DJ5"}
+              sigils = {"DI2", "DL2", "DT1", "DT2", "DZ3"}
             elseif arranger == "C Gate" then
               uniqueSigils = {"DI2"}
+              sigils = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
             end
-            for _, currentSigil in pairs(uniqueSigils) do
-              local index = rand(1, #allNewMarkers)   
-              talosProgress:SetCode(allNewMarkers[index], tetroIndexes[currentSigil])
+            for _, v in pairs(uniqueSigils) do
+              local index = rand(1, #allNewMarkers)
+              if DEBUG then
+                print(string.format("Placed %s at marker %s", v, allNewMarkers[index]))
+              end              
+              if talosProgress:IsVarSet(allNewMarkers[index]) then
+                printError(allNewMarkers[index] .. " is already being used")
+              end              
+              talosProgress:SetCode(allNewMarkers[index], tetroIndexes[v])
               table.remove(allNewMarkers, index)
-              tetroIndexes[currentSigil] = nil
+              tetroIndexes[v] = nil
             end
           end
           checkGates = false
         end
-      end
+      end]]--
       
       -- Place the sigils for the select arranger in accessable areas
       for _,v in pairs(sigils) do
         local index = rand(1, #accessableMarkers)
+        if talosProgress:IsVarSet(accessableMarkers[index]) then
+          printError(accessableMarkers[index] .. " is already being used")
+        end        
         if DEBUG then
           print(string.format("Placed %s at marker %s", v, accessableMarkers[index]))
         end
@@ -548,12 +581,19 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       end      
     end
     
+    
+    if DEBUG then
+      print("Selected A1 Gate Arranger")
+    end    
     local sigils = locked["A1 Gate"]
     for _,v in pairs(sigils) do
-      local index = rand(1, #accessableMarkers)
+      local index = rand(1, #accessableMarkers)   
       if DEBUG then
         print(string.format("Placed %s at marker %s", v, accessableMarkers[index]))
-      end      
+      end
+      if talosProgress:IsVarSet(accessableMarkers[index]) then
+        printError(accessableMarkers[index] .. " is already being used")
+      end
       talosProgress:SetCode(accessableMarkers[index], tetroIndexes[v])
       table.remove(accessableMarkers, index)
       tetroIndexes[v] = nil
@@ -571,7 +611,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   
   talosProgress:SetVar("Randomizer_Generated")
   if DEBUG then
-    print("Sigil Configuration Generated")
+    print("=============================\nSigil Configuration Generated\n=============================")
   end
 end
 
