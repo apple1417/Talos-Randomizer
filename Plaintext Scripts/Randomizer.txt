@@ -3,7 +3,7 @@ local function print(...)
   for i=1,arg.n do
     out = out .. tostring(arg[i]) .. " "
   end
-  out = out .. "\n"
+  out = string.sub(out, 1, -2) .. "\n"
   conInfoF(out)
 end
 
@@ -12,20 +12,20 @@ local function printWarning(...)
   for i=1,arg.n do
     out = out .. tostring(arg[i]) .. " "
   end
-  out = out .. "\n"
+  out = string.sub(out, 1, -2) .. "\n"
   conWarningF(out)
 end
 
 local function printError(...)
   local out = ""
   for i=1,arg.n do
-    out = out .. tostring(arg[i]) .. " "
+    out = string.sub(out, 1, -2) .. tostring(arg[i]) .. " "
   end
   out = out .. "\n"
   conErrorF(out)
 end
 
-print("Loaded Randomizer v5")
+print("Loaded Randomizer v6")
 
 worldGlobals.allTetros = {
    s1,  s2,  s3,  s4,  s5,  s6,  s7,  s8,  s9, s10,
@@ -518,6 +518,15 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
             -- If so we're going to manually add the sigils for the second one
             sigils = {"DI2", "DL2", "DT1", "DT2", "DZ3",
                       "DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
+            -- Need to make sure we use up the extra sigils
+            if arranger == "B Gate" then
+              table.insert(accessableArrangers, "Platform")
+              table.insert(accessableArrangers, "C Star")              
+            elseif arranger == "C Gate" then
+              table.insert(accessableArrangers, "Fan")
+              table.insert(accessableArrangers, "Recorder")
+              table.insert(accessableArrangers, "B Star")
+            end
             -- Both gates are always unlocked at the same time, this is safe
             for i=1, #accessableArrangers do
               local v = accessableArrangers[i]
@@ -595,7 +604,9 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     if DEBUG then
       print("Selected A1 Gate Arranger")
     end
-  
+    if DEBUG then
+      print(#accessableMarkers .. " total markers accessable")
+    end  
     local sigils = locked["A1 Gate"]
     for i=1, #sigils do
       local v = sigils[i]
