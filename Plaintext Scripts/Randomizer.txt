@@ -86,12 +86,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   while seed % 53327 == 0 or seed % 95651 == 0 do
     seed = seed + 1
   end
-  local rngState =  4 + seed^2 % 0x13007bd4d
+  local rngState =  4 + seed^2 % 5100780877
   local function rand(min, max)
-    rngState = rngState^2 % 0x13007bd4d
-    return mthFloorF((rngState * (max - min))/0x13007bd4c + min)
+    rngState = rngState^2 % 5100780877
+    return mthFloorF((rngState * (max - min))/5100780876 + min)
   end
-  
+
   talosProgress:SetVarValue("PaintItemSeed", rand(0, 8909478))
   
   -- Only really works with tables indexed by numbers
@@ -251,7 +251,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       {function()
         if not locked["A Star"] and not locked["B Star"] and not locked["C Star"] then
           return true
-        end        
+        end
         return not locked["A Star"] and locked["B Gate"] and locked["C Gate"]
       end, {
         "115_SRT_TAM_004_PM_016", "117_SRT_SPM_000_PM_028", "119_SRT_SPM_000_PM_033"
@@ -433,8 +433,8 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     local arranger = ""
     local accessableArrangers = {"A Gate", "A Star", "Connector", "Cube"}
     local accessableMarkers = {}
-    --local checkGates = true
-    --local allNewMarkers = false
+    local checkGates = true
+    local allNewMarkers = false
     
     while #accessableArrangers > 0 do
       local index = rand(1, #accessableArrangers)
@@ -495,7 +495,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         print(#accessableMarkers .. " total markers accessable")
       end
       
-      
       local sigils = locked[arranger]
       locked[arranger] = nil
       
@@ -512,8 +511,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       if checkGates then
         if arranger == "B Gate" or arranger == "C Gate" then
           -- Sometimes we want both hubs to be accessable when you leave A
-          --if rand(1, 4) == 1 then
-          if false then
+          if rand(1, 4) == 1 then
             if DEBUG then
               print("Both Hubs open after A")
             end
@@ -522,7 +520,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
                       "DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
             -- Both gates are always unlocked at the same time, this is safe
             for i=1, #accessableArrangers do
-              v = accessableArrangers[i]
+              local v = accessableArrangers[i]
               if v == "B Gate" or v == "C Gate" then
                 table.remove(accessableArrangers, i)
               end
@@ -532,7 +530,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
           else
             if DEBUG then
               print(string.sub(arranger, 1, 1) .. " open after A")
-            end            
+            end
             
             local toRemove = {}
             allNewMarkers = {}
@@ -560,7 +558,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
               sigils = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
             end
             for i=1, #uniqueSigils do
-              v = uniqueSigils[i]
+              local v = uniqueSigils[i]
               local index = rand(1, #allNewMarkers)
               if DEBUG then
                 print(string.format("Placed %s at marker %s", v, allNewMarkers[index]))
@@ -579,7 +577,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       
       -- Place the sigils for the selected arranger in accessable areas
       for i=1, #sigils do
-        v = sigils[i]
+        local v = sigils[i]
         local index = rand(1, #accessableMarkers)
         if talosProgress:IsVarSet(accessableMarkers[index]) then
           printError(accessableMarkers[index] .. " is already being used")
@@ -600,8 +598,8 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   
     local sigils = locked["A1 Gate"]
     for i=1, #sigils do
-      v = sigils[i]
-      local index = rand(1, #accessableMarkers)   
+      local v = sigils[i]
+      local index = rand(1, #accessableMarkers)
       if DEBUG then
         print(string.format("Placed %s at marker %s", v, accessableMarkers[index]))
       end
@@ -631,7 +629,7 @@ end
 
 -- Move sigils onto markers in this world
 for i=1, #worldMarkers do
-  worldmarker = worldMarkers[i]
+  local worldMarker = worldMarkers[i]
   local sigilNum = talosProgress:GetCodeValue(worldMarker:GetName())
   local sigil = worldGlobals.allTetros[sigilNum]
   assert(sigil ~= nil, "Marker " .. worldMarker:GetName() .. " does not have a sigil assigned to it!")
