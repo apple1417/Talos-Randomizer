@@ -2,7 +2,8 @@
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local lastMode = 1
 
-talosProgress:SetCode("Randomizer_Mode", 1)
+talosProgress:SetVarValue("Randomizer_Mode", 1)
+talosProgress:SetVar("Randomizer_ShowAll")
 
 RunHandled(
   function()
@@ -15,7 +16,7 @@ RunHandled(
     if index ~= lastMode then
       Modes[lastMode]:Deactivate()
       lastMode = index
-      talosProgress:SetCode("Randomizer_Mode", index)
+      talosProgress:SetVarValue("Randomizer_Mode", index)
     end
   end,
   OnEvery(Any(Events(Modes.Deactivated))),

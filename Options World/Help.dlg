@@ -49,7 +49,7 @@ terminal when (AllItems) {
 }
 
 terminal when (AllSigns) {
-  text: "TTRS:notrans=Normally world overview signs show question marks for uncollected sigils. Turning this option on replaces them with the actual sigil."
+  text: "TTRS:notrans=Normally world overview signs show all sigils in that world. Turning this off means that only collected sigils will be displayed."
   goto: Loop
 }
 

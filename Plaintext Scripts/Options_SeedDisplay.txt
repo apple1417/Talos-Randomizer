@@ -3,19 +3,26 @@ local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local seed = "No Seed"
 local seedPtr = seedDisplay:GetTextConfig()
 
+for index=1, #numbers do
+  numbers[index]:EnableUsage()
+  numberLights[index]:Deactivate()
+end
+backspace:EnableUsage()
+backspaceLight:Deactivate()
+clear:EnableUsage()
+clearLight:Deactivate()
+random:EnableUsage()
+randomLight:Deactivate()
+
 RunHandled(
   function()
     WaitForever()
   end,
-  OnEvery(Any(Events(Numbers.Activated))),
+  OnEvery(Any(Events(numbers.Used))),
   function(event)
     local index = event.any.signaledIndex
-    Numbers[index]:Deactivate()
-    --[[
-    0x0ccccccd is the smallest number that you can't add
-    a (decimal) digit to without going over 0x7fffffff
-    ]]--
-    if seed == "No Seed" or tonumber(seed) < 0x0ccccccd then
+    local failSeed = true
+    if seed == "No Seed" or tonumber(seed) < 214748365 then
       if seed == "No Seed" then
         seed = ""
       end
@@ -24,36 +31,81 @@ RunHandled(
       else
         seed = seed .. tostring(index)
       end
-      if tonumber(seed) < 0x7fffffff then
+      if tonumber(seed) < 2147483647 then
         seedDisplay:SetText(seedPtr, seed, true)
-        talosProgress:SetCode("Randomizer_Seed", tonumber(seed))
+        talosProgress:SetVarValue("Randomizer_Seed", tonumber(seed))
+        failSeed = false
       else
         seed = talosProgress:GetCodeValue("Randomizer_Seed")
       end
     end
+    RunAsync(function()
+      if failSeed then
+        soundUseFail:PlayOnce()
+      else
+        soundUse:PlayOnce()
+      end
+      numbers[index]:PlayAnim("Push")
+      numberLights[index]:Activate()
+      Wait(Delay(0.6))
+      numbers[index]:EnableUsage()
+      numberLights[index]:Deactivate()
+    end)
   end,
-  OnEvery(Event(Backspace.Activated)),
+  OnEvery(Event(backspace.Used)),
   function()
-    Backspace:Deactivate()
     if seed ~= "No Seed" then
       if #seed <= 1 then
         seed = "No Seed"
         seedDisplay:SetText(seedPtr, seed, true)
-        talosProgress:SetCode("Randomizer_Seed", -1)
+        talosProgress:ClearVar("Randomizer_Seed")
       else
-        seed = string.sub(seed, 1, -2) 
+        seed = string.sub(seed, 1, -2)
         seedDisplay:SetText(seedPtr, seed, true)
-        talosProgress:SetCode("Randomizer_Seed", tonumber(seed))         
+        talosProgress:SetVarValue("Randomizer_Seed", tonumber(seed))
       end
-    end   
-  end,  
-  OnEvery(Event(Clear.Activated)),
-  function()
-    Clear:Deactivate()
+      soundUse:PlayOnce()
+    else
+      soundUseFail:PlayOnce()
+    end
+    RunAsync(function()
+      backspace:PlayAnim("Push")
+      backspaceLight:Activate()
+      Wait(Delay(0.6))
+      backspace:EnableUsage()
+      backspaceLight:Deactivate()
+    end)
+  end,
+  OnEvery(Event(clear.Used)),
+  function ()
     if seed ~= "No Seed" then
       seed = "No Seed"
       seedDisplay:SetText(seedPtr, seed, true)
-      talosProgress:SetCode("Randomizer_Seed", -1)
+      talosProgress:ClearVar("Randomizer_Seed")  
+      soundUse:PlayOnce()
+    else
+      soundUseFail:PlayOnce()
     end
+    RunAsync(function()
+      clear:PlayAnim("Push")
+      clearLight:Activate()
+      Wait(Delay(0.6))
+      clear:EnableUsage()
+      clearLight:Deactivate()
+    end)
+  end,
+  OnEvery(Event(random.Used)),
+  function()
+    seed = tostring(mthRndRangeL(0, 2147483647))
+    seedDisplay:SetText(seedPtr, seed, true)
+    talosProgress:SetVarValue("Randomizer_Seed", tonumber(seed))
+    soundUse:PlayOnce()
+    RunAsync(function()
+      random:PlayAnim("Push")
+      randomLight:Activate()
+      Wait(Delay(0.6))
+      random:EnableUsage()
+      randomLight:Deactivate()
+    end)
   end
 )
