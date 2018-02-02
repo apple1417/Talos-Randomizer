@@ -93,6 +93,20 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   end
 
   talosProgress:SetVarValue("PaintItemSeed", rand(0, 8909478))
+  --[[ Uncomment next time seeds break
+  talosProgress:SetVarValue("Code_Floor4", rand(1, 999))
+  talosProgress:SetVarValue("Code_Floor5", rand(1, 999))
+  local codeF6 = 0
+  for i=1,3 do
+    local digit = rand(1, 9)
+    talosProgress:SetVarValue("Code_Floor6" .. tostring(i), digit)
+    codeF6 = codeF6 + digit*(10^(3-i))
+  end
+  talosProgress:SetVarValue("Code_Floor6", codeF6)
+  talosProgress:SetVar("Code_Floor6DigitSeen1")
+  talosProgress:SetVar("Code_Floor6DigitSeen2")
+  talosProgress:SetVar("Code_Floor6DigitSeen3")
+  ]]--
   
   -- Only really works with tables indexed by numbers
   local function joinTables(...)
@@ -631,6 +645,20 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       talosProgress:SetCode(otherMarker, i)
     end
   end
+  
+  -- Delete next time seeds break
+  talosProgress:SetVarValue("Code_Floor4", rand(1, 999))
+  talosProgress:SetVarValue("Code_Floor5", rand(1, 999))
+  local codeF6 = 0
+  for i=1,3 do
+    local digit = rand(1, 9)
+    talosProgress:SetVarValue("Code_Floor6" .. tostring(i), digit)
+    codeF6 = codeF6 + digit*(10^(3-i))
+  end
+  talosProgress:SetVarValue("Code_Floor6", codeF6)
+  talosProgress:SetVar("Code_Floor6DigitSeen1")
+  talosProgress:SetVar("Code_Floor6DigitSeen2")
+  talosProgress:SetVar("Code_Floor6DigitSeen3")
   
   talosProgress:SetVar("Randomizer_Generated")
   if DEBUG then
