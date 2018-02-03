@@ -96,7 +96,7 @@ RunHandled(
   end,
   OnEvery(Event(random.Used)),
   function()
-    seed = tostring(mthRndRangeL(0, 2147483647))
+    seed = tostring(mthRndRangeL(0, 999999))
     seedDisplay:SetText(seedPtr, seed, true)
     talosProgress:SetVarValue("Randomizer_Seed", tonumber(seed))
     soundUse:PlayOnce()

@@ -276,13 +276,13 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       }},
       -- C Star
       {function() return not locked["A Star"] and not locked["B Star"] and not locked["C Star"] end, {
-        "235_SRT_SPM_000_PM_037", "504_SRT_SPM_000_PM_021"
+        "504_SRT_SPM_000_PM_021"
       }},
       {function()
         return not locked["A Star"] and not locked["B Star"] and not locked["C Star"]
                and not locked["Connector"]
       end,{
-        "320_SRT_SPM_000_PM_046"
+        "320_SRT_SPM_000_PM_046", "235_SRT_SPM_000_PM_037"
       }},      
       -- Nexus
       {function() return not locked["F3"] end, {

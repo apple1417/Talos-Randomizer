@@ -60,7 +60,7 @@ for index=1, #allMarkers do
   if sigilNum == -1 then
     conErrorF("Marker '" .. allMarkers[index] .. "' does not have a sigil assigned to it\n")
   end
-  sum1 = (sum1 + sigilNum) % 65536
+  sum1 = (sum1 + sigilNum*index) % 65536
   sum2 = (sum2 + sum1) % 65536
 end
 conInfoF(string.format("\nChecksum: %08X\n\n", sum1 * 65536 + sum2))
