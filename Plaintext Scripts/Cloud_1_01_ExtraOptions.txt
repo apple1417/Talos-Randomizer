@@ -50,17 +50,18 @@ local allMarkers = {
   "Cloud_2_05_SRT_TAM_003_PM_003", "Cloud_2_07_SRT_TAM_001_PM_004", "Cloud_3_01_SRT_SPM_000_PM_017", "Cloud_3_02_SRT_TAM_001",
   "Cloud_3_03_SRT_SPM_000_PM_069", "Cloud_3_05_SRT_SPM_000_PM_035", "Cloud_3_05_SRT_SPM_002_PM_016", "Cloud_3_05_SRT_SPM_003_PM_012",
   "Cloud_3_06_SRT_SPM_000_PM_008", "Cloud_3_07_SRT_SPM_000_PM_021", "Islands_01_SRT_SPM_000_PM_003", "LeapOfFaith_PM_010",
-  "Secret_28_SRT_SPM_000_PM_004"
+  "Secret_28_SRT_SPM_000_PM_004",
+  "PaintItemSeed", "Code_Floor4", "Code_Floor5", "Code_Floor6"
 }
   
 local sum1 = 0
 local sum2 = 0
 for index=1, #allMarkers do
-  local sigilNum = talosProgress:GetCodeValue(allMarkers[index])
-  if sigilNum == -1 then
-    conErrorF("Marker '" .. allMarkers[index] .. "' does not have a sigil assigned to it\n")
+  local value = talosProgress:GetCodeValue(allMarkers[index])
+  if value == -1 then
+    conErrorF("'" .. allMarkers[index] .. "' does not have a value assigned to it\n")
   end
-  sum1 = (sum1 + sigilNum*index) % 65536
+  sum1 = (sum1 + value*index) % 65536
   sum2 = (sum2 + sum1) % 65536
 end
 conInfoF(string.format("\nChecksum: %08X\n\n", sum1 * 65536 + sum2))

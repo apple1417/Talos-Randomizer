@@ -53,15 +53,6 @@ RunHandled(
   function()
     talosProgress:ClearVar("Randomizer_ShowAll")
   end,
-  
-  OnEvery(Event(Debug.Activated)),
-  function()
-    talosProgress:SetVar("Randomizer_Debug")
-  end,
-  OnEvery(Event(Debug.Deactivated)),
-  function()
-    talosProgress:ClearVar("Randomizer_Debug")
-  end,
     
   --[[
   OnEvery(Event(Option.Activated)),

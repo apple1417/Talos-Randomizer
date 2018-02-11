@@ -22,7 +22,7 @@ RunHandled(
   function(event)
     local index = event.any.signaledIndex
     local failSeed = true
-    if seed == "No Seed" or tonumber(seed) < 1677722 then
+    if seed == "No Seed" or tonumber(seed) < 214748365 then
       if seed == "No Seed" then
         seed = ""
       end
@@ -31,7 +31,7 @@ RunHandled(
       else
         seed = seed .. tostring(index)
       end
-      if tonumber(seed) < 16777216 then
+      if tonumber(seed) <= 2147483647 then
         seedDisplay:SetText(seedPtr, seed, true)
         talosProgress:SetVarValue("Randomizer_Seed", tonumber(seed))
         failSeed = false
@@ -96,7 +96,7 @@ RunHandled(
   end,
   OnEvery(Event(random.Used)),
   function()
-    seed = tostring(mthRndRangeL(0, 16777216))
+    seed = tostring(mthRndRangeL(0, 999999))
     seedDisplay:SetText(seedPtr, seed, true)
     talosProgress:SetVarValue("Randomizer_Seed", tonumber(seed))
     soundUse:PlayOnce()
