@@ -2,7 +2,7 @@ import os
 import shutil
 import sys
 
-BLACKLIST = shutil.ignore_patterns(".git*", "Plaintext Scripts*","export.py", "Randomizer.nfo", "MarkerNames.txt")
+BLACKLIST = shutil.ignore_patterns(".git*", "Plaintext Scripts*","*.py", "Randomizer.nfo", "MarkerNames.txt")
 
 if os.path.exists("Randomizer.gro"):
   print("Removing existing .gro")
