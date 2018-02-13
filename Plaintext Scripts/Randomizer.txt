@@ -128,6 +128,41 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     ["NZ3"] =126, ["NZ4"] =127, ["NZ5"] =128, ["NZ6"] =129,
   }
   
+  --[[
+    These names are the same as in MarkerNames.txt, with the world
+     name as a prefix
+    "[World] Star" it has been changed to "[World]-Star"
+    "CM-Star", "F0-Star", and "F3-Star" are the only other exceptions
+  ]]--
+  local translate = {
+    ["A1-PaSL"] = "005_SPM_000_PM_009", ["A1-Beaten Path"] = "107_SPM_000_PM_007", ["A1-Outnumbered"] = "006_SPM_000_PM_003", ["A1-OtToU"] = "011_SPM_000_PM_009", ["A1-ASooR"] = "007_SPM_000_PM_006", ["A1-Trio"] = "012_SPM_000_PM_004", ["A1-Peephole"] = "001_SPM_000_PM_005", ["A1-Star"] = "Cloud_1_02_SRT_SPM_000_PM_016",
+    ["A2-Guards"] = "008_SPM_000_PM_016", ["A2-Hall of Windows"] = "001a_SPM_000_PM_008", ["A2-Suicide Mission"] = "013_SPM_000_PM_006", ["A2-Star"] = "Cloud_1_02_SRT_SPM_001_PM_003",
+    ["A3-Stashed for Later"] = "108_SPM_000_PM_012", ["A3-ABTU"] = "015_SRT_SPM_000_PM_018", ["A3-ABTU Star"] = "015_SRT_SPM_000_PM_017", ["A3-Swallowed the Key"] = "020_SPM_000_PM_014", ["A3-AEP"] = "017_SPM_000_PM_023", ["A3-Clock Star"] = "Cloud_1_03_SRT_SPM_000_PM_005",
+    ["A4-Branch it Out"] = "202c_SPM_000_PM_003", ["A4-Above All That"] = "202f_SPM_000_PM_003", ["A4-Push it Further"] = "202b_SPM_000_PM_004", ["A4-Star"] = "Cloud_1_04_SRT_SPM_000_PM_007", ["A4-DCtS"] = "202d_SPM_000_PM_002",
+    ["A5-Two Boxes"] = "201_SPM_000_PM_013", ["A5-Two Boxes Star"] = "201_SRT_SPM_000_PM_004", ["A5-YKYMCTS"] = "204_SPM_000_PM_004", ["A5-Over the Fence"] = "202e_SPM_000_PM_004", ["A5-OLB"] = "207_SPM_000_PM_005", ["A5-FC"] = "244_SPM_000_PM_008", ["A5-FC Star"] = "244_SRT_SPM_000_PM_006",
+    ["A6-Mobile Mindfield"] = "111_SPM_000_PM_012", ["A6-Deception"] = "210_SPM_000_PM_015", ["A6-Door too Far"] = "218_SPM_000_PM_016", ["A6-Bichromatic"] = "303_SPM_000_PM_010", ["A6-Star"] = "Cloud_1_06_SRT_SPM_000_PM_007",
+    ["A7-LFI"] = "212_SPM_000_PM_017", ["A7-Trapped Inside"] = "305_SPM_000_PM_004", ["A7-Two Buzzers"] = "209_SPM_000_PM_012", ["A7-Star"] = "Cloud_1_07_SRT_SPM_000_PM_021", ["A7-WiaL"] = "220_SPM_000_PM_032", ["A7-Pinhole"] = "211_SPM_000_PM_008",
+    ["A*-JfW"] = "119_SRT_SPM_000_PM_033", ["A*-Nervewrecker"] = "117_SRT_SPM_000_PM_028", ["A*-DDM"] = "115_SRT_TAM_004_PM_016",
+    ["B1-WtaD"] = "203_SPM_000_PM_011", ["B1-Third Wheel"] = "302_SPM_000_PM_008", ["B1-Over the Fence"] = "316_SPM_000_PM_014", ["B1-RoD"] = "319_SPM_000_PM_008", ["B1-SaaS"] = "205_SPM_000_PM_003", ["B1-Star"] = "Cloud_2_01_SRT_SPM_000_PM_004",
+    ["B2-Tomb"] = "213_SPM_000_PM_010", ["B2-Star"] = "Cloud_2_02_SRT_SPM_000_PM_039", ["B2-MotM"] = "221_SPM_002_PM_001", ["B2-Moonshot"] = "223_SPM_000_PM_009", ["B2-Higher Ground"] = "120_SPM_000_PM_029",
+    ["B3-Blown Away"] = "300a_SPM_000_PM_007", ["B3-Star"] = "Cloud_2_03_SRT_SPM_002_PM_013", ["B3-Sunshot"] = "222_SPM_004_PM_001", ["B3-Eagle's Nest"] = "401_SPM_004_PM_008", ["B3-Woosh"] = "409_SPM_000_PM_024",
+    ["B4-Self Help"] = "322_SPM_000_PM_008", ["B4-Double-Plate"] = "321_SPM_000_PM_005", ["B4-TRA"] = "215_SPM_000_PM_013", ["B4-TRA Star"] = "Cloud_2_04_SRT_SPM_000_PM_017", ["B4-RPS"] = "407_SPM_000_PM_018", ["B4-ABUH"] = "310_SPM_000_PM_024", ["B4-WAtC"] = "414_SPM_000_PM_007", ["B4-Sphinx Star"] = "Cloud_2_04_SRT_SPM_002_PM_002",
+    ["B5-SES"] = "314_SPM_000_PM_012", ["B5-Plates"] = "238_SPM_000_PM_018", ["B5-Two Jammers"] = "239_SPM_000_PM_018", ["B5-Iron Curtain"] = "311_SPM_000_PM_041", ["B5-Chambers"] = "315_TAM_002_PM_001", ["B5-Obelisk Star"] = "Cloud_2_05_SRT_TAM_003_PM_003",
+    ["B6-Crisscross"] = "208_SPM_000_PM_014", ["B6-JDaW"] = "206_SPM_000_PM_021", ["B6-Egyptian Arcade"] = "113_SPM_000_PM_036",
+    ["B7-AFaF"] = "224_SRT_SPM_000_PM_071", ["B7-WLJ"] = "118_SPM_000_PM_062", ["B7-BSbS"] = "301_SPM_000_PM_010", ["B7-BSbS Star"] = "224_SRT_SPM_000_PM_091", ["B7-BLoM"] = "402_SPM_000_PM_020", ["B7-Star"] = "Cloud_2_07_SRT_TAM_001_PM_004",
+    ["B*-Merry Go Round"] = "214_SRT_SPM_000_PM_025", ["B*-Cat's Cradle"] = "306_SRT_SPM_000_PM_016", ["B*-Peekaboo"] = "411_SRT_SPM_000_PM_014",
+    ["C1-Conservatory"] = "219_SPM_000_PM_008", ["C1-MIA"] = "416_SPM_000_PM_026", ["C1-Labyrinth"] = "114_SPM_000_PM_032", ["C1-Blowback"] = "312_SPM_000_PM_032", ["C1-Star"] = "Cloud_3_01_SRT_SPM_000_PM_017",
+    ["C2-ADaaF"] = "403_SPM_000_PM_015", ["C2-Star"] = "Cloud_3_02_SRT_TAM_001", ["C2-Rapunzel"] = "417_SPM_000_PM_029", ["C2-Cemetery"] = "217_SPM_000_PM_040", ["C2-Short Wall"] = "418_SPM_000_PM_014",
+    ["C3-Three Connectors"] = "225_SPM_000_PM_044", ["C3-Jammer Quarantine"] = "317_SPM_000_PM_024", ["C3-BSLS"] = "229_SPM_000_PM_070", ["C3-Weathertop"] = "318_SPM_000_PM_026", ["C3-Star"] = "Cloud_3_03_SRT_SPM_000_PM_069",
+    ["C4-Armory"] = "313_SPM_000_PM_016", ["C4-Oubliette"] = "405_SRT_SPM_000_PM_050", ["C4-Oubliette Star"] = "405_SRT_SPM_000_PM_047", ["C4-Stables"] = "216_SPM_000_PM_015", ["C4-Throne Room"] = "408_SPM_000_PM_033", ["C4-Throne Room Star"] = "408_SRT_SPM_000_PM_034",
+    ["C5-Time Flies"] = "328_SPM_000_PM_016", ["C5-Time Flies Star"] = "Cloud_3_05_SRT_SPM_003_PM_012", ["C5-Time Crawls"] = "232_SPM_000_PM_012", ["C5-Dumbwaiter"] = "309_SPM_000_PM_018", ["C5-Dumbwaiter Star"] = "Cloud_3_05_SRT_SPM_002_PM_016", ["C5-UCaJ"] = "404_SPM_000_PM_022", ["C5-UCAJ Star"] = "Cloud_3_05_SRT_SPM_000_PM_035",
+    ["C6-Seven Doors"] = "234_SPM_000_PM_015", ["C6-Star"] = "Cloud_3_06_SRT_SPM_000_PM_008", ["C6-Circumlocution"] = "226_SPM_000_PM_039", ["C6-Two Way Steet"] = "112_SPM_000_PM_034",
+    ["C7-Carrier Pigeons"] = "230_SPM_000_PM_019", ["C7-DMS"] = "308_SPM_000_PM_017", ["C7-Star"] = "Cloud_3_07_SRT_SPM_000_PM_021", ["C7-Prison Break"] = "227_SPM_002_PM_033", ["C7-Crisscross"] = "233_SPM_000_PM_015",
+    ["C*-Unreachable Garden"] = "235_SRT_SPM_000_PM_037", ["C*-Nexus"] = "320_SRT_SPM_000_PM_046", ["C*-Cobweb"] = "504_SRT_SPM_000_PM_021",
+    ["CM-Star"] = "Islands_01_SRT_SPM_000_PM_003", ["F0-Star"] = "Secret_28_SRT_SPM_000_PM_004", ["F3-Star"] = "LeapOfFaith_PM_010"
+  }
+  
+  local toTranslate = false
   local markers = {
     "001_SPM_000_PM_005", "001a_SPM_000_PM_008", "005_SPM_000_PM_009", "006_SPM_000_PM_003",
     "007_SPM_000_PM_006", "008_SPM_000_PM_016", "011_SPM_000_PM_009", "012_SPM_000_PM_004",
@@ -187,6 +222,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   
   -- Default
   if mode == 1 then
+    toTranslate = false
     markers = {
       -- A
       {function() return true end, {
@@ -261,6 +297,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     }
   -- 60FPS
   elseif mode == 2 then
+    toTranslate = false
     markers = {
       -- A
       {function() return true end, {
@@ -408,9 +445,16 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
             index = index - #markers[openMarkers[j]][2]
           else
             local randMarker = table.remove(markers[openMarkers[j]][2], index)
-            talosProgress:SetCode(randMarker, tetroIndexes[sigils[i]])
+            if toTranslate then
+              talosProgress:SetCode(translate[randMarker], tetroIndexes[sigils[i]])
+            else
+              talosProgress:SetCode(randMarker, tetroIndexes[sigils[i]])
+            end
             tetroIndexes[sigils[i]] = nil
             availableMarkers = availableMarkers - 1
+            if #markers[openMarkers[j]][2] == 0 then
+              table.remove(openMarkers, j)
+            end
             if DEBUG then
               printWarning(string.format("Placed %s at marker %s", sigils[i], randMarker))
             end            
@@ -471,10 +515,11 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       locked[arranger] = nil
       
       --[[
-      Make sure you can't go to the wrong hub first and softlock.
-      Sometimes does this by unlocking both, but usually by hiding
-       required sigils outside of A
-      Don't need to do it for both hubs.
+        Make sure you can't go to the wrong hub first and softlock.
+        Sometimes does this by unlocking both, but usually by hiding
+         required sigils outside of A
+        Requires at least two sigils in each hub to always be unlockable
+        Don't need to do both times you unlock a hub.
       ]]--
       if checkGates then
         if arranger == "B Gate" or arranger == "C Gate" then
@@ -540,9 +585,17 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
                   index = index - #markers[tempOpenMarkers[j]][2]
                 else
                   local randMarker = table.remove(markers[tempOpenMarkers[j]][2], index)
-                  talosProgress:SetCode(randMarker, tetroIndexes[uniqueSigils[i]])
+                  if toTranslate then
+                    talosProgress:SetCode(translate[randMarker], tetroIndexes[uniqueSigils[i]])
+                  else
+                    talosProgress:SetCode(randMarker, tetroIndexes[uniqueSigils[i]])
+                  end
                   tetroIndexes[uniqueSigils[i]] = nil
                   tempAvailableMarkers = tempAvailableMarkers - 1
+                  --[[
+                    We don't bother removing empty tables here, unlike placeSigils(),
+                     because worst case we iterate over it just once
+                  ]]--
                   if DEBUG then
                     printWarning(string.format("Placed %s at marker %s", uniqueSigils[i], randMarker))
                   end            
