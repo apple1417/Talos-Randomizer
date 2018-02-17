@@ -1,5 +1,6 @@
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
+local mode = talosProgress:GetCodeValue("Randomizer_Mode")
 
 if talosProgress:IsVarSet("Randomizer_UnlockItems") then
   talosProgress:AssureUnlockedMechanic("MechanicCube")
@@ -65,3 +66,17 @@ for index=1, #allMarkers do
   sum2 = (sum2 + sum1) % 65536
 end
 conInfoF(string.format("\nChecksum: %08X\n\n", sum1 * 65536 + sum2))
+
+if (mode == 1 or mode == 2) and not Arranger:IsSolved() then
+  Arranger:DontSaveProgressWhenSolved()
+  RunHandled(function() WaitForever() end,
+    OnEvery(Event(Arranger.Enter)),
+    function()
+      worldInfo:ShowMessageToAll("WARNING: Solving this gate can cause softlocks. There are other ways around it.")
+    end,
+    OnEvery(Event(Arranger.Solved)),
+    function()
+      worldInfo:ShowMessageToAll("Last chance, if you reset checkpoint now it won't be saved. (Use the pause menu, NOT by holding {plcmdHome})")
+    end
+  )
+end
