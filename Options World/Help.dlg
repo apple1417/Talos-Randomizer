@@ -13,19 +13,19 @@ terminal when (PickOption) {
     "TTRS:notrans=Open All Worlds" next: AllWorlds
     "TTRS:notrans=Unlock All Items" next: AllItems
     "TTRS:notrans=Show Full Signs" next: AllSigns
-    "TTRS:notrans=Debug Mode" next: Debug
+    "TTRS:notrans=Random Portals" next: Portals
     "TTRS:notrans=exit" next: Finished
   }
 }
 
 
 terminal when (Seed) {
-  text: "TTRS:notrans=The seed is used to generate a random sequence of numbers, which in turn is used to randomize the sigils. The same seed will always generate the same sigil order, as long as you use the same Randomization Mode."
+  text: "TTRS:notrans=The seed is used to generate a random sequence of numbers, which in turn is used to randomize the sigils. The same seed will always generate the same sigil order, as long as you use the same Randomization Mode and Random Portals settings."
   goto: Loop
 }
 
 terminal when (Mode) {
-  text:[[TTRS:notrans=The Randomization Mode controls how exactly sigils are distributed.
+  text: [[TTRS:notrans=The Randomization Mode controls how exactly sigils are distributed.
 
 Default:
 Randomizes everything, though it has softlock prevention ensuring you can always collect all sigils. It will not require an item to collect the sigils to unlock that item, and it won't place sigils required to get into an area in that area.
@@ -53,8 +53,10 @@ terminal when (AllSigns) {
   goto: Loop
 }
 
-terminal when (Debug) {
-  text: "TTRS:notrans=Outputs information about the sigil randomization to console. Used to help find bugs, has no gameplay impact."
+terminal when (Portals) {
+  text: [[TTRS:notrans=Randomizes the world portals as well as sigils. For example this might make it so that entering what is normally A2 sends you to C Star instead. Exiting a world will always send you back to where you entered it.
+
+Note that this option does affect seeds, the same seed with the option on will have a different sigil arrangement to having the option off.]]
   goto: Loop
 }
 
