@@ -15,8 +15,7 @@ if talosProgress:IsVarSet("Randomizer_NoGates") then
   Gate:AssureOpened()
 end
 
---Wait(CustomEvent("Randomizer_Finished"))
-Wait(Delay(0.1))
+Wait(CustomEvent("Randomizer_Finished"))
   
 local allMarkers = {
   "001_SPM_000_PM_005", "001a_SPM_000_PM_008", "005_SPM_000_PM_009", "006_SPM_000_PM_003",
@@ -52,7 +51,10 @@ local allMarkers = {
   "Cloud_3_03_SRT_SPM_000_PM_069", "Cloud_3_05_SRT_SPM_000_PM_035", "Cloud_3_05_SRT_SPM_002_PM_016", "Cloud_3_05_SRT_SPM_003_PM_012",
   "Cloud_3_06_SRT_SPM_000_PM_008", "Cloud_3_07_SRT_SPM_000_PM_021", "Islands_01_SRT_SPM_000_PM_003", "LeapOfFaith_PM_010",
   "Secret_28_SRT_SPM_000_PM_004",
-  "PaintItemSeed", "Code_Floor4", "Code_Floor5", "Code_Floor6"
+  "PaintItemSeed", "Code_Floor4", "Code_Floor5", "Code_Floor6",
+  "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "ADevIsland",
+  "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
+  "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "CMessenger"  
 }
   
 local sum1 = 0

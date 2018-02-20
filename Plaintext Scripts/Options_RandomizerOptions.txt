@@ -53,7 +53,16 @@ RunHandled(
   function()
     talosProgress:ClearVar("Randomizer_ShowAll")
   end,
-    
+  
+  OnEvery(Event(Portals.Activated)),
+  function()
+    talosProgress:SetVar("Randomizer_Portals")
+  end,
+  OnEvery(Event(Portals.Deactivated)),
+  function()
+    talosProgress:ClearVar("Randomizer_Portals")
+  end,
+     
   --[[
   OnEvery(Event(Option.Activated)),
   function()

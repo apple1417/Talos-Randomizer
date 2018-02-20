@@ -1,5 +1,4 @@
---Wait(CustomEvent("Randomizer_Finished"))
-Wait(Delay(0.1))
+Wait(CustomEvent("Randomizer_Finished"))
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local sigilNum = talosProgress:GetCodeValue("303_SPM_000_PM_010")
 local Bichromatic = worldGlobals.allTetros[sigilNum]
