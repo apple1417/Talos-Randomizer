@@ -162,8 +162,8 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     ["C*-Unreachable Garden"] = "235_SRT_SPM_000_PM_037", ["C*-Nexus"] = "320_SRT_SPM_000_PM_046", ["C*-Cobweb"] = "504_SRT_SPM_000_PM_021",
     ["CM-Star"] = "Islands_01_SRT_SPM_000_PM_003", ["F0-Star"] = "Secret_28_SRT_SPM_000_PM_004", ["F3-Star"] = "LeapOfFaith_PM_010"
   }
-  
   local toTranslate = false
+  
   local markers = {
     "001_SPM_000_PM_005", "001a_SPM_000_PM_008", "005_SPM_000_PM_009", "006_SPM_000_PM_003",
     "007_SPM_000_PM_006", "008_SPM_000_PM_016", "011_SPM_000_PM_009", "012_SPM_000_PM_004",
@@ -250,9 +250,9 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   end
   
   local open = {}
-  local WorldA = {}
-  local WorldB = {}
-  local WorldC = {}
+  local WorldANames = {}
+  local WorldBNames = {}
+  local WorldCNames = {}
   for index=1, #portalOrder do
     local name = portalOrder[index]
     if DEBUG then
@@ -262,11 +262,11 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     -- These lists help us avoid instantly clogging the marker list
     local placedName = portalIndexes[index]
     if string.sub(placedName, 1, 1) == "A" then
-      table.insert(WorldA, name)
+      WorldANames[name] = true
     elseif string.sub(placedName, 1, 1) == "B" then
-      table.insert(WorldB, name)
+      WorldBNames[name] = true
     elseif string.sub(placedName, 1, 1) == "C" then
-      table.insert(WorldC, name)
+      WorldCNames[name] = true
     end
   end
   
@@ -285,129 +285,126 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   
   --[[
     We can add modes with arbitray restrictions just by making new
-     copies of these lists
-    "markers" contains all markers groups that should be able to
-     be unlocked by default
-    This should only ever be A1 and the nexus stars
-    "markersByWorld" contains all the other markers, which will be
-     unlocked later
-    Not adding them by default saves a lot of iterations
+     copies of this list
+    The list entries are formatted as follows:
+    {function() [if to unlock], {"list", "of, "markers"}, "world"},
+    If no world is given OR the world is not recognised it will
+     always be checked, otherwise we can save some iterations and
+     add it later, when it's actually unlocked
   ]]--
-  local markersByWorld = {}
   -- Default
   if mode == 1 then
-    markersByWorld = {
-      ["A2"] = {{function() return isWorldOpen("A2") end, {
-        "001a_SPM_000_PM_008", "008_SPM_000_PM_016", "013_SPM_000_PM_006", "Cloud_1_02_SRT_SPM_001_PM_003"
-      }}},
-      ["A3"] = {{function() return isWorldOpen("A3") end, {
-        "015_SRT_SPM_000_PM_017", "015_SRT_SPM_000_PM_018", "017_SPM_000_PM_023", "020_SPM_000_PM_014",
-        "108_SPM_000_PM_012", "Cloud_1_03_SRT_SPM_000_PM_005"
-      }}},
-      ["A4"] = {{function() return isWorldOpen("A4") end, {
-        "202b_SPM_000_PM_004", "202c_SPM_000_PM_003", "202f_SPM_000_PM_003", "Cloud_1_04_SRT_SPM_000_PM_007"
-      }},
-      {function() return isWorldOpen("A4") and not locked["Connector"] end, {
-        "202d_SPM_000_PM_002"
-      }}},
-      ["A5"] = {{function() return isWorldOpen("A5") end, {
-        "201_SPM_000_PM_013", "201_SRT_SPM_000_PM_004", "202e_SPM_000_PM_004", "204_SPM_000_PM_004",
-        "207_SPM_000_PM_005", "244_SPM_000_PM_008", "244_SRT_SPM_000_PM_006",
-      }}},
-      ["A6"] = {{function() return isWorldOpen("A6") end, {
-        "111_SPM_000_PM_012", "210_SPM_000_PM_015", "218_SPM_000_PM_016", "303_SPM_000_PM_010",
-        "Cloud_1_06_SRT_SPM_000_PM_007"
-      }}},
-      ["A7"] = {{function() return isWorldOpen("A7") end, {
-        "209_SPM_000_PM_012", "211_SPM_000_PM_008", "212_SPM_000_PM_017", "220_SPM_000_PM_032",
-        "305_SPM_000_PM_004", "Cloud_1_07_SRT_SPM_000_PM_021"
-      }}},
-      ["A8"] = {{function() return isWorldOpen("A8") end, {
-        "115_SRT_TAM_004_PM_016", "117_SRT_SPM_000_PM_028", "119_SRT_SPM_000_PM_033"
-      }}},
-      ["B1"] = {{function() return isWorldOpen("B1") end, {
-        "205_SPM_000_PM_003", "203_SPM_000_PM_011", "302_SPM_000_PM_008", "316_SPM_000_PM_014",
-        "319_SPM_000_PM_008", "Cloud_2_01_SRT_SPM_000_PM_004"
-      }}},
-      ["B2"] = {{function() return isWorldOpen("B2") end, {
-        "120_SPM_000_PM_029", "213_SPM_000_PM_010", "221_SPM_002_PM_001", "223_SPM_000_PM_009",
-        "Cloud_2_02_SRT_SPM_000_PM_039"
-      }}},
-      ["B3"] = {{function() return isWorldOpen("B3") end, {
-        "222_SPM_004_PM_001", "300a_SPM_000_PM_007", "401_SPM_004_PM_008", "409_SPM_000_PM_024",
-        "Cloud_2_03_SRT_SPM_002_PM_013"
-      }}},
-      ["B4"] = {{function() return isWorldOpen("B4") end, {
-        "215_SPM_000_PM_013", "310_SPM_000_PM_024", "321_SPM_000_PM_005", "322_SPM_000_PM_008",
-        "407_SPM_000_PM_018", "414_SPM_000_PM_007", "Cloud_2_04_SRT_SPM_000_PM_017"
-      }},
-      {function() return isWorldOpen("B4") and not locked["Connector"] end, {
-        "Cloud_2_04_SRT_SPM_002_PM_002"
-      }}},
-      ["B5"] = {{function() return isWorldOpen("B5") end, {
-        "238_SPM_000_PM_018", "239_SPM_000_PM_018", "311_SPM_000_PM_041", "314_SPM_000_PM_012",
-        "315_TAM_002_PM_001"
-      }},
-      {function() return isWorldOpen("B5") and not locked["Connector"] and not locked["Fan"] end, {
-        "Cloud_2_05_SRT_TAM_003_PM_003"
-      }}},
-      ["B6"] = {{function() return isWorldOpen("B6") end, {
-        "113_SPM_000_PM_036", "206_SPM_000_PM_021", "208_SPM_000_PM_014"
-      }}},
-      ["B7"] = {{function() return isWorldOpen("B7") end, {
-        "118_SPM_000_PM_062", "224_SRT_SPM_000_PM_071", "224_SRT_SPM_000_PM_091", "301_SPM_000_PM_010",
-        "402_SPM_000_PM_020"       
-      }},
-      {function() return isWorldOpen("B7") and not locked["Fan"] end, {
-        "Cloud_2_07_SRT_TAM_001_PM_004"
-      }}},
-      ["B8"] = {{function() return isWorldOpen("B8") end, {
-        "214_SRT_SPM_000_PM_025", "306_SRT_SPM_000_PM_016", "411_SRT_SPM_000_PM_014"
-      }}},
-      ["C1"] = {{function() return isWorldOpen("C1") end, {
-        "114_SPM_000_PM_032", "219_SPM_000_PM_008", "312_SPM_000_PM_032", "416_SPM_000_PM_026",
-        "Cloud_3_01_SRT_SPM_000_PM_017"
-      }}},
-      ["C2"] = {{function() return isWorldOpen("C2") end, {
-        "217_SPM_000_PM_040", "403_SPM_000_PM_015", "417_SPM_000_PM_029", "418_SPM_000_PM_014",
-        "Cloud_3_02_SRT_TAM_001"
-      }}},
-      ["C3"] = {{function() return isWorldOpen("C3") end, {
-        "225_SPM_000_PM_044", "229_SPM_000_PM_070", "317_SPM_000_PM_024", "318_SPM_000_PM_026",
-        "Cloud_3_03_SRT_SPM_000_PM_069"
-      }}},
-      ["C4"] = {{function() return isWorldOpen("C4") end, {
-        "216_SPM_000_PM_015", "313_SPM_000_PM_016", "405_SRT_SPM_000_PM_047", "405_SRT_SPM_000_PM_050",
-        "408_SPM_000_PM_033", "408_SRT_SPM_000_PM_034"
-      }}},
-      ["C5"] = {{function() return isWorldOpen("C5") end, {
-        "232_SPM_000_PM_012", "309_SPM_000_PM_018", "328_SPM_000_PM_016", "404_SPM_000_PM_022",
-        "Cloud_3_05_SRT_SPM_003_PM_012"
-      }},
-      {function() return isWorldOpen("C5") and not locked["Cube"] end, {
-        "Cloud_3_05_SRT_SPM_000_PM_035", "Cloud_3_05_SRT_SPM_002_PM_016"
-      }}},
-      ["C6"] = {{function() return isWorldOpen("C6") end, {
-        "112_SPM_000_PM_034", "226_SPM_000_PM_039", "234_SPM_000_PM_015", "Cloud_3_06_SRT_SPM_000_PM_008"
-      }}},
-      ["C7"] = {{function() return isWorldOpen("C7") end, {
-        "227_SPM_002_PM_033", "230_SPM_000_PM_019", "233_SPM_000_PM_015", "308_SPM_000_PM_017",
-        "Cloud_3_07_SRT_SPM_000_PM_021"
-      }}},
-      ["C8"] = {{function() return isWorldOpen("C8") end, {
-        "504_SRT_SPM_000_PM_021"
-      }},
-      {function() return isWorldOpen("C8") and not locked["Connector"] end, {
-        "320_SRT_SPM_000_PM_046", "235_SRT_SPM_000_PM_037"
-      }}},
-      ["CMessenger"] = {{function() return isWorldOpen("CMessenger") end, {
-        "Islands_01_SRT_SPM_000_PM_003"
-      }}}}
     markers = {
       {function() return isWorldOpen("A1") end, {
         "001_SPM_000_PM_005", "005_SPM_000_PM_009", "006_SPM_000_PM_003", "007_SPM_000_PM_006",
         "011_SPM_000_PM_009", "012_SPM_000_PM_004", "107_SPM_000_PM_007", "Cloud_1_02_SRT_SPM_000_PM_016"
       }},
+      {function() return isWorldOpen("A2") end, {
+        "001a_SPM_000_PM_008", "008_SPM_000_PM_016", "013_SPM_000_PM_006", "Cloud_1_02_SRT_SPM_001_PM_003"
+      }, "A2"},
+      {function() return isWorldOpen("A3") end, {
+        "015_SRT_SPM_000_PM_017", "015_SRT_SPM_000_PM_018", "017_SPM_000_PM_023", "020_SPM_000_PM_014",
+        "108_SPM_000_PM_012", "Cloud_1_03_SRT_SPM_000_PM_005"
+      }, "A3"},
+      {function() return isWorldOpen("A4") end, {
+        "202b_SPM_000_PM_004", "202c_SPM_000_PM_003", "202f_SPM_000_PM_003", "Cloud_1_04_SRT_SPM_000_PM_007"
+      }, "A4"},
+      {function() return isWorldOpen("A4") and not locked["Connector"] end, {
+        "202d_SPM_000_PM_002"
+      }, "A4"},
+      {function() return isWorldOpen("A5") end, {
+        "201_SPM_000_PM_013", "201_SRT_SPM_000_PM_004", "202e_SPM_000_PM_004", "204_SPM_000_PM_004",
+        "207_SPM_000_PM_005", "244_SPM_000_PM_008", "244_SRT_SPM_000_PM_006",
+      }, "A5"},
+      {function() return isWorldOpen("A6") end, {
+        "111_SPM_000_PM_012", "210_SPM_000_PM_015", "218_SPM_000_PM_016", "303_SPM_000_PM_010",
+        "Cloud_1_06_SRT_SPM_000_PM_007"
+      }, "A6"},
+      {function() return isWorldOpen("A7") end, {
+        "209_SPM_000_PM_012", "211_SPM_000_PM_008", "212_SPM_000_PM_017", "220_SPM_000_PM_032",
+        "305_SPM_000_PM_004", "Cloud_1_07_SRT_SPM_000_PM_021"
+      }, "A7"},
+      {function() return isWorldOpen("A8") end, {
+        "115_SRT_TAM_004_PM_016", "117_SRT_SPM_000_PM_028", "119_SRT_SPM_000_PM_033"
+      }, "A8"},
+      {function() return isWorldOpen("B1") end, {
+        "205_SPM_000_PM_003", "203_SPM_000_PM_011", "302_SPM_000_PM_008", "316_SPM_000_PM_014",
+        "319_SPM_000_PM_008", "Cloud_2_01_SRT_SPM_000_PM_004"
+      }, "B1"},
+      {function() return isWorldOpen("B2") end, {
+        "120_SPM_000_PM_029", "213_SPM_000_PM_010", "221_SPM_002_PM_001", "223_SPM_000_PM_009",
+        "Cloud_2_02_SRT_SPM_000_PM_039"
+      }, "B2"},
+      {function() return isWorldOpen("B3") end, {
+        "222_SPM_004_PM_001", "300a_SPM_000_PM_007", "401_SPM_004_PM_008", "409_SPM_000_PM_024",
+        "Cloud_2_03_SRT_SPM_002_PM_013"
+      }, "B3"},
+      {function() return isWorldOpen("B4") end, {
+        "215_SPM_000_PM_013", "310_SPM_000_PM_024", "321_SPM_000_PM_005", "322_SPM_000_PM_008",
+        "407_SPM_000_PM_018", "414_SPM_000_PM_007", "Cloud_2_04_SRT_SPM_000_PM_017"
+      }, "B4"},
+      {function() return isWorldOpen("B4") and not locked["Connector"] end, {
+        "Cloud_2_04_SRT_SPM_002_PM_002"
+      }, "B4"},
+      {function() return isWorldOpen("B5") end, {
+        "238_SPM_000_PM_018", "239_SPM_000_PM_018", "311_SPM_000_PM_041", "314_SPM_000_PM_012",
+        "315_TAM_002_PM_001"
+      }, "B5"},
+      {function() return isWorldOpen("B5") and not locked["Connector"] and not locked["Fan"] end, {
+        "Cloud_2_05_SRT_TAM_003_PM_003"
+      }, "B5"},
+      {function() return isWorldOpen("B6") end, {
+        "113_SPM_000_PM_036", "206_SPM_000_PM_021", "208_SPM_000_PM_014"
+      }, "B6"},
+      {function() return isWorldOpen("B7") end, {
+        "118_SPM_000_PM_062", "224_SRT_SPM_000_PM_071", "224_SRT_SPM_000_PM_091", "301_SPM_000_PM_010",
+        "402_SPM_000_PM_020"       
+      }, "B7"},
+      {function() return isWorldOpen("B7") and not locked["Fan"] end, {
+        "Cloud_2_07_SRT_TAM_001_PM_004"
+      }, "B7"},
+      {function() return isWorldOpen("B8") end, {
+        "214_SRT_SPM_000_PM_025", "306_SRT_SPM_000_PM_016", "411_SRT_SPM_000_PM_014"
+      }, "B8"},
+      {function() return isWorldOpen("C1") end, {
+        "114_SPM_000_PM_032", "219_SPM_000_PM_008", "312_SPM_000_PM_032", "416_SPM_000_PM_026",
+        "Cloud_3_01_SRT_SPM_000_PM_017"
+      }, "C1"},
+      {function() return isWorldOpen("C2") end, {
+        "217_SPM_000_PM_040", "403_SPM_000_PM_015", "417_SPM_000_PM_029", "418_SPM_000_PM_014",
+        "Cloud_3_02_SRT_TAM_001"
+      }, "C2"},
+      {function() return isWorldOpen("C3") end, {
+        "225_SPM_000_PM_044", "229_SPM_000_PM_070", "317_SPM_000_PM_024", "318_SPM_000_PM_026",
+        "Cloud_3_03_SRT_SPM_000_PM_069"
+      }, "C3"},
+      {function() return isWorldOpen("C4") end, {
+        "216_SPM_000_PM_015", "313_SPM_000_PM_016", "405_SRT_SPM_000_PM_047", "405_SRT_SPM_000_PM_050",
+        "408_SPM_000_PM_033", "408_SRT_SPM_000_PM_034"
+      }, "C4"},
+      {function() return isWorldOpen("C5") end, {
+        "232_SPM_000_PM_012", "309_SPM_000_PM_018", "328_SPM_000_PM_016", "404_SPM_000_PM_022",
+        "Cloud_3_05_SRT_SPM_003_PM_012"
+      }, "C5"},
+      {function() return isWorldOpen("C5") and not locked["Cube"] end, {
+        "Cloud_3_05_SRT_SPM_000_PM_035", "Cloud_3_05_SRT_SPM_002_PM_016"
+      }, "C5"},
+      {function() return isWorldOpen("C6") end, {
+        "112_SPM_000_PM_034", "226_SPM_000_PM_039", "234_SPM_000_PM_015", "Cloud_3_06_SRT_SPM_000_PM_008"
+      }, "C6"},
+      {function() return isWorldOpen("C7") end, {
+        "227_SPM_002_PM_033", "230_SPM_000_PM_019", "233_SPM_000_PM_015", "308_SPM_000_PM_017",
+        "Cloud_3_07_SRT_SPM_000_PM_021"
+      }, "C7"},
+      {function() return isWorldOpen("C8") end, {
+        "504_SRT_SPM_000_PM_021"
+      }, "C8"},
+      {function() return isWorldOpen("C8") and not locked["Connector"] end, {
+        "320_SRT_SPM_000_PM_046", "235_SRT_SPM_000_PM_037"
+      }, "C8"},
+      {function() return isWorldOpen("CMessenger") end, {
+        "Islands_01_SRT_SPM_000_PM_003"
+      }, "CMessenger"},
       {function() return not locked["F3"] end, {
         "LeapOfFaith_PM_010"
       }},
@@ -417,171 +414,170 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     }
   -- 60FPS
   elseif mode == 2 then
-    markersByWorld = {
-      ["A2"] = {{function() return isWorldOpen("A2") end, {
-        "001a_SPM_000_PM_008", "008_SPM_000_PM_016", "013_SPM_000_PM_006", "Cloud_1_02_SRT_SPM_001_PM_003"
-      }}},
-      ["A3"] = {{function() return isWorldOpen("A3") end, {
-        "015_SRT_SPM_000_PM_017", "015_SRT_SPM_000_PM_018", "017_SPM_000_PM_023", "020_SPM_000_PM_014",
-        "108_SPM_000_PM_012", "Cloud_1_03_SRT_SPM_000_PM_005"
-      }}},
-      ["A4"] = {{function() return isWorldOpen("A4") end, {
-        "202b_SPM_000_PM_004", "202c_SPM_000_PM_003", "202f_SPM_000_PM_003", "Cloud_1_04_SRT_SPM_000_PM_007"
-      }},
-      {function() return isWorldOpen("A4") and not locked["Connector"] end, {
-        "202d_SPM_000_PM_002"
-      }}},
-      ["A5"] = {{function() return isWorldOpen("A5") end, {
-        "201_SPM_000_PM_013", "201_SRT_SPM_000_PM_004", "202e_SPM_000_PM_004", "204_SPM_000_PM_004",
-        "207_SPM_000_PM_005", "244_SPM_000_PM_008", "244_SRT_SPM_000_PM_006",
-      }}},
-      ["A6"] = {{function() return isWorldOpen("A6") end, {
-        "111_SPM_000_PM_012", "210_SPM_000_PM_015", "218_SPM_000_PM_016", "303_SPM_000_PM_010",
-        "Cloud_1_06_SRT_SPM_000_PM_007"
-      }}},
-      ["A7"] = {{function() return isWorldOpen("A7") end, {
-        "209_SPM_000_PM_012", "211_SPM_000_PM_008", "220_SPM_000_PM_032", "305_SPM_000_PM_004",
-        "Cloud_1_07_SRT_SPM_000_PM_021"
-      }},
-      {function() return isWorldOpen("A7") and not locked["Connector"] end, {
-        "212_SPM_000_PM_017"
-      }}},
-      ["A8"] = {{function() return isWorldOpen("A8") end, {
-        "115_SRT_TAM_004_PM_016", "117_SRT_SPM_000_PM_028", "119_SRT_SPM_000_PM_033"
-      }}},
-      ["B1"] = {{function() return isWorldOpen("B1") end, {
-        "319_SPM_000_PM_008"
-      }},
-      {function() return isWorldOpen("B1") and not locked["Cube"] end, {
-        "316_SPM_000_PM_014"
-      }},
-      {function() return isWorldOpen("B1") and (not locked["Connector"] or not locked["Cube"]) end, {
-        "203_SPM_000_PM_011", "205_SPM_000_PM_003", "302_SPM_000_PM_008", "Cloud_2_01_SRT_SPM_000_PM_004"
-      }}},
-      ["B2"] = {{function() return isWorldOpen("B2") end, {
-        "120_SPM_000_PM_029", "213_SPM_000_PM_010", "223_SPM_000_PM_009", "Cloud_2_02_SRT_SPM_000_PM_039"
-      }},
-      {function() return isWorldOpen("B2") and not locked["Cube"] end, {
-        "221_SPM_002_PM_001"
-      }}},
-      ["B3"] = {{function() return isWorldOpen("B3") and not locked["Cube"] end, {
-        "222_SPM_004_PM_001", "300a_SPM_000_PM_007", "Cloud_2_03_SRT_SPM_002_PM_013"
-      }},
-      {function() return isWorldOpen("B3") and (locked["Connector"] or not locked["Cube"]) end, {
-        "401_SPM_004_PM_008", "409_SPM_000_PM_024"
-      }}},      
-      ["B4"] = {{function() return isWorldOpen("B4") and (not locked["Cube"] or not locked["Recorder"]) end, {
-        "322_SPM_000_PM_008"
-      }},
-      {function() return isWorldOpen("B4") and not locked["Connector"] end, {
-        "215_SPM_000_PM_013", "414_SPM_000_PM_007"
-      }},
-      {function() return isWorldOpen("B4") and ((not locked["Connector"] and not locked["Cube"]) or not locked["Recorder"]) end, {
-        "321_SPM_000_PM_005", "407_SPM_000_PM_018"
-      }},
-      {function() return isWorldOpen("B4") and not locked["Connector"] and not locked["Cube"] end, {
-        "310_SPM_000_PM_024", "Cloud_2_04_SRT_SPM_000_PM_017"
-      }},
-      {function() return isWorldOpen("B4") and not locked["Connector"] and (not locked["Cube"] or not locked["Fan"]) end, {
-        "Cloud_2_04_SRT_SPM_002_PM_002"
-      }}},
-      ["B5"] = {{function() return isWorldOpen("B5") end, {
-        "311_SPM_000_PM_041", "315_TAM_002_PM_001"
-      }},
-      {function() return isWorldOpen("B5") and not locked["Cube"] end, {
-        "238_SPM_000_PM_018", "314_SPM_000_PM_012"
-      }},
-      {function() return isWorldOpen("B5") and (not locked["Cube"] or not locked["Recorder"]) end, {
-        "239_SPM_000_PM_018"
-      }},
-      {function() return isWorldOpen("B5") and not locked["Connector"] and not locked["Fan"] end, {
-        "Cloud_2_05_SRT_TAM_003_PM_003"
-      }}},
-      ["B6"] = {{function() return isWorldOpen("B6") end, {
-        "113_SPM_000_PM_036"
-      }},
-      {function() return isWorldOpen("B6") and not locked["Connector"] end, {
-        "206_SPM_000_PM_021", "208_SPM_000_PM_014"
-      }, "Connector"}},
-      ["B7"] = {{function() return isWorldOpen("B7") end, {
-        "118_SPM_000_PM_062", "224_SRT_SPM_000_PM_071", "224_SRT_SPM_000_PM_091",
-      }},
-      {function() return isWorldOpen("B7") and not locked["Connector"] end, {
-        "301_SPM_000_PM_010"
-      }},
-      {function() return isWorldOpen("B7") and not locked["Cube"] end, {
-        "402_SPM_000_PM_020"
-      }},
-      {function() return isWorldOpen("B7") and not locked["Fan"] end, {
-        "Cloud_2_07_SRT_TAM_001_PM_004"
-      }}},
-      ["B8"] = {{function() return isWorldOpen("B8") end, {
-        "214_SRT_SPM_000_PM_025", "411_SRT_SPM_000_PM_014"
-      }},
-      {function() return isWorldOpen("B8") and not locked["Connector"] and not locked["Cube"] end, {
-        "306_SRT_SPM_000_PM_016"
-      }}},      
-      ["C1"] = {{function() return isWorldOpen("C1") end, {
-        "114_SPM_000_PM_032", "219_SPM_000_PM_008", "312_SPM_000_PM_032", "416_SPM_000_PM_026",
-        "Cloud_3_01_SRT_SPM_000_PM_017"
-      }}},
-      ["C2"] = {{function() return isWorldOpen("C2") end, {
-        "217_SPM_000_PM_040", "403_SPM_000_PM_015", "417_SPM_000_PM_029", "418_SPM_000_PM_014",
-        "Cloud_3_02_SRT_TAM_001"
-      }}},
-      ["C3"] = {{function() return isWorldOpen("C3") end, {
-        "229_SPM_000_PM_070", "317_SPM_000_PM_024", "318_SPM_000_PM_026", "Cloud_3_03_SRT_SPM_000_PM_069"
-      }},
-      {function() return isWorldOpen("C3") and not locked["Cube"] end, {
-        "225_SPM_000_PM_044"
-      }}},
-      ["C4"] = {{function() return isWorldOpen("C4") end, {
-        "216_SPM_000_PM_015",
-      }},
-      {function() return isWorldOpen("C4") and not locked["Connector"] and (not locked["Cube"] or not locked["Recorder"] or not locked ["Platform"]) end, {
-        "405_SRT_SPM_000_PM_050",
-      }},
-      {function() return isWorldOpen("C4") and not locked["Connector"] end, {
-        "313_SPM_000_PM_016",
-      }},
-      {function() return isWorldOpen("C4") and not locked["Cube"] end, {
-        "408_SPM_000_PM_033",
-      }},
-      {function() return isWorldOpen("C4") and (not locked["Cube"] or not locked["Fan"]) end, {
-        "408_SRT_SPM_000_PM_034"
-      }},
-      {function() return isWorldOpen("C4")and ((not locked["Connector"] and not locked["Cube"]) or (not locked["Recorder"] and not locked["Platform"])) end, {
-        "405_SRT_SPM_000_PM_047"
-      }}},
-      ["C5"] = {{function() return isWorldOpen("C5") end, {
-        "232_SPM_000_PM_012", "328_SPM_000_PM_016", "Cloud_3_05_SRT_SPM_003_PM_012"
-      }},
-      {function() return isWorldOpen("C5") and not locked["Cube"] end, {
-        "309_SPM_000_PM_018", "404_SPM_000_PM_022", "Cloud_3_05_SRT_SPM_000_PM_035", "Cloud_3_05_SRT_SPM_002_PM_016"
-      }}},
-      ["C6"] = {{function() return isWorldOpen("C6") end, {
-        "112_SPM_000_PM_034", "226_SPM_000_PM_039", "234_SPM_000_PM_015", "Cloud_3_06_SRT_SPM_000_PM_008"
-      }}},
-      ["C7"] = {{function() return isWorldOpen("C7") end, {
-        "230_SPM_000_PM_019"
-      }},
-      {function() return isWorldOpen("C7") and not locked["Cube"] end, {
-        "227_SPM_002_PM_033", "233_SPM_000_PM_015", "308_SPM_000_PM_017", "Cloud_3_07_SRT_SPM_000_PM_021"
-      }}},      
-      ["C8"] = {{function() return isWorldOpen("C8") and not locked["Connector"] and not locked["Cube"] end, {
-        "235_SRT_SPM_000_PM_037", "504_SRT_SPM_000_PM_021"
-      }},
-      {function() return isWorldOpen("C8") and not locked["Connector"] end, {
-        "320_SRT_SPM_000_PM_046"
-      }}},
-      ["CMessenger"] = {{function() return isWorldOpen("CMessenger") end, {
-        "Islands_01_SRT_SPM_000_PM_003"
-      }}}}
     markers = {
       {function() return isWorldOpen("A1") end, {
         "001_SPM_000_PM_005", "005_SPM_000_PM_009", "006_SPM_000_PM_003", "007_SPM_000_PM_006",
         "011_SPM_000_PM_009", "012_SPM_000_PM_004", "107_SPM_000_PM_007", "Cloud_1_02_SRT_SPM_000_PM_016"
       }},
+      {function() return isWorldOpen("A2") end, {
+        "001a_SPM_000_PM_008", "008_SPM_000_PM_016", "013_SPM_000_PM_006", "Cloud_1_02_SRT_SPM_001_PM_003"
+      }, "A2"},
+      {function() return isWorldOpen("A3") end, {
+        "015_SRT_SPM_000_PM_017", "015_SRT_SPM_000_PM_018", "017_SPM_000_PM_023", "020_SPM_000_PM_014",
+        "108_SPM_000_PM_012", "Cloud_1_03_SRT_SPM_000_PM_005"
+      }, "A3"},
+      {function() return isWorldOpen("A4") end, {
+        "202b_SPM_000_PM_004", "202c_SPM_000_PM_003", "202f_SPM_000_PM_003", "Cloud_1_04_SRT_SPM_000_PM_007"
+      }, "A4"},
+      {function() return isWorldOpen("A4") and not locked["Connector"] end, {
+        "202d_SPM_000_PM_002"
+      }, "A4"},
+      {function() return isWorldOpen("A5") end, {
+        "201_SPM_000_PM_013", "201_SRT_SPM_000_PM_004", "202e_SPM_000_PM_004", "204_SPM_000_PM_004",
+        "207_SPM_000_PM_005", "244_SPM_000_PM_008", "244_SRT_SPM_000_PM_006",
+      }, "A5"},
+      {function() return isWorldOpen("A6") end, {
+        "111_SPM_000_PM_012", "210_SPM_000_PM_015", "218_SPM_000_PM_016", "303_SPM_000_PM_010",
+        "Cloud_1_06_SRT_SPM_000_PM_007"
+      }, "A6"},
+      {function() return isWorldOpen("A7") end, {
+        "209_SPM_000_PM_012", "211_SPM_000_PM_008", "220_SPM_000_PM_032", "305_SPM_000_PM_004",
+        "Cloud_1_07_SRT_SPM_000_PM_021"
+      }, "A7"},
+      {function() return isWorldOpen("A7") and not locked["Connector"] end, {
+        "212_SPM_000_PM_017"
+      }, "A7"},
+      {function() return isWorldOpen("A8") end, {
+        "115_SRT_TAM_004_PM_016", "117_SRT_SPM_000_PM_028", "119_SRT_SPM_000_PM_033"
+      }, "A8"},
+      {function() return isWorldOpen("B1") end, {
+        "319_SPM_000_PM_008"
+      }, "B1"},
+      {function() return isWorldOpen("B1") and not locked["Cube"] end, {
+        "316_SPM_000_PM_014"
+      }, "B1"},
+      {function() return isWorldOpen("B1") and (not locked["Connector"] or not locked["Cube"]) end, {
+        "203_SPM_000_PM_011", "205_SPM_000_PM_003", "302_SPM_000_PM_008", "Cloud_2_01_SRT_SPM_000_PM_004"
+      }, "B1"},
+      {function() return isWorldOpen("B2") end, {
+        "120_SPM_000_PM_029", "213_SPM_000_PM_010", "223_SPM_000_PM_009", "Cloud_2_02_SRT_SPM_000_PM_039"
+      }, "B2"},
+      {function() return isWorldOpen("B2") and not locked["Cube"] end, {
+        "221_SPM_002_PM_001"
+      }, "B2"},
+      {function() return isWorldOpen("B3") and not locked["Cube"] end, {
+        "222_SPM_004_PM_001", "300a_SPM_000_PM_007", "Cloud_2_03_SRT_SPM_002_PM_013"
+      }, "B3"},
+      {function() return isWorldOpen("B3") and (locked["Connector"] or not locked["Cube"]) end, {
+        "401_SPM_004_PM_008", "409_SPM_000_PM_024"
+      }, "B3"},      
+      {function() return isWorldOpen("B4") and (not locked["Cube"] or not locked["Recorder"]) end, {
+        "322_SPM_000_PM_008"
+      }, "B4"},
+      {function() return isWorldOpen("B4") and not locked["Connector"] end, {
+        "215_SPM_000_PM_013", "414_SPM_000_PM_007"
+      }, "B4"},
+      {function() return isWorldOpen("B4") and ((not locked["Connector"] and not locked["Cube"]) or not locked["Recorder"]) end, {
+        "321_SPM_000_PM_005", "407_SPM_000_PM_018"
+      }, "B4"},
+      {function() return isWorldOpen("B4") and not locked["Connector"] and not locked["Cube"] end, {
+        "310_SPM_000_PM_024", "Cloud_2_04_SRT_SPM_000_PM_017"
+      }, "B4"},
+      {function() return isWorldOpen("B4") and not locked["Connector"] and (not locked["Cube"] or not locked["Fan"]) end, {
+        "Cloud_2_04_SRT_SPM_002_PM_002"
+      }, "B4"},
+      {function() return isWorldOpen("B5") end, {
+        "311_SPM_000_PM_041", "315_TAM_002_PM_001"
+      }, "B5"},
+      {function() return isWorldOpen("B5") and not locked["Cube"] end, {
+        "238_SPM_000_PM_018", "314_SPM_000_PM_012"
+      }, "B5"},
+      {function() return isWorldOpen("B5") and (not locked["Cube"] or not locked["Recorder"]) end, {
+        "239_SPM_000_PM_018"
+      }, "B5"},
+      {function() return isWorldOpen("B5") and not locked["Connector"] and not locked["Fan"] end, {
+        "Cloud_2_05_SRT_TAM_003_PM_003"
+      }, "B5"},
+      {function() return isWorldOpen("B6") end, {
+        "113_SPM_000_PM_036"
+      }, "B6"},
+      {function() return isWorldOpen("B6") and not locked["Connector"] end, {
+        "206_SPM_000_PM_021", "208_SPM_000_PM_014"
+      }, "B6"},
+      {function() return isWorldOpen("B7") end, {
+        "118_SPM_000_PM_062", "224_SRT_SPM_000_PM_071", "224_SRT_SPM_000_PM_091",
+      }, "B7"},
+      {function() return isWorldOpen("B7") and not locked["Connector"] end, {
+        "301_SPM_000_PM_010"
+      }, "B7"},
+      {function() return isWorldOpen("B7") and not locked["Cube"] end, {
+        "402_SPM_000_PM_020"
+      }, "B7"},
+      {function() return isWorldOpen("B7") and not locked["Fan"] end, {
+        "Cloud_2_07_SRT_TAM_001_PM_004"
+      }, "B7"},
+      {function() return isWorldOpen("B8") end, {
+        "214_SRT_SPM_000_PM_025", "411_SRT_SPM_000_PM_014"
+      }, "B8"},
+      {function() return isWorldOpen("B8") and not locked["Connector"] and not locked["Cube"] end, {
+        "306_SRT_SPM_000_PM_016"
+      }, "B8"},      
+      {function() return isWorldOpen("C1") end, {
+        "114_SPM_000_PM_032", "219_SPM_000_PM_008", "312_SPM_000_PM_032", "416_SPM_000_PM_026",
+        "Cloud_3_01_SRT_SPM_000_PM_017"
+      }, "C1"},
+      {function() return isWorldOpen("C2") end, {
+        "217_SPM_000_PM_040", "403_SPM_000_PM_015", "417_SPM_000_PM_029", "418_SPM_000_PM_014",
+        "Cloud_3_02_SRT_TAM_001"
+      }, "C2"},
+      {function() return isWorldOpen("C3") end, {
+        "229_SPM_000_PM_070", "317_SPM_000_PM_024", "318_SPM_000_PM_026", "Cloud_3_03_SRT_SPM_000_PM_069"
+      }, "C3"},
+      {function() return isWorldOpen("C3") and not locked["Cube"] end, {
+        "225_SPM_000_PM_044"
+      }, "C3"},
+      {function() return isWorldOpen("C4") end, {
+        "216_SPM_000_PM_015",
+      }, "C4"},
+      {function() return isWorldOpen("C4") and not locked["Connector"] and (not locked["Cube"] or not locked["Recorder"] or not locked ["Platform"]) end, {
+        "405_SRT_SPM_000_PM_050",
+      }, "C4"},
+      {function() return isWorldOpen("C4") and not locked["Connector"] end, {
+        "313_SPM_000_PM_016",
+      }, "C4"},
+      {function() return isWorldOpen("C4") and not locked["Cube"] end, {
+        "408_SPM_000_PM_033",
+      }, "C4"},
+      {function() return isWorldOpen("C4") and (not locked["Cube"] or not locked["Fan"]) end, {
+        "408_SRT_SPM_000_PM_034"
+      }, "C4"},
+      {function() return isWorldOpen("C4")and ((not locked["Connector"] and not locked["Cube"]) or (not locked["Recorder"] and not locked["Platform"])) end, {
+        "405_SRT_SPM_000_PM_047"
+      }, "C4"},
+      {function() return isWorldOpen("C5") end, {
+        "232_SPM_000_PM_012", "328_SPM_000_PM_016", "Cloud_3_05_SRT_SPM_003_PM_012"
+      }, "C5"},
+      {function() return isWorldOpen("C5") and not locked["Cube"] end, {
+        "309_SPM_000_PM_018", "404_SPM_000_PM_022", "Cloud_3_05_SRT_SPM_000_PM_035", "Cloud_3_05_SRT_SPM_002_PM_016"
+      }, "C5"},
+      {function() return isWorldOpen("C6") end, {
+        "112_SPM_000_PM_034", "226_SPM_000_PM_039", "234_SPM_000_PM_015", "Cloud_3_06_SRT_SPM_000_PM_008"
+      }, "C6"},
+      {function() return isWorldOpen("C7") end, {
+        "230_SPM_000_PM_019"
+      }, "C7"},
+      {function() return isWorldOpen("C7") and not locked["Cube"] end, {
+        "227_SPM_002_PM_033", "233_SPM_000_PM_015", "308_SPM_000_PM_017", "Cloud_3_07_SRT_SPM_000_PM_021"
+      }, "C7"},      
+      {function() return isWorldOpen("C8") and not locked["Connector"] end, {
+        "320_SRT_SPM_000_PM_046"
+      }, "C8"},
+      {function() return isWorldOpen("C8") and not locked["Connector"] and not locked["Cube"] end, {
+        "235_SRT_SPM_000_PM_037", "504_SRT_SPM_000_PM_021"
+      }, "C8"},      
+      {function() return isWorldOpen("CMessenger") end, {
+        "Islands_01_SRT_SPM_000_PM_003"
+      }, "CMessenger"},
       {function() return (not locked["F2"] and not locked["F3"] and not locked["Cube"]) or not locked["F5"]  end, {
         "LeapOfFaith_PM_010"
       }},
@@ -599,22 +595,28 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     local addDelay = true
     local availableMarkers = 0
     local openMarkers = {}
+    
     local closedMarkers = {}
+    local WorldA = {}
+    local WorldB = {}
+    local WorldC = {}    
     for i=1, #markers do
-      closedMarkers[i] = i
+      if WorldANames[markers[i][3]] then
+        table.insert(WorldA, i)
+      elseif WorldBNames[markers[i][3]] then
+        table.insert(WorldB, i)
+      elseif WorldCNames[markers[i][3]] then
+        table.insert(WorldC, i)
+      else
+        table.insert(closedMarkers, i)
+      end
     end
-
-    -- Adds all markers from provided worlds to the global lists
+    
+    -- Adds all markers from provided locations to the global lists
     local function addWorldMarkers(worlds)
       for i=1, #worlds do
-        open[worlds[i]] = true
-        -- There may be empty worlds provided
-        if markersByWorld[worlds[i]] then
-          for j=1, #markersByWorld[worlds[i]] do
-            table.insert(markers, markersByWorld[worlds[i]][j])
-            table.insert(closedMarkers, #markers)
-          end
-        end
+        table.insert(closedMarkers, worlds[i])
+        open[markers[worlds[i]][3]] = true
       end
     end
     addWorldMarkers(WorldA)
@@ -653,6 +655,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         Wait(CustomEvent("OnStep"))
       end
       addDelay = not addDelay
+      
       -- Find the markers that are currently accessable
       local toRemove = {}
       for i=1, #closedMarkers do
