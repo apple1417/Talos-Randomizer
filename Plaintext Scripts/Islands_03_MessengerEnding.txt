@@ -1,0 +1,26 @@
+RunHandled(WaitForever,
+  On(Event(Chapter_IslandStart.Started)),
+  function()
+      terminal:Disappear()
+      sign:Disappear()
+  end,
+  On(Event(Chapter_MessengerEnd.Started)),
+  function()
+      -- hide messenger that is laying in the coffin
+      MessengerInCoffin:Disappear(false)
+      Coffin:PlayAnimStay("Closed")
+      -- talosProgress : CTalosProgress
+      local talosProgress = nexGetTalosProgress(worldInfo)
+      text:SetText(text:GetTextConfig(), "Seed: " .. talosProgress:GetCodeValue("Randomizer_Seed"), true)
+      talosProgress:SetVar("MessengerEnding")
+      arranger:Disappear()
+      arrangerStand:Disappear()
+      Wait(Event(terminal.Stopped))  
+      -- when terminal has stopped, player should have selected its
+      -- epitaph so add it to the tombstones
+      tombstones:AddPlayersEpitaph(i)
+      -- and start the cutscene
+      ChapterCutSceneMessengerEnding:Start()
+  end
+)
+}

@@ -841,8 +841,9 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   end
 end
 
--- Move sigils to the correct positions
+-- Now that Randomization's finished we can use RunAsync()
 RunAsync(function()
+  -- Move sigils to the correct positions
   for i=1, #worldMarkers do
     local worldMarker = worldMarkers[i]
     local sigilNum = talosProgress:GetCodeValue(worldMarker:GetName())
@@ -855,13 +856,13 @@ RunAsync(function()
   end
 end)
 
---[[
-  Move portals to the correct positions
-  Nexus can cheat a little so we use another script for that
-  Moving portals leaves the base behind, so we have useless ones as our
-   markers, which we then get rid of so that animations don't overlap
-]]--
 RunAsync(function()
+  --[[
+    Move portals to the correct positions
+    Nexus can cheat a little so we use another script for that
+    Moving portals leaves the base behind, so we have useless ones as our
+     markers, which we then get rid of so that animations don't overlap
+  ]]--
   if worldInfo:GetWorldFileName() ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
     local allPortals = {
       A1, A2, A3, A4, A5, A6, A7, A8, ADevIsland,
@@ -871,11 +872,10 @@ RunAsync(function()
     
     local portalNum = talosProgress:GetCodeValue(emptyPortal:GetName())
     local portal = allPortals[portalNum]
-    assert(portal ~= nil, "Portal Marker " .. emptyPortal:GetName() .. " does not have a portal assigned to it!")
     
     local emptyPos = emptyPortal:GetPlacement()
     local portalPos = portal:GetPlacement()
-    emptyMarker:SetPlacement(portalPos)
+    emptyPortal:SetPlacement(portalPos)
     portal:SetPlacement(emptyPos)
     
     if DEBUG then

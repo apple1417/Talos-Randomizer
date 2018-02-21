@@ -5,9 +5,11 @@ if talosProgress:IsVarSet("Randomizer_NoGates") then
   Gates:AssureOpened()
 end
 
+Wait(CustomEvent("Randomizer_Finished"))
+eternalizeText:SetText(eternalizeText:GetTextConfig(), "Seed: " .. talosProgress:GetCodeValue("Randomizer_Seed"), true)
+trancendenceText:SetText(trancendenceText:GetTextConfig(), "Seed: " .. talosProgress:GetCodeValue("Randomizer_Seed"), true)
+
 if talosProgress:IsVarSet("Randomizer_Portals") then
-  Wait(CustomEvent("Randomizer_Finished"))
-  
   local portalNames = {
     "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "ADevIsland",
     "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
