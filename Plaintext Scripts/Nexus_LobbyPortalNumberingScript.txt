@@ -58,6 +58,12 @@ local markers = {
   "211_SPM_000_PM_008"
 },
 {
+  "119_SRT_SPM_000_PM_033",
+  "117_SRT_SPM_000_PM_028",
+  "115_SRT_TAM_004_PM_016" 
+},
+{}, -- Dev Island
+{
   "203_SPM_000_PM_011",
   "302_SPM_000_PM_008",
   "316_SPM_000_PM_014",
@@ -111,6 +117,11 @@ local markers = {
   "Cloud_2_07_SRT_TAM_001_PM_004"
 },
 {
+  "214_SRT_SPM_000_PM_025",
+  "306_SRT_SPM_000_PM_016",
+  "411_SRT_SPM_000_PM_014"
+},
+{
   "219_SPM_000_PM_008",
   "416_SPM_000_PM_026",
   "114_SPM_000_PM_032",
@@ -160,13 +171,27 @@ local markers = {
   "Cloud_3_07_SRT_SPM_000_PM_021",
   "227_SPM_002_PM_033",
   "233_SPM_000_PM_015"
+},
+{
+  "235_SRT_SPM_000_PM_037",
+  "320_SRT_SPM_000_PM_046",
+  "504_SRT_SPM_000_PM_021"
+},
+{
+  "Islands_01_SRT_SPM_000_PM_003"
 }
 }
 
+local worlds = {
+  "A1", "A2", "A3", "A4", "A5", "A6", "A7",
+  "B1", "B2", "B3", "B4", "B5", "B6", "B7",
+  "C1", "C2", "C3", "C4", "C5", "C6", "C7"
+}
 
-for index=1, #LobbyNumberAnimators do
+for index=1, #worlds do
+  local worldNum = talosProgress:GetCodeValue(worlds[index])
   local allSolved = true
-  for _, v in pairs(markers[index]) do
+  for _, v in pairs(markers[worldNum]) do
     assert(talosProgress:IsVarSet(v), "Marker " .. v .. " does not have a sigil assigned to it!")  
     local sigilNum = talosProgress:GetCodeValue(v)
     local sigil = worldGlobals.allTetros[sigilNum]
