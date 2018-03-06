@@ -182,26 +182,49 @@ local markers = {
 }
 }
 
+-- We'll deal with dev island seperatly
 local worlds = {
-  "A1", "A2", "A3", "A4", "A5", "A6", "A7",
-  "B1", "B2", "B3", "B4", "B5", "B6", "B7",
-  "C1", "C2", "C3", "C4", "C5", "C6", "C7"
+  "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8",
+  "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
+  "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "CMessenger"
 }
 
 for index=1, #worlds do
   local worldNum = talosProgress:GetCodeValue(worlds[index])
-  local allSolved = true
-  for _, v in pairs(markers[worldNum]) do
-    assert(talosProgress:IsVarSet(v), "Marker " .. v .. " does not have a sigil assigned to it!")  
-    local sigilNum = talosProgress:GetCodeValue(v)
-    local sigil = worldGlobals.allTetros[sigilNum]
-    if not sigil:IsPicked() then
-      allSolved = false
+  if not (worldNum == 8 or worldNum == 9 or worldNum == 17 or worldNum == 25 or worldNum == 26) then
+    local allSolved = true
+    for _, v in pairs(markers[index]) do
+      assert(talosProgress:IsVarSet(v), "Marker " .. v .. " does not have a sigil assigned to it!")  
+      local sigilNum = talosProgress:GetCodeValue(v)
+      local sigil = worldGlobals.allTetros[sigilNum]
+      if not sigil:IsPicked() then
+        allSolved = false
+        break
+      else
+        print(sigil:GetName())
+      end
+    end
+    --[[
+      We need to convert worldNum from 1-26 to 1-21
+      Luckily the 5 bad values are already sorted out
+    ]]--
+    if worldNum > 7  then worldNum = worldNum - 2 end
+    if worldNum > 16 then worldNum = worldNum - 1 end
+    if worldNum > 24 then worldNum = worldNum - 2 end
+    if allSolved then
+      LobbyNumberAnimators[worldNum]:StartAnimation("Off")
+    else
+      LobbyNumberAnimators[worldNum]:StartAnimation("On")
     end
   end
-  if allSolved then
-    LobbyNumberAnimators[index]:StartAnimation("Off")
-  else
-    LobbyNumberAnimators[index]:StartAnimation("On")
-  end
+end
+
+local worldNum = talosProgress:GetCodeValue("ADevIsland")
+if worldNum > 7  then worldNum = worldNum - 2 end
+if worldNum > 16 then worldNum = worldNum - 1 end
+if worldNum > 24 then worldNum = worldNum - 2 end
+if talosProgress:IsVarSet("DevIslandVisited") then
+  LobbyNumberAnimators[worldNum]:StartAnimation("Off")
+else
+  LobbyNumberAnimators[worldNum]:StartAnimation("On")
 end

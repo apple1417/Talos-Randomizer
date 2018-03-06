@@ -56,7 +56,7 @@ terminal when (AllSigns) {
 terminal when (Portals) {
   text: [[TTRS:notrans=Randomizes the world portals as well as sigils. For example this might make it so that entering what is normally A2 sends you to C Star instead. Exiting a world will always send you back to where you entered it.
 
-Note that this option does affect seeds, the same seed with the option on will have a different sigil arrangement to having the option off.]]
+Note that this option is not affected by Randomization Mode, but does affect sigil placement. No matter the mode, with the same seed you will always have the same portal arrangement. But, even using the same mode and seed, when you toggle this option on and off you will have a different sigil arrangement.]]
   goto: Loop
 }
 

@@ -9,6 +9,41 @@ Wait(CustomEvent("Randomizer_Finished"))
 eternalizeText:SetText(eternalizeText:GetTextConfig(), "Seed: " .. talosProgress:GetCodeValue("Randomizer_Seed"), true)
 trancendenceText:SetText(trancendenceText:GetTextConfig(), "Seed: " .. talosProgress:GetCodeValue("Randomizer_Seed"), true)
 
+local A1Location = talosProgress:GetCodeValue("A1")
+if A1Location < 8 then
+  AUpperGate:Disappear()
+  AUpperArranger:Disappear()
+  AUpperLight:Deactivate()
+  BLowerGate:Disappear()
+  BLowerArranger:Disappear()
+  BLowerWalls:Disappear()
+  BLowerLight:Deactivate()
+  CLowerGate:Disappear()
+  CLowerArranger:Disappear()
+  CLowerLight:Deactivate()
+elseif 9 < A1Location and A1Location < 17 then
+  ALowerGate:Disappear()
+  ALowerArranger:Disappear()
+  ALowerLight:Deactivate()
+  BUpperGate:Disappear()
+  BUpperArranger:Disappear()
+  BUpperLight:Deactivate()
+  CLowerGate:Disappear()
+  CLowerArranger:Disappear()
+  CLowerLight:Deactivate()
+elseif 17 < A1Location then
+  ALowerGate:Disappear()
+  ALowerArranger:Disappear()
+  ALowerLight:Deactivate()
+  BLowerGate:Disappear()
+  BLowerArranger:Disappear()
+  BLowerWalls:Disappear()
+  BLowerLight:Deactivate()
+  CUpperGate:Disappear()
+  CUpperArranger:Disappear()
+  CUpperLight:Deactivate()
+end
+
 if talosProgress:IsVarSet("Randomizer_Portals") then
   DevIslandCover:Disappear()
 
@@ -36,6 +71,11 @@ if talosProgress:IsVarSet("Randomizer_Portals") then
       portalList[i]:SetPlacement(OOB)
     else
       portalList[i]:SetPlacement(portalLocations[locationNum])
+      if talosProgress:IsVarSet("Randomizer_Debug") then
+        conWarningF(string.format("Placing %s at %s\n", portalList[i]:GetName(),  portalNames[locationNum]))
+      end
     end
   end
+else
+  DevIslandNumber:Disappear()
 end
