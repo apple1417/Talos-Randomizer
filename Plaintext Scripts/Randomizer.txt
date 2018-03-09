@@ -60,7 +60,6 @@ worldGlobals.worldMarkers = worldMarkers
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local PROB_BOTH_HUBS = 25
 local DEBUG = talosProgress:IsVarSet("Randomizer_Debug")
-DEBUG = true
 
 if not talosProgress:IsVarSet("Randomizer_Generated") then
   print("Randomizing...")
@@ -617,7 +616,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     local addDelay = true
     local allSpots = false
     local placedItems = false
-    local placedStars = true
+    local placedStars = false
     local availableMarkers = 0
     local openMarkers = {}
     
@@ -733,7 +732,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       ]]--
       if not allSpots then
         if (WorldA or WorldB or WorldC) or (locked["A Star"] or locked["B Star"] or locked["C Star"]) then
-          if (WorldA or WorldB or WorldC) or placedStars then
+          if (WorldA or WorldB or WorldC) then
             if arranger == "A Gate" and startHub == "A" then
               table.insert(accessableArrangers, "B Gate")
               table.insert(accessableArrangers, "C Gate")
@@ -744,7 +743,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
               table.insert(accessableArrangers, "A Gate")
               table.insert(accessableArrangers, "B Gate")
             end
-          else
+          elseif not placedStars then
             placedStars = true
             table.insert(accessableArrangers, "A Star")
             table.insert(accessableArrangers, "B Star")
@@ -791,7 +790,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         printError(arranger .. " does not have any sigils assigned to it")
       end
       
-      for k, v in pairs(accessableArrangers) do printError(k, v) end
       --[[
         Make sure you can't go to the wrong hub first and softlock.
         Sometimes does this by unlocking both, but usually by hiding

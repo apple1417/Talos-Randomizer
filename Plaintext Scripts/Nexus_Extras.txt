@@ -46,7 +46,7 @@ else
 end
 
 local A1Location = talosProgress:GetCodeValue("A1")
-if A1Location < 8 then
+if A1Location <= 9 then
   AUpperGate:Disappear()
   AUpperArranger:Disappear()
   AUpperLight:Deactivate()
@@ -57,7 +57,7 @@ if A1Location < 8 then
   CLowerGate:Disappear()
   CLowerArranger:Disappear()
   CLowerLight:Deactivate()
-elseif 9 < A1Location and A1Location < 17 then
+elseif 10 <= A1Location and A1Location <= 17 then
   ALowerGate:Disappear()
   ALowerArranger:Disappear()
   ALowerLight:Deactivate()
@@ -67,7 +67,7 @@ elseif 9 < A1Location and A1Location < 17 then
   CLowerGate:Disappear()
   CLowerArranger:Disappear()
   CLowerLight:Deactivate()
-elseif 17 < A1Location then
+elseif 18 <= A1Location then
   ALowerGate:Disappear()
   ALowerArranger:Disappear()
   ALowerLight:Deactivate()
