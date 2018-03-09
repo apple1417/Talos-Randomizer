@@ -290,6 +290,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     end
   end
   
+  for _=1,100 do
+    rand(0, 0)
+  end
+  
   local function isWorldOpen(world)
     if world == "A1" then return true end
 
@@ -613,6 +617,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     local addDelay = true
     local allSpots = false
     local placedItems = false
+    local placedStars = true
     local availableMarkers = 0
     local openMarkers = {}
     
@@ -645,17 +650,17 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     local accessableArrangers = {}
     local lastHubs = {}
     if startHub == "A" then
-      accessableArrangers = {"A Gate", "A Star"}
+      accessableArrangers = {"A Gate"}
       locked["A Gate"] = {"DI1", "DJ3", "DL1", "DZ2"}
       WorldA = addWorldMarkers(WorldA)
       lastHubs = {"B Gate", "C Gate"}
     elseif startHub == "B" then
-      accessableArrangers = {"B Gate", "B Star"}
+      accessableArrangers = {"B Gate"}
       locked["B Gate"] = {"DI2", "DL2", "DT1", "DT2", "DZ3"}
       WorldB = addWorldMarkers(WorldB)
       lastHubs = {"A Gate", "C Gate"}
     elseif startHub == "C" then
-      accessableArrangers = {"C Gate", "C Star"}
+      accessableArrangers = {"C Gate"}
       locked["C Gate"] = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"} 
       WorldC = addWorldMarkers(WorldC)
       lastHubs = {"A Gate", "B Gate"}
@@ -719,30 +724,34 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       
       --[[
         To try make sure all spots unlock, and we don't end up skipping
-         sigils we unlock arrangers in three waves:
-        Gates (both hubs + star worlds)
-        Items + Tower to F3 (to unlock all markers)
-        Everything else
+         sigils we unlock arrangers in four steps:
+        1. Hubs
+        2. Star worlds
+        3. Items + Tower to F3 (until all markers unlocked)
+        4. Everything else
         This is probably  not 100% reliable, but that would need a full rewrite
       ]]--
       if not allSpots then
-        if not (WorldA or WorldB or WorldC) and not (locked["A Star"] or locked["B Star"] or locked["C Star"]) then
-          -- Are all markers unlocked?
-          if placedItems and #closedMarkers == 0 then
-            -- Won't need to add arrangers any more
-            allSpots = true
-            if DEBUG then
-              print("All markers unlocked")
+        if (WorldA or WorldB or WorldC) or (locked["A Star"] or locked["B Star"] or locked["C Star"]) then
+          if (WorldA or WorldB or WorldC) or placedStars then
+            if arranger == "A Gate" and startHub == "A" then
+              table.insert(accessableArrangers, "B Gate")
+              table.insert(accessableArrangers, "C Gate")
+            elseif arranger == "B Gate" and startHub == "B" then
+              table.insert(accessableArrangers, "A Gate")
+              table.insert(accessableArrangers, "C Gate")
+            elseif arranger == "C Gate" and startHub == "C" then
+              table.insert(accessableArrangers, "A Gate")
+              table.insert(accessableArrangers, "B Gate")
             end
-            table.insert(accessableArrangers, "F4")
-            table.insert(accessableArrangers, "F5")
-            table.insert(accessableArrangers, "F6")
-            table.insert(accessableArrangers, "A1 Gate")
-            -- 60fps needs F2 earlier, but not uncapped
-            if mode ~= 2 then
-              table.insert(accessableArrangers, "F2")
-            end
-          elseif not placedItems then
+          else
+            placedStars = true
+            table.insert(accessableArrangers, "A Star")
+            table.insert(accessableArrangers, "B Star")
+            table.insert(accessableArrangers, "C Star")
+          end          
+        else
+          if not placedItems then
             placedItems = true
             table.insert(accessableArrangers, "Connector")
             table.insert(accessableArrangers, "Cube")
@@ -754,28 +763,18 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
             if mode == 2 then
               table.insert(accessableArrangers, "F2")
             end
-          end
-        else -- If the first step wave isn't complete yet
-          if arranger == "A Gate" then
-            if startHub == "A" then
-              table.insert(accessableArrangers, "B Gate")
-              table.insert(accessableArrangers, "C Gate")
-            else
-              table.insert(accessableArrangers, "A Star")
+          elseif placedItems and #closedMarkers == 0 then
+            allSpots = true
+            if DEBUG then
+              print("All markers unlocked")
             end
-          elseif arranger == "B Gate" then
-            if startHub == "B" then
-              table.insert(accessableArrangers, "A Gate")
-              table.insert(accessableArrangers, "C Gate")
-            else
-              table.insert(accessableArrangers, "B Star")
-            end
-          elseif arranger == "C Gate" then
-            if startHub == "C" then
-              table.insert(accessableArrangers, "A Gate")
-              table.insert(accessableArrangers, "B Gate")
-            else
-              table.insert(accessableArrangers, "C Star")
+            table.insert(accessableArrangers, "F4")
+            table.insert(accessableArrangers, "F5")
+            table.insert(accessableArrangers, "F6")
+            table.insert(accessableArrangers, "A1 Gate")
+            -- 60fps needs F2 earlier, but not uncapped
+            if mode ~= 2 then
+              table.insert(accessableArrangers, "F2")
             end
           end
         end
@@ -792,6 +791,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         printError(arranger .. " does not have any sigils assigned to it")
       end
       
+      for k, v in pairs(accessableArrangers) do printError(k, v) end
       --[[
         Make sure you can't go to the wrong hub first and softlock.
         Sometimes does this by unlocking both, but usually by hiding
@@ -807,34 +807,16 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
               print("Both Hubs open after " .. startHub)
             end
             
-            --[[
-              If so we're going to manually add the sigils for both
-              We also need to properly unlock the other hub
-            ]]--
+            -- If so we're going to manually add the sigils for both
             if startHub == "A" then
               sigils = {"DI2", "DL2", "DT1", "DT2", "DZ3",
                         "DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
-              if arranger == "B Gate" then
-                table.insert(accessableArrangers, "C Star")
-              elseif arranger == "C Gate" then
-                table.insert(accessableArrangers, "B Star")
-              end
             elseif startHub == "B" then
               sigils = {"DI1", "DJ3", "DL1", "DZ2",
                         "DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}     
-              if arranger == "A Gate" then
-                table.insert(accessableArrangers, "C Star")
-              elseif arranger == "C Gate" then
-                table.insert(accessableArrangers, "A Star")
-              end
             elseif startHub == "C" then
               sigils = {"DI1", "DJ3", "DL1", "DZ2",
                         "DI2", "DL2", "DT1", "DT2", "DZ3"}
-              if arranger == "A Gate" then
-                table.insert(accessableArrangers, "B Star")
-              elseif arranger == "B Gate" then
-                table.insert(accessableArrangers, "A Star")
-              end
             end
             
             -- If we're unlocking both we don't need to fix the other world
