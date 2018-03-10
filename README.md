@@ -10,6 +10,6 @@ Or, to install any version:
 3. Navigate to [main talos install]\Content\Talos
 4. Move the .gro there
 5. Restart the game
-6. Check that the version number on the back of the terminal is 9.0.0
+6. Check that the version number on the back of the terminal is what you expect it to be
 
 To uninstall just re-enable/re-subscribe to the normal version, though eventually you should also delete the .gro
