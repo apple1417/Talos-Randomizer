@@ -1,18 +1,17 @@
---Wait(CustomEvent("Randomizer_Finished"))
-Wait(Delay(0.1))
+Wait(CustomEvent("Randomizer_Finished"))
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local showAll = talosProgress:IsVarSet("Randomizer_ShowAll")
 
 local icons = {
-  ["I"]="▄▄",
-  ["J"]="▐▄",
-  ["L"]="▄▌",
-  ["O"]="█",
-  ["S"]="▗▛",
-  ["T"]="▗▙",
-  ["Z"]="▜▖",
-  ["*"]="★"
+  ["I"]="â–„â–„",
+  ["J"]="â–â–„",
+  ["L"]="â–„â–Œ",
+  ["O"]="â–ˆ",
+  ["S"]="â–—â–›",
+  ["T"]="â–—â–™",
+  ["Z"]="â–œâ––",
+  ["*"]="â˜…"
 } 
 
 local allMarkers = {
@@ -411,33 +410,36 @@ for world, markers in pairs(allMarkers) do
     end
   end
   
-  -- Bring stars to the end of the sigil list
-  local allSigils = {}
-  local starCount = 0
-  local totalSigils = #markers
-  for i,v in pairs(markers) do
-    local sigilNum = talosProgress:GetCodeValue(v)
-    -- currentSigil : CTetrominoItemInstance
-    local currentSigil = worldGlobals.allTetros[sigilNum]
-    local type = string.sub(currentSigil:GetName(), 2, 2)
-    if type == "*" then
-      allSigils[totalSigils - starCount] = currentSigil
-      starCount = starCount + 1
-    else
-      allSigils[i - starCount] = currentSigil
+  -- If random portals is on we just disable all the signs
+  if not talosProgress:IsVarSet("Randomizer_Portals") then
+    -- Bring stars to the end of the sigil list
+    local allSigils = {}
+    local starCount = 0
+    local totalSigils = #markers
+    for i,v in pairs(markers) do
+      local sigilNum = talosProgress:GetCodeValue(v)
+      -- currentSigil : CTetrominoItemInstance
+      local currentSigil = worldGlobals.allTetros[sigilNum]
+      local type = string.sub(currentSigil:GetName(), 2, 2)
+      if type == "*" then
+        allSigils[totalSigils - starCount] = currentSigil
+        starCount = starCount + 1
+      else
+        allSigils[i - starCount] = currentSigil
+      end
     end
-  end
-  
-  -- sigil : CTetrominoItemInstance
-  for index,sigil in pairs(allSigils) do
-    local colour = string.sub(sigil:GetName(), 1, 1)
-    local type = string.sub(sigil:GetName(), 2, 2)
-    if sigil:IsPicked() then
-      text[colour][index]:SetText(textPtr[colour][index], icons[type], true)
-      text["Default"][index]:SetText(textPtr["Default"][index], "✘", true)
-    elseif showAll then
-      text[colour][index]:SetText(textPtr[colour][index], icons[type], true)
-      text["Default"][index]:ClearText(textPtr["Default"][index])
-    end    
+    
+    -- sigil : CTetrominoItemInstance
+    for index,sigil in pairs(allSigils) do
+      local colour = string.sub(sigil:GetName(), 1, 1)
+      local type = string.sub(sigil:GetName(), 2, 2)
+      if sigil:IsPicked() then
+        text[colour][index]:SetText(textPtr[colour][index], icons[type], true)
+        text["Default"][index]:SetText(textPtr["Default"][index], "âœ˜", true)
+      elseif showAll then
+        text[colour][index]:SetText(textPtr[colour][index], icons[type], true)
+        text["Default"][index]:ClearText(textPtr["Default"][index])
+      end    
+    end
   end
 end

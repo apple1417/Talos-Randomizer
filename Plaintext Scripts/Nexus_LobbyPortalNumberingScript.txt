@@ -1,5 +1,4 @@
-﻿--Wait(CustomEvent("Randomizer_Finished"))
-Wait(Delay(0.1))
+﻿Wait(CustomEvent("Randomizer_Finished"))
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local markers = {
@@ -59,6 +58,11 @@ local markers = {
   "211_SPM_000_PM_008"
 },
 {
+  "119_SRT_SPM_000_PM_033",
+  "117_SRT_SPM_000_PM_028",
+  "115_SRT_TAM_004_PM_016" 
+},
+{
   "203_SPM_000_PM_011",
   "302_SPM_000_PM_008",
   "316_SPM_000_PM_014",
@@ -112,6 +116,11 @@ local markers = {
   "Cloud_2_07_SRT_TAM_001_PM_004"
 },
 {
+  "214_SRT_SPM_000_PM_025",
+  "306_SRT_SPM_000_PM_016",
+  "411_SRT_SPM_000_PM_014"
+},
+{
   "219_SPM_000_PM_008",
   "416_SPM_000_PM_026",
   "114_SPM_000_PM_032",
@@ -161,23 +170,66 @@ local markers = {
   "Cloud_3_07_SRT_SPM_000_PM_021",
   "227_SPM_002_PM_033",
   "233_SPM_000_PM_015"
+},
+{
+  "235_SRT_SPM_000_PM_037",
+  "320_SRT_SPM_000_PM_046",
+  "504_SRT_SPM_000_PM_021"
+},
+{
+  "Islands_01_SRT_SPM_000_PM_003"
 }
 }
+local function isValidWorld(worldNum)
+  return not (   worldNum == 8  or worldNum == 9
+              or worldNum == 17
+              or worldNum == 25 or worldNum == 26)
+end
 
 
-for index=1, #LobbyNumberAnimators do
-  local allSolved = true
-  for _, v in pairs(markers[index]) do
-    assert(talosProgress:IsVarSet(v), "Marker " .. v .. " does not have a sigil assigned to it!")  
-    local sigilNum = talosProgress:GetCodeValue(v)
-    local sigil = worldGlobals.allTetros[sigilNum]
-    if not sigil:IsPicked() then
-      allSolved = false
+-- We'll deal with dev island seperatly
+local worlds = {
+  "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8",
+  "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
+  "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "CMessenger"
+}
+
+for index=1, #worlds do
+  local worldNum = talosProgress:GetCodeValue(worlds[index])
+  if isValidWorld(worldNum) then
+    local allSolved = true
+    for _, v in pairs(markers[index]) do
+      assert(talosProgress:IsVarSet(v), "Marker " .. v .. " does not have a sigil assigned to it!")  
+      local sigilNum = talosProgress:GetCodeValue(v)
+      local sigil = worldGlobals.allTetros[sigilNum]
+      if not sigil:IsPicked() then
+        allSolved = false
+        break
+      end
+    end
+    --[[
+      We need to convert worldNum from 1-26 to 1-21
+      Luckily the 5 bad values are already sorted out
+    ]]--
+    if worldNum >= 8  then worldNum = worldNum - 2 end
+    if worldNum >= 16 then worldNum = worldNum - 1 end
+    if worldNum >= 24 then worldNum = worldNum - 2 end
+    if allSolved then
+      LobbyNumberAnimators[worldNum]:StartAnimation("Off")
+    else
+      LobbyNumberAnimators[worldNum]:StartAnimation("On")
     end
   end
-  if allSolved then
-    LobbyNumberAnimators[index]:StartAnimation("Off")
+end
+
+local worldNum = talosProgress:GetCodeValue("ADevIsland")
+if isValidWorld(worldNum) then
+  if worldNum >= 8  then worldNum = worldNum - 2 end
+  if worldNum >= 16 then worldNum = worldNum - 1 end
+  if worldNum >= 24 then worldNum = worldNum - 2 end
+  if talosProgress:IsVarSet("DevIslandVisited") then
+    LobbyNumberAnimators[worldNum]:StartAnimation("Off")
   else
-    LobbyNumberAnimators[index]:StartAnimation("On")
+    LobbyNumberAnimators[worldNum]:StartAnimation("On")
   end
 end

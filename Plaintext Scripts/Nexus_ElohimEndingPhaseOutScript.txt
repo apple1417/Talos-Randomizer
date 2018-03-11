@@ -23,6 +23,7 @@ RunHandled(
       local UnlockItems = talosProgress:IsVarSet("Randomizer_UnlockItems")
       local ShowAll = talosProgress:IsVarSet("Randomizer_ShowAll")
       local Debug = talosProgress:IsVarSet("Randomizer_Debug")
+      local Portals = talosProgress:IsVarSet("Randomizer_Portals")
       
       -- clear the talos progress (so we can start the game anew)
       talClearTalosProgress(exitPortal)
@@ -37,6 +38,7 @@ RunHandled(
       if UnlockItems then talosProgress:SetVar("Randomizer_UnlockItems") end
       if ShowAll then talosProgress:SetVar("Randomizer_ShowAll") end
       if Debug then talosProgress:SetVar("Randomizer_Debug") end
+      if Portals then talosProgress:SetVar("Randomizer_Portals") end
 
       exitPortal:Enable(true)
     end
