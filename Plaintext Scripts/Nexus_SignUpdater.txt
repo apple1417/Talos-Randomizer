@@ -4,14 +4,14 @@ local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local showAll = talosProgress:IsVarSet("Randomizer_ShowAll")
 
 local icons = {
-  ["I"]="â–„â–„",
-  ["J"]="â–â–„",
-  ["L"]="â–„â–Œ",
-  ["O"]="â–ˆ",
-  ["S"]="â–—â–›",
-  ["T"]="â–—â–™",
-  ["Z"]="â–œâ––",
-  ["*"]="â˜…"
+  ["I"]="▄▄",
+  ["J"]="▐▄",
+  ["L"]="▄▌",
+  ["O"]="█",
+  ["S"]="▗▛",
+  ["T"]="▗▙",
+  ["Z"]="▜▖",
+  ["*"]="★"
 } 
 
 local allMarkers = {
@@ -412,33 +412,39 @@ for world, markers in pairs(allMarkers) do
   
   -- If random portals is on we just disable all the signs
   if not talosProgress:IsVarSet("Randomizer_Portals") then
-    -- Bring stars to the end of the sigil list
-    local allSigils = {}
-    local starCount = 0
-    local totalSigils = #markers
-    for i,v in pairs(markers) do
-      local sigilNum = talosProgress:GetCodeValue(v)
-      -- currentSigil : CTetrominoItemInstance
-      local currentSigil = worldGlobals.allTetros[sigilNum]
-      local type = string.sub(currentSigil:GetName(), 2, 2)
-      if type == "*" then
-        allSigils[totalSigils - starCount] = currentSigil
-        starCount = starCount + 1
+    -- Sort the sigil list to prevent memorising spawn order
+    local sigils = {}
+    local stars = {}
+    for i=1, #markers do
+      local sigilNum = talosProgress:GetCodeValue(markers[i])
+      if sigilNum <= 30 then
+        table.insert(stars, sigilNum)
       else
-        allSigils[i - starCount] = currentSigil
+        table.insert(sigils, sigilNum)
       end
     end
+    table.sort(sigils)
+    local allSigils = {}
+    local half = mthCeilF(#sigils/2)
+    for i=1, #sigils do
+      if i > half then
+        allSigils[2*(i-half)] = sigils[i]
+      else
+        allSigils[2*i-1] = sigils[i]
+      end
+    end
+    for i=1, #stars do table.insert(allSigils, stars[i]) end
     
-    -- sigil : CTetrominoItemInstance
-    for index,sigil in pairs(allSigils) do
+    for i=1, #allSigils do
+      local sigil = worldGlobals.allTetros[allSigils[i]]
       local colour = string.sub(sigil:GetName(), 1, 1)
       local type = string.sub(sigil:GetName(), 2, 2)
       if sigil:IsPicked() then
-        text[colour][index]:SetText(textPtr[colour][index], icons[type], true)
-        text["Default"][index]:SetText(textPtr["Default"][index], "âœ˜", true)
+        text[colour][i]:SetText(textPtr[colour][i], icons[type], true)
+        text["Default"][i]:SetText(textPtr["Default"][i], "✘", true)
       elseif showAll then
-        text[colour][index]:SetText(textPtr[colour][index], icons[type], true)
-        text["Default"][index]:ClearText(textPtr["Default"][index])
+        text[colour][i]:SetText(textPtr[colour][i], icons[type], true)
+        text["Default"][i]:ClearText(textPtr["Default"][i])
       end    
     end
   end

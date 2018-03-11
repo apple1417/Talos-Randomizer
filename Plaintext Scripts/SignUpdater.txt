@@ -44,36 +44,42 @@ for k,v in pairs(text) do
   end
 end
 
--- Bring stars to the end of the sigil list
-local allSigils = {}
-local starCount = 0
-local totalSigils = #worldGlobals.worldMarkers
-for i,v in pairs(worldGlobals.worldMarkers) do
-  local sigilNum = talosProgress:GetCodeValue(v:GetName())
-  -- currentSigil : CTetrominoItemInstance
-  local currentSigil = worldGlobals.allTetros[sigilNum]
-  local type = string.sub(currentSigil:GetName(), 2, 2)
-  if type == "*" then
-    allSigils[totalSigils - starCount] = currentSigil
-    starCount = starCount + 1
+-- Sort the sigil list to prevent memorising spawn order
+local sigils = {}
+local stars = {}
+for i=1, #worldGlobals.worldMarkers do
+  local sigilNum = talosProgress:GetCodeValue(worldGlobals.worldMarkers[i]:GetName())
+  if sigilNum <= 30 then
+    table.insert(stars, sigilNum)
   else
-    allSigils[i - starCount] = currentSigil
+    table.insert(sigils, sigilNum)
   end
 end
+table.sort(sigils)
+local allSigils = {}
+local half = mthCeilF(#sigils/2)
+for i=1, #sigils do
+  if i > half then
+    allSigils[2*(i-half)] = sigils[i]
+  else
+    allSigils[2*i-1] = sigils[i]
+  end
+end
+for i=1, #stars do table.insert(allSigils, stars[i]) end
 
 local function updateText()
-  for index,sigil in pairs(allSigils) do
-    local colour = string.sub(sigil:GetName(), 1, 1)
-    local type = string.sub(sigil:GetName(), 2, 2)    
-    -- sigil : CTetrominoItemInstance
-    if sigil:IsPicked() then
-      text[colour][index]:SetText(textPtr[colour][index], icons[type], true)
-      text["Default"][index]:SetText(textPtr["Default"][index], "✘", true)
-    elseif showAll then
-      text[colour][index]:SetText(textPtr[colour][index], icons[type], true)
-      text["Default"][index]:ClearText(textPtr["Default"][index])
-    end    
-  end
+  for i=1, #allSigils do
+  local sigil = worldGlobals.allTetros[allSigils[i]]
+  local colour = string.sub(sigil:GetName(), 1, 1)
+  local type = string.sub(sigil:GetName(), 2, 2)
+  if sigil:IsPicked() then
+    text[colour][i]:SetText(textPtr[colour][i], icons[type], true)
+    text["Default"][i]:SetText(textPtr["Default"][i], "✘", true)
+  elseif showAll then
+    text[colour][i]:SetText(textPtr[colour][i], icons[type], true)
+    text["Default"][i]:ClearText(textPtr["Default"][i])
+  end    
+end
 end
 
 updateText()
