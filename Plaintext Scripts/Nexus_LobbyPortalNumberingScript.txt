@@ -67,7 +67,7 @@ local markers = {
 {
   "119_SRT_SPM_000_PM_033",
   "117_SRT_SPM_000_PM_028",
-  "115_SRT_TAM_004_PM_016" 
+  "115_SRT_TAM_004_PM_016"
 },
 {
   "203_SPM_000_PM_011",
@@ -211,7 +211,7 @@ for index=1, #worlds do
     -- Go through each marker and check if you have the required sigil
     local allSolved = true
     for _, v in pairs(markers[index]) do
-      assert(talosProgress:IsVarSet(v), "Marker " .. v .. " does not have a sigil assigned to it!")  
+      assert(talosProgress:IsVarSet(v), "Marker " .. v .. " does not have a sigil assigned to it!")
       local sigilNum = talosProgress:GetCodeValue(v)
       local sigil = worldGlobals.allTetros[sigilNum]
       if not sigil:IsPicked() then

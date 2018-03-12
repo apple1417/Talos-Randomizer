@@ -7,7 +7,7 @@ local elohimVoice_Cease = Depfile("Content/Talos/Locales/enu/Sounds/Voiceovers/E
 local elohimVoice_InTimeOf = Depfile("Content/Talos/Locales/enu/Sounds/Voiceovers/Elohim/Elohim-051_In_the_time_of_your_ancestors.ogg")
 
 RunHandled(WaitForever,
-  On(Event(RoD.Picked)), 
+  On(Event(RoD.Picked)),
   function()
     detector_StartGhost:Recharge()
     Wait(Event(detector_StartGhost.Activated))
@@ -15,9 +15,9 @@ RunHandled(WaitForever,
     animMover_GhostSound:PlayAnim("Default")
     soundGhostScream:PlayLooping()
     Wait(Delay(5))
-    worldGlobals.ElohimSayOnce(elohimVoice_Cease, 0)  
+    worldGlobals.ElohimSayOnce(elohimVoice_Cease, 0)
     Wait(Delay(1.5))
     soundGhostScream:Stop()
     Wait(Delay(2))
-    worldGlobals.ElohimSayOnce(elohimVoice_InTimeOf, 0)  
+    worldGlobals.ElohimSayOnce(elohimVoice_InTimeOf, 0)
   end)

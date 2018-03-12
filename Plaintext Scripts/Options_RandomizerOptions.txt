@@ -14,7 +14,7 @@ RunHandled(
   function()
     WaitForever()
   end,
-
+  
   OnEvery(Any(Events(Modes.Activated))),
   function(event)
     local index = event.any.signaledIndex
@@ -31,7 +31,7 @@ RunHandled(
       Modes[index]:Activate()
     end
   end,
-
+  
   OnEvery(Event(NoGates.Activated)),
   function()
     talosProgress:SetVar("Randomizer_NoGates")
@@ -40,7 +40,7 @@ RunHandled(
   function()
     talosProgress:ClearVar("Randomizer_NoGates")
   end,
-
+  
   OnEvery(Event(UnlockItems.Activated)),
   function()
     talosProgress:SetVar("Randomizer_UnlockItems")
@@ -48,7 +48,7 @@ RunHandled(
   OnEvery(Event(UnlockItems.Deactivated)),
   function()
     talosProgress:ClearVar("Randomizer_UnlockItems")
-  end,    
+  end,
   
   OnEvery(Event(ShowAll.Activated)),
   function()
@@ -67,7 +67,7 @@ RunHandled(
   function()
     talosProgress:ClearVar("Randomizer_Portals")
   end,
-     
+  
   --[[
   OnEvery(Event(Option.Activated)),
   function()
@@ -77,8 +77,8 @@ RunHandled(
   function()
     talosProgress:ClearVar("Randomizer_Option")
   end,
-  ]]--  
-
+  ]]--
+  
   OnEvery(Any(Events(NoFunction.Activated))),
   function(event)
     local index = event.any.signaledIndex

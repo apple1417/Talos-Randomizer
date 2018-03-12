@@ -22,7 +22,7 @@ local icons = {
   ["T"]="▗▙",
   ["Z"]="▜▖",
   ["*"]="★"
-} 
+}
 
 -- All these are in the same order as in the worlds, to be consistent
 local allMarkers = {
@@ -474,7 +474,7 @@ for world, markers in pairs(allMarkers) do
       elseif showAll then
         text[colour][i]:SetText(textPtr[colour][i], icons[type], true)
         text["Default"][i]:ClearText(textPtr["Default"][i])
-      end    
+      end
     end
   end
 end

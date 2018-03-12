@@ -96,7 +96,7 @@ RunHandled(
     if seed ~= "No Seed" then
       seed = "No Seed"
       seedDisplay:SetText(seedPtr, seed, true)
-      talosProgress:ClearVar("Randomizer_Seed")  
+      talosProgress:ClearVar("Randomizer_Seed")
       soundUse:PlayOnce()
     else
       soundUseFail:PlayOnce()

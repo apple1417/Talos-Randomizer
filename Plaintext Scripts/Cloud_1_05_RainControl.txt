@@ -58,7 +58,7 @@ else
   bRaining = false
 end
 bLastRaining = bRaining
-    
+
 RunHandled(
   function()
     WaitForever()
@@ -77,8 +77,8 @@ RunHandled(
       worldInfo:SetMusic("Ambient", resRainyAmbient)
       fNextLightning = 15
     end
-
-    -- if it is raining    
+    
+    -- if it is raining
     if bRaining then
       fNextLightning = fNextLightning-1
       if fNextLightning<0 then
@@ -88,7 +88,7 @@ RunHandled(
         Lighting()
       end
     end
-      
+    
     bLastRaining = bRaining
   end,
   OnEvery(Any(Event(Sigils[1].Picked), Event(Sigils[2].Picked),

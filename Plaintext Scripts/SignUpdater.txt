@@ -20,7 +20,7 @@ local icons = {
   ["T"]="▗▙",
   ["Z"]="▜▖",
   ["*"]="★"
-} 
+}
 
 local text = {
   ["*"] = textStar,
@@ -110,7 +110,7 @@ RunHandled(
     WaitForever()
   end,
   OnEvery(CustomEvent("TetrominoAwarded")),
-  function()  
+  function()
     updateText()
   end
 )

@@ -9,14 +9,14 @@ local iConnectorsInsideArea=0 -- how many connectors are inside possible stuck a
 local bEnoughConnectors=false -- are there enough connectors inside stuck zone to finish puzzle
 
 RunHandled(WaitForever,
-  OnEvery(Event(plasmaDoor_BlueReceiver.Opened)), 
+  OnEvery(Event(plasmaDoor_BlueReceiver.Opened)),
   function()
     bDoorOpen=1
     SignalEvent("Door opened")
   end,
   -- decide if showing a reset msg is needed
-  OnEvery(Event(plasmaDoor_BlueReceiver.Closed)), 
-  function() 
+  OnEvery(Event(plasmaDoor_BlueReceiver.Closed)),
+  function()
     -- player : CPlayerPuppetEntity
     bDoorOpen=0
     detector_PlayerStuck:Recharge()
@@ -26,21 +26,21 @@ RunHandled(WaitForever,
       local vPlayer = player:GetPlacement():GetVect()
       if detector_PlayerStuck:IsPointInArea(vPlayer, player:GetNavigationRadius()) then
         if not bEnoughConnectors then
-          if player then 
+          if player then
             player:ShowTutorialMessage("TTRS:Hint.HoldToReset=Hold {plcmdHome} to reset", 30.0, 0.5)
           end
         else
-          Wait(Event(bichromatic.Picked))  
-          if player then 
+          Wait(Event(bichromatic.Picked))
+          if player then
             Wait(Delay(2))
             player:ShowTutorialMessage("TTRS:Hint.HoldToReset=Hold {plcmdHome} to reset", 30.0, 0.5)
-          end          
-        end  
+          end
+        end
       end
     end
   end,
   -- count how many connectors are in area when door closes
-  OnEvery(Event(plasmaDoor_BlueReceiver.Closed)), 
+  OnEvery(Event(plasmaDoor_BlueReceiver.Closed)),
   function()
     iConnectorsInsideArea=0
     local vConnector1 = connector1:GetActualPlacement():GetVect()
@@ -48,16 +48,16 @@ RunHandled(WaitForever,
     local vConnector3 = connector3:GetActualPlacement():GetVect()
     if detector_PlayerStuck:IsPointInArea(vConnector1, 0.5) then
       iConnectorsInsideArea=iConnectorsInsideArea+1
-    end    
+    end
     if detector_PlayerStuck:IsPointInArea(vConnector2, 0.5) then
       iConnectorsInsideArea=iConnectorsInsideArea+1
-    end    
+    end
     if detector_PlayerStuck:IsPointInArea(vConnector3, 0.5) then
       iConnectorsInsideArea=iConnectorsInsideArea+1
-    end         
+    end
     if iConnectorsInsideArea>1 then
       bEnoughConnectors=true -- there are enough connectors in area to solve puzzle
-    else  
+    else
       bEnoughConnectors=false -- there are not enough connectors in area to solve puzzle
     end
   end

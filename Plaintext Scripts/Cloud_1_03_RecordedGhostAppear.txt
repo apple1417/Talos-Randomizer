@@ -6,7 +6,7 @@ sigilNum = talosProgress:GetCodeValue("020_SPM_000_PM_014")
 local SwallowedKey = worldGlobals.allTetros[sigilNum]
 
 RunHandled(WaitForever,
-  On(Any(Event(ABTU.Picked), Event(SwallowedKey.Picked))), 
+  On(Any(Event(ABTU.Picked), Event(SwallowedKey.Picked))),
   function()
     detectors_015_020_Exit:Recharge()
     Wait(Any(Events(detectors_015_020_Exit.Activated)))
