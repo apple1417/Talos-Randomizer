@@ -1,3 +1,8 @@
+--[[
+  This one is a lot of the same, (re)setting options when you
+   toggle switches
+]]--
+
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local lastMode = 1

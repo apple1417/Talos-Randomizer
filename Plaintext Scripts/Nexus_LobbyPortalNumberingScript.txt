@@ -1,4 +1,11 @@
-﻿Wait(CustomEvent("Randomizer_Finished"))
+﻿--[[
+  Portal Dimming usually checks each world's sign to work out if to
+   dim it or not
+  Unfortuantly those signs don't work for us, so this script manually
+   goes through everything to work it all out
+  Random Portals also complicates things
+]]--
+Wait(CustomEvent("Randomizer_Finished"))
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local markers = {
@@ -180,12 +187,16 @@ local markers = {
   "Islands_01_SRT_SPM_000_PM_003"
 }
 }
+
+--[[
+  There are 5 locations without numbered portals, which don't need to
+   be processed by this script
+]]--
 local function isValidWorld(worldNum)
   return not (   worldNum == 8  or worldNum == 9
               or worldNum == 17
               or worldNum == 25 or worldNum == 26)
 end
-
 
 -- We'll deal with dev island seperatly
 local worlds = {
@@ -197,6 +208,7 @@ local worlds = {
 for index=1, #worlds do
   local worldNum = talosProgress:GetCodeValue(worlds[index])
   if isValidWorld(worldNum) then
+    -- Go through each marker and check if you have the required sigil
     local allSolved = true
     for _, v in pairs(markers[index]) do
       assert(talosProgress:IsVarSet(v), "Marker " .. v .. " does not have a sigil assigned to it!")  
@@ -222,6 +234,10 @@ for index=1, #worlds do
   end
 end
 
+--[[
+  Dev island's portal dims after you visit it, we have a script
+   inside set a flag that we can check here
+]]--
 local worldNum = talosProgress:GetCodeValue("ADevIsland")
 if isValidWorld(worldNum) then
   if worldNum >= 8  then worldNum = worldNum - 2 end

@@ -1,8 +1,14 @@
+-- Deals with entering seeds
+
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local seed = "No Seed"
 local seedPtr = seedDisplay:GetTextConfig()
 
+--[[
+  The buttons are just static models, we need to manually enable usage
+  We also need to disable all the lights
+]]--
 for index=1, #numbers do
   numbers[index]:EnableUsage()
   numberLights[index]:Deactivate()
@@ -18,6 +24,7 @@ RunHandled(
   function()
     WaitForever()
   end,
+  
   OnEvery(Any(Events(numbers.Used))),
   function(event)
     local index = event.any.signaledIndex
@@ -31,6 +38,7 @@ RunHandled(
       else
         seed = seed .. tostring(index)
       end
+      -- We can only store 32 bit numbers, and negatives break the prng
       if tonumber(seed) <= 2147483647 then
         seedDisplay:SetText(seedPtr, seed, true)
         talosProgress:SetVarValue("Randomizer_Seed", tonumber(seed))
@@ -39,6 +47,10 @@ RunHandled(
         seed = talosProgress:GetCodeValue("Randomizer_Seed")
       end
     end
+    --[[
+      This goes in a RunAsync() so that you can press other buttons
+       while the selected one goes through the animation
+    ]]--
     RunAsync(function()
       if failSeed then
         soundUseFail:PlayOnce()
@@ -52,6 +64,8 @@ RunHandled(
       numberLights[index]:Deactivate()
     end)
   end,
+  
+  -- The rest of these are basically all the same
   OnEvery(Event(backspace.Used)),
   function()
     if seed ~= "No Seed" then
@@ -76,6 +90,7 @@ RunHandled(
       backspaceLight:Deactivate()
     end)
   end,
+  
   OnEvery(Event(clear.Used)),
   function ()
     if seed ~= "No Seed" then
@@ -94,6 +109,7 @@ RunHandled(
       clearLight:Deactivate()
     end)
   end,
+  
   OnEvery(Event(random.Used)),
   function()
     seed = tostring(mthRndRangeL(0, 999999))

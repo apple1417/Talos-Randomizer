@@ -1,3 +1,10 @@
+--[[
+  Normally this is part of the portal numbering script
+  It doesn't really fit, the script even says they should be
+   seperated, so when I rewrote it I did just that
+
+]]--
+
 GatesOfEternityFlare:Deactivate()
 SmokeParticles:Start()
 Door:Lock()

@@ -1,3 +1,11 @@
+--[[
+  Makes the world overview sign update properly
+  Because normal signs can't be dynamically changed we do this with
+   a total of 1530 text effects, in various locations and colours,
+   which we can set to unicode strings that look like the tetrominoes
+  These strings don't render properly in the editor but they work in game
+]]--
+
 Wait(CustomEvent("Randomizer_Finished"))
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
@@ -31,11 +39,13 @@ local textPtr = {
   ["N"] = {},
   ["Default"] = {}
 }
-
+--[[
+  Setup all text pointers, and make sure all texts have the
+   correct default message
+]]--
 for k,v in pairs(text) do
   for i=1,#text[k] do
     textPtr[k][i] = text[k][i]:GetTextConfig()
-    -- Assure all texts have the correct default message
     if k == "Default" then
       text[k][i]:SetText(textPtr[k][i], "?", true)
     else
@@ -56,6 +66,10 @@ for i=1, #worldGlobals.worldMarkers do
   end
 end
 table.sort(sigils)
+--[[
+  The elements of each sign are indexed weirdly so I need to
+   resort the list to work with it
+]]--
 local allSigils = {}
 local half = mthCeilF(#sigils/2)
 for i=1, #sigils do
@@ -67,23 +81,30 @@ for i=1, #sigils do
 end
 for i=1, #stars do table.insert(allSigils, stars[i]) end
 
+--[[
+  Function to fill each sign
+  If this is called multiple times it will replace sigils with
+   themselves, effectivly doing nothing
+]]--
 local function updateText()
   for i=1, #allSigils do
-  local sigil = worldGlobals.allTetros[allSigils[i]]
-  local colour = string.sub(sigil:GetName(), 1, 1)
-  local type = string.sub(sigil:GetName(), 2, 2)
-  if sigil:IsPicked() then
-    text[colour][i]:SetText(textPtr[colour][i], icons[type], true)
-    text["Default"][i]:SetText(textPtr["Default"][i], "✘", true)
-  elseif showAll then
-    text[colour][i]:SetText(textPtr[colour][i], icons[type], true)
-    text["Default"][i]:ClearText(textPtr["Default"][i])
-  end    
-end
+    local sigil = worldGlobals.allTetros[allSigils[i]]
+    local colour = string.sub(sigil:GetName(), 1, 1)
+    local type = string.sub(sigil:GetName(), 2, 2)
+    if sigil:IsPicked() then
+      text[colour][i]:SetText(textPtr[colour][i], icons[type], true)
+      text["Default"][i]:SetText(textPtr["Default"][i], "✘", true)
+    -- If a sigil is not picked and showAll is false it'll remain '?'
+    elseif showAll then
+      text[colour][i]:SetText(textPtr[colour][i], icons[type], true)
+      text["Default"][i]:ClearText(textPtr["Default"][i])
+    end
+  end
 end
 
 updateText()
 
+-- Need to make sure the sign updates incase you don't reset
 RunHandled(
   function()
     WaitForever()

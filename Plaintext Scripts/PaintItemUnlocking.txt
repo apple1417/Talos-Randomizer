@@ -1,4 +1,9 @@
--- I've changed stuff, but, assuming you already had paint, this is functionally identical
+--[[
+  So for some reason paint messages don't work here
+  Because paint is absolutly needed we decided to just always unlock it
+  This lets us optimize the script a bit, no need to use a RunHandled(),
+   but this is still functionally equivalent, with the same paint sets
+]]--
 Wait(Delay(0.00001))
 
 local function RandomFomStringChars(str, multiplier)

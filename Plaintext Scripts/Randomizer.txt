@@ -1,3 +1,18 @@
+--[[
+  This is big script, the one that does everything
+  It's in every world but A and B messenger
+  It both generates the full random sigil/portal configuration and
+   places the sigils and portal in the right spots
+  This is the oldest script in the whole project, there'll be stuff
+   that looks weird
+]]--
+
+--[[
+  The normal print function doesn't output to console in game,
+   only in the editor
+  It was easier to overwrite it (and add other colours) than to
+   replace it everywhere it was used
+]]--
 local function print(...)
   local out = ""
   for i=1,arg.n do
@@ -25,8 +40,12 @@ local function printError(...)
   conErrorF(out)
 end
 
-print("Loaded Randomizer v9")
+print("Loaded Randomizer v9.4.0")
 
+--[[
+  It's not fun assigning all tetros to this list, so we let other
+   scripts use it as well, saving a bunch of work
+]]--
 worldGlobals.allTetros = {
    s1,  s2,  s3,  s4,  s5,  s6,  s7,  s8,  s9, s10,
   s11, s12, s13, s14, s15, s16, s17, s18, s19, s20,
@@ -59,10 +78,16 @@ worldGlobals.worldMarkers = worldMarkers
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local PROB_BOTH_HUBS = 25
+--[[
+  Debug mode is kind of hidden, you need to use a command to activate it,
+   but everything tends to work now so it doesn't need a switch
+]]--
 local DEBUG = talosProgress:IsVarSet("Randomizer_Debug")
 
+-- Where the magic happens
 if not talosProgress:IsVarSet("Randomizer_Generated") then
   print("Randomizing...")
+  -- We have to store this as a number, so converted it for readability
   local randomization_mode = talosProgress:GetCodeValue("Randomizer_Mode")
   if randomization_mode == -1 then
     randomization_mode = 1
@@ -90,7 +115,8 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     if min == max then return min end
     return (seed % (max - (min - 1))) + min
   end
-
+  
+  -- Set the few things that are normally random based on seed
   talosProgress:SetVarValue("PaintItemSeed", rand(0, 8909478))
   talosProgress:SetVarValue("Code_Floor4", rand(1, 999))
   talosProgress:SetVarValue("Code_Floor5", rand(1, 999))
@@ -98,11 +124,13 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   for i=1,3 do
     local digit = rand(4, 9) -- Yes this is right
     talosProgress:SetVarValue("Code_Floor6" .. tostring(i), digit)
+    -- This line means you can guess the code without visiting each world
     talosProgress:SetVar("Code_Floor6DigitSeen" .. tostring(i))
     codeF6 = codeF6*10 + digit
   end
   talosProgress:SetVarValue("Code_Floor6", codeF6)
 
+  -- Again we can only save numbers, so this is how tetros are ordered
   local tetroIndexes = {
     ["**1"] =  1, ["**2"] =  2, ["**3"] =  3, ["**4"] =  4, ["**5"] =  5,
     ["**6"] =  6, ["**7"] =  7, ["**8"] =  8, ["**9"] =  9, ["**10"]= 10,
@@ -133,8 +161,9 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   }
   
   --[[
-    These names are the same as in MarkerNames.txt, with the world
-     name as a prefix
+    More readable names than just the marker names we save them as
+    The sigil names are the same as in MarkerNames.txt, with the
+     world name as a prefix
     "[World] Star" it has been changed to "[World]-Star"
     "CM-Star", "F0-Star", and "F3-Star" are the only other exceptions
   ]]--
@@ -194,6 +223,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     "CM-Star", "F0-Star", "F3-Star"
   }
   
+  --[[
+    This list has two purposes:
+     1. Hold the sigils for each arranger
+     2. Let the marker unlocking that happens later check what's unlocked
+    #2 is the reason for the weird name
+  ]]--
   local locked = {
     ["A1 Gate"] = {}, -- All the greens get set later, as we need to 
     ["A Gate"] = {}, --   lock parts of them to make sure you can't
@@ -263,6 +298,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     portalOrder[1], portalOrder[index] = portalOrder[index], portalOrder[1]
   end
   
+  --[[
+    Based on the portal configuration we need to make some more lists
+     to help us unlock worlds properly
+  ]]--
   local open = {}
   local WorldANames = {}
   local WorldBNames = {}
@@ -284,6 +323,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     end
   end
   
+  --[[
+    Check if a world is accessible
+    This does not necessarily  mean a set of markers will unlock
+  ]]--
   local function isWorldOpen(world)
     if world == "A1" then return true end
 
@@ -298,8 +341,9 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   end
   
   --[[
-    We can add modes with arbitray restrictions just by making new
-     copies of this list
+    These lists create the softlock prevention
+    Because we use arbitray functions we can add modes with arbitray
+     restrictions just by making new lists
     The list entries are formatted as follows:
     {function() [if to unlock], {"list", "of, "markers"}, "world"},
     If no world is given OR the world is not recognised it will
@@ -599,7 +643,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     }
   end
   
-  -- Based on the marker lists randomize the sigils
+  --[[
+    Based on the marker lists randomize the sigils
+    This will work with any mode you define in the lists
+  ]]--
   if randomization_mode == "Default" or randomization_mode == "60fps" then
     local checkGates = true
     local allSpots = false
@@ -608,6 +655,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     local availableMarkers = 0
     local openMarkers = {}
     
+    --[[
+      We just have a list of the world names in each hub, we want the indexes
+       of the marker lists using those worlds
+    ]]--
     local closedMarkers = {}
     local WorldA = {}
     local WorldB = {}
@@ -676,7 +727,19 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         end
       end
     end
-
+    
+    --[[
+      This loop is what actually does it all
+      The basic idea is as follows:
+       1. Work out what markers are currently unlocked
+       2. Pick a random arranger
+       3. Place the sigils for that arranger in the unlocked spots
+       4. Repeat
+      This is complicated by the facts that:
+       1. You can easily run out of markers to place sigils
+       2. You can softlock by entering the wrong hub world
+      So we have a bunch of extra logic to try prevent both issues
+    ]]--
     while not allSpots or #accessableArrangers > 0 do
       -- To make sure I don't hit the instruction limit per frame
       Wait(CustomEvent("OnStep"))
@@ -923,8 +986,11 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       placeSigils(sigils)
     end
   
+  --[[
+    Fully Random ignores all that logic to do simple knuth randomization
+     over everything
+  ]]--
   elseif randomization_mode == "Fully Random" then
-    -- Knuth randomization
     for i = 1, #markers do
       local otherMarker = markers[rand(1, i)]
       if DEBUG then
@@ -992,5 +1058,6 @@ RunAsync(function()
   end
 end)
 
+-- Send a signal to all other scripts that might error if this hasn't finished
 Wait(CustomEvent("OnStep"))
 SignalEvent("Randomizer_Finished")

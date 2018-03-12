@@ -1,3 +1,9 @@
+--[[
+  Normally eternalize ending restarts the game - we want to do the same
+  We copy all the options that were set (except seed) so it plays just
+   like last time
+]]--
+
 exitPortal:Enable(false)
 Wait(Event(terminal.Started))
 EndCSLevelChapter:AddNextLevelToWorldCache()

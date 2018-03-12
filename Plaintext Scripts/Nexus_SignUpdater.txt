@@ -1,3 +1,13 @@
+--[[
+  Makes the world overview sign update properly
+  Because normal signs can't be dynamically changed we do this with
+   a total of 1530 text effects, in various locations and colours,
+   which we can set to unicode strings that look like the tetrominoes
+  These strings don't render properly in the editor but they work in game
+  Nexus is a bit more complicated than in each world because we don't
+   have handy marker lists available, we have to make them all
+  We also need to split the text effects up by world
+]]--
 Wait(CustomEvent("Randomizer_Finished"))
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
@@ -14,6 +24,7 @@ local icons = {
   ["*"]="★"
 } 
 
+-- All these are in the same order as in the worlds, to be consistent
 local allMarkers = {
 ["A1"] = {
   "001_SPM_000_PM_005",
@@ -398,10 +409,13 @@ for world, markers in pairs(allMarkers) do
   }
   assert(#markers == #text.Default, string.format("%s has %s markers but %s sigils assigned to it", world, #markers, #text.Default))
   
+  --[[
+    Setup all text pointers for this world, and make sure all texts
+     have the correct default message
+  ]]--
   for k,v in pairs(text) do
     for i=1,#text[k] do
       textPtr[k][i] = text[k][i]:GetTextConfig()
-      -- Assure all texts have the correct default message
       if k == "Default" then
         text[k][i]:SetText(textPtr[k][i], "?", true)
       else
@@ -410,7 +424,10 @@ for world, markers in pairs(allMarkers) do
     end
   end
   
-  -- If random portals is on we just disable all the signs
+  --[[
+    This is really not setup properly to deal with it, so if
+     random portals is on we just disable all the signs
+  ]]--
   if not talosProgress:IsVarSet("Randomizer_Portals") then
     -- Sort the sigil list to prevent memorising spawn order
     local sigils = {}
@@ -424,6 +441,10 @@ for world, markers in pairs(allMarkers) do
       end
     end
     table.sort(sigils)
+    --[[
+      The elements of each sign are indexed weirdly so I need to
+       resort the list to work with it
+    ]]--
     local allSigils = {}
     local half = mthCeilF(#sigils/2)
     for i=1, #sigils do
@@ -435,6 +456,13 @@ for world, markers in pairs(allMarkers) do
     end
     for i=1, #stars do table.insert(allSigils, stars[i]) end
     
+    --[[
+      Fill each sign
+      Unlike the scripts in each world we only need to do this once,
+       none of the sigils in nexus have a sign, so to update the signs
+       you'd have to visit another world, and coming back would re-run
+       this script anyway
+    ]]--
     for i=1, #allSigils do
       local sigil = worldGlobals.allTetros[allSigils[i]]
       local colour = string.sub(sigil:GetName(), 1, 1)
@@ -442,6 +470,7 @@ for world, markers in pairs(allMarkers) do
       if sigil:IsPicked() then
         text[colour][i]:SetText(textPtr[colour][i], icons[type], true)
         text["Default"][i]:SetText(textPtr["Default"][i], "✘", true)
+      -- If a sigil is not picked and showAll is false it'll remain '?'
       elseif showAll then
         text[colour][i]:SetText(textPtr[colour][i], icons[type], true)
         text["Default"][i]:ClearText(textPtr["Default"][i])

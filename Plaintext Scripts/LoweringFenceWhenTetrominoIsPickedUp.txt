@@ -1,5 +1,12 @@
---Wait(CustomEvent("Randomizer_Finished"))
-Wait(Delay(0.1))
+--[[
+  Normally these gates are bound to a single sigil, but we need to
+   work out what that sigil actually is
+  This is actually really commonly used, so we take the script name
+   as marker name, because that lets us get away with using a
+   single script everywhere
+]]--
+
+Wait(CustomEvent("Randomizer_Finished"))
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local sigilNum = talosProgress:GetCodeValue(thisScript:GetName())
 local sigil = worldGlobals.allTetros[sigilNum]

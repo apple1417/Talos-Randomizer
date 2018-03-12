@@ -1,15 +1,28 @@
+--[[
+  Like "Cloud_1_01_ExtraOptions" there are just a bunch of small
+   things we need to do to properly setup this world, all put
+   into this script
+]]--
+
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 
+-- It's easier to open all gates, even the ones that'll dissapear later
 if talosProgress:IsVarSet("Randomizer_NoGates") then
   Gates:AssureOpened()
 end
 
 Wait(CustomEvent("Randomizer_Finished"))
+-- Want the seeds to show up on signs by each ending
 eternalizeText:SetText(eternalizeText:GetTextConfig(), "Seed: " .. talosProgress:GetCodeValue("Randomizer_Seed"), true)
 trancendenceText:SetText(trancendenceText:GetTextConfig(), "Seed: " .. talosProgress:GetCodeValue("Randomizer_Seed"), true)
 
+-- Because Nexus already has all the portals we can just shuffle them around
 if talosProgress:IsVarSet("Randomizer_Portals") then
+  --[[
+    Because people had trouble remembering dev island was a thing we give
+     it a normal portal outline when random portals are on
+  ]]--
   DevIslandCover:Disappear()
 
   local portalNames = {
@@ -33,6 +46,7 @@ if talosProgress:IsVarSet("Randomizer_Portals") then
     local locationNum = talosProgress:GetCodeValue(portalNames[i])
     if locationNum < 0 then
       conErrorF("Portal " .. portalNames[i] .. " does not have a location assigned to it!\n")
+      -- To make sure you notice, incase you're not looking at console
       portalList[i]:SetPlacement(OOB)
     else
       portalList[i]:SetPlacement(portalLocations[locationNum])
@@ -42,10 +56,16 @@ if talosProgress:IsVarSet("Randomizer_Portals") then
     end
   end
 else
+  -- When random portals are off we want to keep dev island hidden
   DevIslandNumber:Disappear()
 end
 
+--[[
+  Because you can't solve arrangers from behind we need to have
+   extra gates incase random portals puts you outside of A
+]]--
 local A1Location = talosProgress:GetCodeValue("A1")
+-- Start in A
 if A1Location <= 9 then
   AUpperGate:Disappear()
   AUpperArranger:Disappear()
@@ -57,6 +77,7 @@ if A1Location <= 9 then
   CLowerGate:Disappear()
   CLowerArranger:Disappear()
   CLowerLight:Deactivate()
+-- Start in B
 elseif 10 <= A1Location and A1Location <= 17 then
   ALowerGate:Disappear()
   ALowerArranger:Disappear()
@@ -67,6 +88,7 @@ elseif 10 <= A1Location and A1Location <= 17 then
   CLowerGate:Disappear()
   CLowerArranger:Disappear()
   CLowerLight:Deactivate()
+-- Start in C
 elseif 18 <= A1Location then
   ALowerGate:Disappear()
   ALowerArranger:Disappear()
