@@ -6,6 +6,7 @@
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local lastMode = 1
+local scavenger = false
 
 talosProgress:SetVarValue("Randomizer_Mode", 1)
 talosProgress:SetVar("Randomizer_ShowAll")
@@ -28,7 +29,7 @@ RunHandled(
   function(event)
     local index = event.any.signaledIndex
     if index == lastMode then
-      Modes[index]:Activate()
+      talosProgress:SetVarValue("Randomizer_Mode", 0)
     end
   end,
   
@@ -38,7 +39,11 @@ RunHandled(
   end,
   OnEvery(Event(NoGates.Deactivated)),
   function()
-    talosProgress:ClearVar("Randomizer_NoGates")
+    if scavenger then
+      NoGates:Activate()
+    else
+      talosProgress:ClearVar("Randomizer_NoGates")
+    end
   end,
   
   OnEvery(Event(UnlockItems.Activated)),
@@ -52,7 +57,11 @@ RunHandled(
   
   OnEvery(Event(ShowAll.Activated)),
   function()
-    talosProgress:SetVar("Randomizer_ShowAll")
+    if scavenger then
+      ShowAll:Deactivate()
+    else
+      talosProgress:SetVar("Randomizer_ShowAll")
+    end
   end,
   OnEvery(Event(ShowAll.Deactivated)),
   function()
@@ -68,20 +77,17 @@ RunHandled(
     talosProgress:ClearVar("Randomizer_Portals")
   end,
   
-  --[[
-  OnEvery(Event(Option.Activated)),
-  function()
-    talosProgress:SetVar("Randomizer_Option")
-  end,
-  OnEvery(Event(Option.Deactivated)),
-  function()
-    talosProgress:ClearVar("Randomizer_Option")
-  end,
-  ]]--
   
-  OnEvery(Any(Events(NoFunction.Activated))),
-  function(event)
-    local index = event.any.signaledIndex
-    NoFunction[index]:Deactivate()
+  OnEvery(Event(Scavenger.Activated)),
+  function()
+    talosProgress:SetVar("Randomizer_Scavenger")
+    ShowAll:Deactivate()
+    NoGates:Activate()
+    scavenger = true
+  end,
+  OnEvery(Event(Scavenger.Deactivated)),
+  function()
+    talosProgress:ClearVar("Randomizer_Scavenger")
+    scavenger = false
   end
 )

@@ -92,9 +92,8 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   if randomization_mode == -1 then
     randomization_mode = 1
   end
-  local modes = {"Default", "60fps", "Fully Random"}
-  randomization_mode = modes[randomization_mode]
-  
+  local modes = {"None", "Default", "60fps", "Fully Random", "Intended", "Hardmode"}
+  randomization_mode = modes[randomization_mode + 1]
   print("Using randomization mode: ".. randomization_mode)
   
   local seed = talosProgress:GetCodeValue("Randomizer_Seed")
@@ -157,7 +156,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     ["NS4"] =111, ["NT1"] =112, ["NT2"] =113, ["NT3"] =114, ["NT4"] =115,
     ["NT5"] =116, ["NT6"] =117, ["NT7"] =118, ["NT8"] =119, ["NT9"] =120,
     ["NT10"]=121, ["NT11"]=122, ["NT12"]=123, ["NZ1"] =124, ["NZ2"] =125,
-    ["NZ3"] =126, ["NZ4"] =127, ["NZ5"] =128, ["NZ6"] =129,
+    ["NZ3"] =126, ["NZ4"] =127, ["NZ5"] =128, ["NZ6"] =129
   }
   
   --[[
@@ -195,32 +194,39 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     ["CM-Star"] = "Islands_01_SRT_SPM_000_PM_003", ["F0-Star"] = "Secret_28_SRT_SPM_000_PM_004", ["F3-Star"] = "LeapOfFaith_PM_010"
   }
   
+  --[[
+    The sigils are ordered here according to the numbering of sigil
+     from earlier and the levels those sigils are normally in
+    The first item in this list corosponds with the sigil with id 1,
+     "**1" or ABTU Star
+  ]]--
   local markers = {
-    "A1-ASooR", "A1-Beaten Path", "A1-OtToU", "A1-Outnumbered", "A1-PaSL", "A1-Peephole", "A1-Star", "A1-Trio",
-    "A2-Guards", "A2-Hall of Windows", "A2-Star", "A2-Suicide Mission",
-    "A3-ABTU Star", "A3-ABTU", "A3-AEP", "A3-Clock Star", "A3-Stashed for Later", "A3-Swallowed the Key",
-    "A4-Above All That", "A4-Branch it Out", "A4-DCtS", "A4-Push it Further", "A4-Star",
-    "A5-FC Star", "A5-FC", "A5-OLB", "A5-Over the Fence", "A5-Two Boxes Star", "A5-Two Boxes", "A5-YKYMCTS",
-    "A6-Bichromatic", "A6-Deception", "A6-Door too Far", "A6-Mobile Mindfield", "A6-Star",
-    "A7-LFI", "A7-Pinhole", "A7-Star", "A7-Trapped Inside", "A7-Two Buzzers", "A7-WiaL",
-    "A*-DDM", "A*-JfW", "A*-Nervewrecker",
-    "B1-Over the Fence", "B1-RoD", "B1-SaaS", "B1-Star", "B1-Third Wheel", "B1-WtaD",
-    "B2-Higher Ground", "B2-Moonshot", "B2-MotM", "B2-Star", "B2-Tomb",
-    "B3-Blown Away", "B3-Eagle's Nest", "B3-Star", "B3-Sunshot", "B3-Woosh",
-    "B4-ABUH", "B4-Double-Plate", "B4-RPS", "B4-Self Help", "B4-Sphinx Star", "B4-TRA Star", "B4-TRA", "B4-WAtC",
-    "B5-Chambers", "B5-Iron Curtain", "B5-Obelisk Star", "B5-Plates", "B5-SES", "B5-Two Jammers",
-    "B6-Crisscross", "B6-Egyptian Arcade", "B6-JDaW",
-    "B7-AFaF", "B7-BLoM", "B7-BSbS Star", "B7-BSbS", "B7-Star", "B7-WLJ",
-    "B*-Cat's Cradle", "B*-Merry Go Round", "B*-Peekaboo",
-    "C1-Blowback", "C1-Conservatory", "C1-Labyrinth", "C1-MIA", "C1-Star",
-    "C2-ADaaF", "C2-Cemetery", "C2-Rapunzel", "C2-Short Wall", "C2-Star",
-    "C3-BSLS", "C3-Jammer Quarantine", "C3-Star", "C3-Three Connectors", "C3-Weathertop",
-    "C4-Armory", "C4-Oubliette Star", "C4-Oubliette", "C4-Stables", "C4-Throne Room Star", "C4-Throne Room",
-    "C5-Dumbwaiter Star", "C5-Dumbwaiter", "C5-Time Crawls", "C5-Time Flies Star", "C5-Time Flies", "C5-UCAJ Star", "C5-UCaJ",
-    "C6-Circumlocution", "C6-Seven Doors", "C6-Star", "C6-Two Way Street",
-    "C7-Carrier Pigeons", "C7-Crisscross", "C7-DMS", "C7-Prison Break", "C7-Star",
-    "C*-Cobweb", "C*-Nexus", "C*-Unreachable Garden",
-    "CM-Star", "F0-Star", "F3-Star"
+    "A3-ABTU Star", "A2-Star", "A3-Clock Star", "A4-Star", "A1-Star",
+    "A5-FC Star", "A5-Two Boxes Star", "A6-Star", "A7-Star", "B1-Star",
+    "B2-Star", "B3-Star", "B4-TRA Star", "B5-Obelisk Star", "B7-Star",
+    "B7-BSbS Star", "C1-Star", "C2-Star", "C3-Star", "C4-Oubliette",
+    "C4-Throne Room Star", "C5-Dumbwaiter Star", "C5-Time Flies Star", "B4-Sphinx Star", "F3-Star",
+    "CM-Star", "C5-UCAJ Star", "F0-Star", "C6-Star", "C7-Star",
+    "A1-PaSL", "A5-Two Boxes", "A1-Beaten Path", "A1-Outnumbered", "A1-OtToU",
+    "B4-Self Help", "B5-SES", "A2-Guards", "A5-YKYMCTS", "A7-LFI",
+    "A5-Over the Fence", "A5-OLB", "A7-Trapped Inside", "B4-Double-Plate", "A1-ASooR",
+    "A2-Hall of Windows", "A3-Stashed for Later", "A6-Mobile Mindfield", "A*-JfW", "B*-Merry Go Round",
+    "B*-Peekaboo", "C*-Unreachable Garden", "C*-Nexus", "A*-Nervewrecker", "B*-Cat's Cradle",
+    "A*-DDM", "C*-Cobweb", "B7-BSbS", "B3-Blown Away", "A1-Trio",
+    "A2-Suicide Mission", "B1-WtaD", "B6-Crisscross", "B7-BLoM", "B1-Third Wheel",
+    "B2-Tomb", "A1-Peephole", "A3-ABTU", "A3-Swallowed the Key", "A4-Branch it Out",
+    "A4-Above All That", "B1-Over the Fence", "B1-RoD", "B2-MotM", "B3-Sunshot",
+    "B6-JDaW", "A4-Push it Further", "A4-DCtS", "B1-SaaS", "B2-Moonshot",
+    "B5-Plates", "B6-Egyptian Arcade", "B7-AFaF", "C1-Conservatory", "C4-Armory",
+    "C5-Time Flies", "B7-WLJ", "C1-MIA", "C3-Jammer Quarantine", "C6-Circumlocution",
+    "A3-AEP", "A6-Deception", "A6-Door too Far", "A7-Two Buzzers", "B2-Higher Ground",
+    "B3-Eagle's Nest", "B4-ABUH", "B4-WAtC", "B5-Two Jammers", "C7-DMS",
+    "A7-WiaL", "C2-ADaaF", "C3-Three Connectors", "C5-Time Crawls", "C5-Dumbwaiter",
+    "C6-Seven Doors", "C7-Carrier Pigeons", "B5-Iron Curtain", "C2-Rapunzel", "C4-Oubliette",
+    "C6-Two Way Street", "A7-Pinhole", "B3-Woosh", "B4-TRA", "B4-RPS",
+    "C1-Labyrinth", "C2-Cemetery", "C3-BSLS", "C4-Stables", "C4-Throne Room",
+    "C5-UCaJ", "C7-Prison Break", "C7-Crisscross", "A5-FC", "A6-Bichromatic",
+    "B5-Chambers", "C1-Blowback", "C2-Short Wall", "C3-Weathertop"
   }
   
   --[[
@@ -407,7 +413,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "B5-Plates", "B5-Two Jammers", "B5-Iron Curtain", "B5-SES",
         "B5-Chambers"
       }, "B5"},
-      {function() return isWorldOpen("B5") and not locked["Connector"] and not locked["Fan"] end, {
+      {function() return isWorldOpen("B5") and ((not locked["Connector"] and not locked["Fan"]) or not locked["Cube"]) end, {
         "B5-Obelisk Star"
       }, "B5"},
       {function() return isWorldOpen("B6") end, {
@@ -424,8 +430,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "B*-Merry Go Round", "B*-Cat's Cradle", "B*-Peekaboo"
       }, "B8"},
       {function() return isWorldOpen("C1") end, {
-        "C1-Labyrinth", "C1-Conservatory", "C1-Blowback", "C1-MIA",
-        "C1-Star"
+        "C1-Labyrinth", "C1-Conservatory", "C1-Blowback", "C1-Star"
+      }, "C1"},
+      {function() return isWorldOpen("C1") and not locked["Cube"] end, {
+        "C1-MIA"
       }, "C1"},
       {function() return isWorldOpen("C2") end, {
         "C2-Cemetery", "C2-ADaaF", "C2-Rapunzel", "C2-Short Wall",
@@ -437,7 +445,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       }, "C3"},
       {function() return isWorldOpen("C4") end, {
         "C4-Stables", "C4-Armory", "C4-Oubliette Star", "C4-Oubliette",
-        "C4-Throne Room", "C4-Throne Room Star"
+        "C4-Throne Room Star"
+      }, "C4"},
+      {function() return isWorldOpen("C4") and not locked["Cube"] end, {
+        "C4-Throne Room"
       }, "C4"},
       {function() return isWorldOpen("C5") end, {
         "C5-Time Crawls", "C5-Dumbwaiter", "C5-Time Flies", "C5-UCaJ",
@@ -454,10 +465,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "C7-Star"
       }, "C7"},
       {function() return isWorldOpen("C8") end, {
-        "C*-Cobweb"
+        "C*-Nexus"
       }, "C8"},
-      {function() return isWorldOpen("C8") and not locked["Connector"] end, {
-        "C*-Nexus", "C*-Unreachable Garden"
+      {function() return isWorldOpen("C8") and (not locked["Connector"] or not locked["Cube"]) end, {
+        "C*-Cobweb", "C*-Unreachable Garden"
       }, "C8"},
       {function() return isWorldOpen("CMessenger") end, {
         "CM-Star"
@@ -490,7 +501,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       }, "A4"},
       {function() return isWorldOpen("A5") end, {
         "A5-Two Boxes", "A5-Two Boxes Star", "A5-Over the Fence", "A5-YKYMCTS",
-        "A5-OLB", "A5-FC", "A5-FC Star",
+        "A5-FC", "A5-FC Star",
+      }, "A5"},
+      {function() return isWorldOpen("A5") and (not locked["Connector"] or not locked["Cube"]) end, {
+        "A5-OLB"
       }, "A5"},
       {function() return isWorldOpen("A6") end, {
         "A6-Mobile Mindfield", "A6-Deception", "A6-Door too Far", "A6-Bichromatic",
@@ -522,10 +536,8 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "B2-MotM"
       }, "B2"},
       {function() return isWorldOpen("B3") and not locked["Cube"] end, {
-        "B3-Sunshot", "B3-Blown Away", "B3-Star"
-      }, "B3"},
-      {function() return isWorldOpen("B3") and (locked["Connector"] or not locked["Cube"]) end, {
-        "B3-Eagle's Nest", "B3-Woosh"
+        "B3-Sunshot", "B3-Blown Away", "B3-Star", "B3-Eagle's Nest",
+        "B3-Woosh"
       }, "B3"},
       {function() return isWorldOpen("B4") and (not locked["Cube"] or not locked["Recorder"]) end, {
         "B4-Self Help"
@@ -546,13 +558,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "B5-Iron Curtain", "B5-Chambers"
       }, "B5"},
       {function() return isWorldOpen("B5") and not locked["Cube"] end, {
-        "B5-Plates", "B5-SES"
+        "B5-Plates", "B5-SES", "B5-Obelisk Star"
       }, "B5"},
       {function() return isWorldOpen("B5") and (not locked["Cube"] or not locked["Recorder"]) end, {
         "B5-Two Jammers"
-      }, "B5"},
-      {function() return isWorldOpen("B5") and not locked["Connector"] and not locked["Fan"] end, {
-        "B5-Obelisk Star"
       }, "B5"},
       {function() return isWorldOpen("B6") end, {
         "B6-Egyptian Arcade"
@@ -561,10 +570,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "B6-JDaW", "B6-Crisscross"
       }, "B6"},
       {function() return isWorldOpen("B7") end, {
-        "B7-WLJ", "B7-AFaF", "B7-BSbS Star",
+        "B7-WLJ", "B7-AFaF"
       }, "B7"},
-      {function() return isWorldOpen("B7") and not locked["Connector"] end, {
-        "B7-BSbS"
+      {function() return isWorldOpen("B7") and (not locked["Connector"] or not locked["Cube"]) end, {
+        "B7-BSbS", "B7-BSbS Star"
       }, "B7"},
       {function() return isWorldOpen("B7") and not locked["Cube"] end, {
         "B7-BLoM"
@@ -579,8 +588,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "B*-Cat's Cradle"
       }, "B8"},
       {function() return isWorldOpen("C1") end, {
-        "C1-Labyrinth", "C1-Conservatory", "C1-Blowback", "C1-MIA",
-        "C1-Star"
+        "C1-Labyrinth", "C1-Conservatory", "C1-Blowback", "C1-Star"
+      }, "C1"},
+      {function() return isWorldOpen("C1") and not locked["Cube"] end, {
+        "C1-MIA"
       }, "C1"},
       {function() return isWorldOpen("C2") end, {
         "C2-Cemetery", "C2-ADaaF", "C2-Rapunzel", "C2-Short Wall",
@@ -593,16 +604,16 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "C3-Three Connectors"
       }, "C3"},
       {function() return isWorldOpen("C4") end, {
-        "C4-Stables",
+        "C4-Stables"
       }, "C4"},
       {function() return isWorldOpen("C4") and not locked["Connector"] and (not locked["Cube"] or not locked["Recorder"] or not locked ["Platform"]) end, {
-        "C4-Oubliette",
+        "C4-Oubliette"
       }, "C4"},
       {function() return isWorldOpen("C4") and not locked["Connector"] end, {
-        "C4-Armory",
+        "C4-Armory"
       }, "C4"},
       {function() return isWorldOpen("C4") and not locked["Cube"] end, {
-        "C4-Throne Room",
+        "C4-Throne Room"
       }, "C4"},
       {function() return isWorldOpen("C4") and (not locked["Cube"] or not locked["Fan"]) end, {
         "C4-Throne Room Star"
@@ -625,10 +636,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       {function() return isWorldOpen("C7") and not locked["Cube"] end, {
         "C7-Prison Break", "C7-Crisscross", "C7-DMS", "C7-Star"
       }, "C7"},
-      {function() return isWorldOpen("C8") and not locked["Connector"] end, {
+      {function() return isWorldOpen("C8") end, {
         "C*-Nexus"
       }, "C8"},
-      {function() return isWorldOpen("C8") and not locked["Connector"] and not locked["Cube"] end, {
+      {function() return isWorldOpen("C8") and not locked["Cube"] end, {
         "C*-Unreachable Garden", "C*-Cobweb"
       }, "C8"},
       {function() return isWorldOpen("CMessenger") end, {
@@ -641,13 +652,340 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "F0-Star"
       }}
     }
+  elseif randomization_mode == "Intended" then
+    markers = {
+      {function() return isWorldOpen("A1") end, {
+        "A1-Peephole", "A1-Outnumbered", "A1-ASooR", "A1-OtToU",
+        "A1-Beaten Path", "A1-Star"
+      }},
+      {function() return isWorldOpen("A1") and not locked["A1 Gate"] end, {
+        "A1-PaSL", "A1-Trio"
+      }},
+      {function() return isWorldOpen("A2") end, {
+        "A2-Hall of Windows", "A2-Guards", "A2-Suicide Mission", "A2-Star"
+      }, "A2"},
+      {function() return isWorldOpen("A3") end, {
+        "A3-ABTU Star", "A3-ABTU", "A3-AEP", "A3-Swallowed the Key",
+        "A3-Stashed for Later", "A3-Clock Star"
+      }, "A3"},
+      {function() return isWorldOpen("A4") and not locked["Connector"] end, {
+        "A4-Push it Further", "A4-Branch it Out", "A4-Above All That", "A4-Star",
+        "A4-DCtS"
+      }, "A4"},
+      {function() return isWorldOpen("A5") and not locked["Connector"] end, {
+         "A5-Two Boxes Star"
+      }, "A5"},
+      {function() return isWorldOpen("A5") and not locked["Cube"] end, {
+        "A5-Two Boxes", "A5-FC", "A5-FC Star"
+      }, "A5"},
+      {function() return isWorldOpen("A5") and not locked["Connector"] and not locked["Cube"] end, {
+        "A5-OLB", "A5-Over the Fence", "A5-YKYMCTS"
+      }, "A5"},
+      {function() return isWorldOpen("A6") end, {
+        "A6-Mobile Mindfield"
+      }, "A6"},
+      {function() return isWorldOpen("A6") and not locked["Connector"] end, {
+        "A6-Deception", "A6-Bichromatic"
+      }, "A6"},
+      {function() return isWorldOpen("A6") and not locked["Cube"] end, {
+        "A6-Star"
+      }, "A6"},
+      {function() return isWorldOpen("A6") and not locked["Connector"] and not locked["Cube"] end, {
+        "A6-Door too Far"
+      }, "A6"},                  
+      {function() return isWorldOpen("A7") and not locked["Connector"] end, {
+        "A7-LFI", "A7-Pinhole", "A7-WiaL", "A7-Trapped Inside",
+        "A7-Star"
+      }, "A7"},
+      {function() return isWorldOpen("A7") and not locked["Connector"] and not locked["Cube"] end, {
+        "A7-Two Buzzers"
+      }, "A7"},
+      {function() return isWorldOpen("A8") end, {
+        "A*-Nervewrecker", "A*-JfW"
+      }, "A8"},
+      {function() return isWorldOpen("A8") and not locked["Fan"] end, {
+        "A*-DDM"
+      }, "A8"},
+      {function() return isWorldOpen("B1") and not locked["Connector"] end, {
+        "B1-WtaD", "B1-SaaS", "B1-Third Wheel", "B1-Star"
+      }, "B1"},
+      {function() return isWorldOpen("B1") and not locked["Cube"] end, {
+        "B1-Over the Fence", "B1-RoD"
+      }, "B1"},
+      {function() return isWorldOpen("B2") end, {
+        "B2-Higher Ground"
+      }, "B2"},
+      {function() return isWorldOpen("B2") and not locked["Connector"] end, {
+        "B2-Tomb", "B2-Star"
+      }, "B2"},
+      {function() return isWorldOpen("B2") and not locked["Cube"] and not locked["Fan"] end, {
+        "B2-MotM"
+      }, "B2"},
+      {function() return isWorldOpen("B2") and not locked["Cube"] and not locked["Fan"] end, {
+        "B2-Moonshot"
+      }, "B2"},      
+      {function() return isWorldOpen("B3") and not locked["Cube"] and not locked["Fan"] end, {
+        "B3-Sunshot"
+      }, "B3"},
+      {function() return isWorldOpen("B3") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
+        "B3-Blown Away", "B3-Star", "B3-Eagle's Nest", "B3-Woosh"
+      }, "B3"},
+      {function() return isWorldOpen("B4") and not locked["Recorder"] end, {
+        "B4-Self Help", "B4-Double-Plate"
+      }, "B4"},
+      {function() return isWorldOpen("B4") and not locked["Connector"] and not locked["Cube"] end, {
+        "B4-TRA", "B4-TRA Star"
+      }, "B4"},
+      {function() return isWorldOpen("B4") and not locked["Connector"] and not locked["Recorder"] end, {
+        "B4-WAtC"
+      }, "B4"},
+      {function() return isWorldOpen("B4") and not locked["Cube"] and not locked["Recorder"] end, {
+        "B4-RPS"
+      }, "B4"},
+      {function() return isWorldOpen("B4") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
+        "B4-ABUH", "B4-Sphinx Star"
+      }, "B4"},
+      {function() return isWorldOpen("B5") and not locked["Recorder"] end, {
+        "B5-Two Jammers"
+      }, "B5"},
+      {function() return isWorldOpen("B5") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
+        "B5-SES", "B5-Obelisk Star", "B5-Iron Curtain", "B5-Chambers"
+      }, "B5"},
+      {function() return isWorldOpen("B5") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] and not locked["Recorder"] end, {
+        "B5-Plates"
+      }, "B5"},
+      {function() return isWorldOpen("B6") end, {
+        "B6-Egyptian Arcade"
+      }, "B6"},
+      {function() return isWorldOpen("B6") and not locked["Connector"] end, {
+        "B6-JDaW", "B6-Crisscross"
+      }, "B6"},
+      {function() return isWorldOpen("B7") end, {
+        "B7-WLJ", 
+      }, "B7"},
+      {function() return isWorldOpen("B7") and not locked["Connector"] end, {
+        "B7-BSbS"
+      }, "B7"},
+      {function() return isWorldOpen("B7") and not locked["Cube"] end, {
+        "B7-BLoM",
+      }, "B7"},
+      {function() return isWorldOpen("B7") and not locked["Cube"] and not locked["Fan"] end, {
+        "B7-Star"
+      }, "B7"},
+      {function() return isWorldOpen("B7") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
+        "B7-AFaF", "B7-BSbS Star"
+      }, "B7"},
+      {function() return isWorldOpen("B8") and not locked["Connector"] end, {
+        "B*-Merry Go Round"
+      }, "B8"},
+      {function() return isWorldOpen("B8") and not locked["Connector"] and not locked["Cube"] end, {
+        "B*-Cat's Cradle"
+      }, "B8"},
+      {function() return isWorldOpen("B8") and not locked["Connector"] and not locked["Recorder"] end, {
+        "B*-Peekaboo"
+      }, "B8"},
+      {function() return isWorldOpen("C1") end, {
+        "C1-Labyrinth", 
+      }, "C1"},
+      {function() return isWorldOpen("C1") and not locked["Connector"] end, {
+        "C1-Conservatory", "C1-Star"
+      }, "C1"},
+      {function() return isWorldOpen("C1") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
+        "C1-Blowback", "C1-MIA"
+      }, "C1"},
+      {function() return isWorldOpen("C2") and not locked["Connector"] and not locked["Cube"] end, {
+        "C2-Cemetery"
+      }, "C2"},
+      {function() return isWorldOpen("C2") and not locked["Recorder"] and not locked["Platform"] end, {
+        "C2-Short Wall"
+      }, "C2"},
+      {function() return isWorldOpen("C2") and not locked["Cube"] and not locked["Recorder"] and not locked["Platform"] end, {
+        "C2-Rapunzel", "C2-Star"
+      }, "C2"},
+      {function() return isWorldOpen("C2") and not locked["Connector"] and not locked["Cube"] and not locked["Recorder"] and not locked["Platform"] end, {
+        "C2-ADaaF"
+      }, "C2"},
+      {function() return isWorldOpen("C3") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
+        "C3-BSLS", "C3-Jammer Quarantine", "C3-Weathertop", "C3-Three Connectors",
+        "C3-Star"
+      }, "C3"},
+      {function() return isWorldOpen("C4") and not locked["Connector"] end, {
+        "C4-Stables"
+      }, "C4"},
+      {function() return isWorldOpen("C4") and not locked["Connector"] and not locked["Cube"] end, {
+        "C4-Armory"
+      }, "C4"},
+      {function() return isWorldOpen("C4") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
+        "C4-Throne Room", "C4-Throne Room Star"
+      }, "C4"},
+      {function() return isWorldOpen("C4") and not locked["Connector"] and not locked["Cube"] and not locked["Recorder"] and not locked["Platform"] end, {
+        "C4-Oubliette", "C4-Oubliette Star"
+      }, "C4"},
+      {function() return isWorldOpen("C5") and not locked["Cube"] end, {
+        "C5-UCAJ Star"
+      }, "C5"},
+      {function() return isWorldOpen("C5") and not locked["Connector"] and not locked["Cube"] end, {
+        "C5-UCaJ"
+      }, "C5"},
+      {function() return isWorldOpen("C5") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
+        "C5-Dumbwaiter"
+      }, "C5"},
+      {function() return isWorldOpen("C5") and not locked["Connector"] and not locked["Cube"] and not locked["Recorder"] end, {
+        "C5-Time Crawls"
+      }, "C5"},
+      {function() return isWorldOpen("C5") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] and not locked["Recorder"] end, {
+        "C5-Time Flies", "C5-Time Flies Star", "C5-Dumbwaiter Star"
+      }, "C5"},
+      {function() return isWorldOpen("C6") end, {
+        "C6-Two Way Street"
+      }, "C6"},
+      {function() return isWorldOpen("C6") and not locked["Connector"] and not locked["Cube"] end, {
+        "C6-Circumlocution"
+      }, "C6"},
+      {function() return isWorldOpen("C6") and not locked["Connector"] and not locked["Recorder"] end, {
+        "C6-Seven Doors", "C6-Star"
+      }, "C6"},
+      {function() return isWorldOpen("C7") and not locked["Connector"] and not locked["Recorder"] end, {
+        "C7-Crisscross"
+      }, "C7"},
+      {function() return isWorldOpen("C7") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
+        "C7-Prison Break", "C7-Carrier Pigeons", "C7-DMS", "C7-Star"
+      }, "C7"},
+      {function() return isWorldOpen("C8") and not locked["Connector"] and not locked["Cube"] end, {
+        "C*-Nexus", "C*-Cobweb"
+      }, "C8"},
+      {function() return isWorldOpen("C8") and not locked["Connector"] and not locked["Cube"] and not locked["Recorder"] and not locked["Platform"] end, {
+        "C*-Unreachable Garden"
+      }, "C8"},
+      {function() return isWorldOpen("CMessenger") end, {
+        "CM-Star"
+      }, "CMessenger"},
+      {function() return not locked["F1"] and not locked["F2"] and not locked["F3"] and not locked["F4"] and not locked["F5"] and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] and not locked["Recorder"] and not locked["Platform"] end, {
+        "F3-Star"
+      }},
+      {function() return not locked["F1"] and not locked["Connector"] end, {
+        "F0-Star"
+      }}
+    }
+  elseif randomization_mode == "Hardmode" then
+    markers = {
+      {function() return isWorldOpen("A1") end, {
+        "A1-Peephole", "A1-PaSL", "A1-Outnumbered", "A1-ASooR",
+        "A1-OtToU", "A1-Trio", "A1-Beaten Path", "A1-Star"
+      }},
+      {function() return isWorldOpen("A2") end, {
+        "A2-Hall of Windows", "A2-Guards", "A2-Suicide Mission", "A2-Star"
+      }, "A2"},
+      {function() return isWorldOpen("A3") end, {
+        "A3-ABTU Star", "A3-ABTU", "A3-AEP", "A3-Swallowed the Key",
+        "A3-Stashed for Later", "A3-Clock Star"
+      }, "A3"},
+      {function() return isWorldOpen("A4") end, {
+        "A4-Push it Further", "A4-Branch it Out", "A4-Above All That", "A4-Star",
+        "A4-DCtS"
+      }, "A4"},
+      {function() return isWorldOpen("A5") end, {
+        "A5-Two Boxes", "A5-Two Boxes Star", "A5-Over the Fence", "A5-YKYMCTS",
+        "A5-OLB", "A5-FC", "A5-FC Star",
+      }, "A5"},
+      {function() return isWorldOpen("A6") end, {
+        "A6-Mobile Mindfield", "A6-Deception", "A6-Door too Far", "A6-Bichromatic",
+        "A6-Star"
+      }, "A6"},
+      {function() return isWorldOpen("A7") end, {
+        "A7-Two Buzzers", "A7-Pinhole", "A7-LFI", "A7-WiaL",
+        "A7-Trapped Inside", "A7-Star"
+      }, "A7"},
+      {function() return isWorldOpen("A8") end, {
+        "A*-DDM", "A*-Nervewrecker", "A*-JfW"
+      }, "A8"},
+      {function() return isWorldOpen("B1") end, {
+        "B1-SaaS", "B1-WtaD", "B1-Third Wheel", "B1-Over the Fence",
+        "B1-RoD", "B1-Star"
+      }, "B1"},
+      {function() return isWorldOpen("B2") end, {
+        "B2-Higher Ground", "B2-Tomb", "B2-MotM", "B2-Moonshot",
+        "B2-Star"
+      }, "B2"},
+      {function() return isWorldOpen("B3") end, {
+        "B3-Sunshot", "B3-Blown Away", "B3-Eagle's Nest", "B3-Woosh",
+        "B3-Star"
+      }, "B3"},
+      {function() return isWorldOpen("B4") end, {
+        "B4-TRA", "B4-ABUH", "B4-Double-Plate", "B4-Self Help",
+        "B4-RPS", "B4-WAtC", "B4-TRA Star"
+      }, "B4"},
+      {function() return isWorldOpen("B4") and (not locked["Connector"] or not locked["Cube"]) end, {
+        "B4-Sphinx Star"
+      }, "B4"},
+      {function() return isWorldOpen("B5") end, {
+        "B5-Plates", "B5-Two Jammers", "B5-Iron Curtain", "B5-SES",
+        "B5-Chambers"
+      }, "B5"},
+      {function() return isWorldOpen("B5") and ((not locked["Connector"] and not locked["Fan"]) or not locked["Cube"]) end, {
+        "B5-Obelisk Star"
+      }, "B5"},
+      {function() return isWorldOpen("B6") end, {
+        "B6-Egyptian Arcade", "B6-JDaW", "B6-Crisscross"
+      }, "B6"},
+      {function() return isWorldOpen("B7") end, {
+        "B7-WLJ", "B7-AFaF", "B7-BSbS Star", "B7-BSbS",
+        "B7-BLoM"
+      }, "B7"},
+      {function() return isWorldOpen("B7") and (not locked["Cube"] or not locked["Fan"]) end, {
+        "B7-Star"
+      }, "B7"},
+      {function() return isWorldOpen("B8") end, {
+        "B*-Merry Go Round", "B*-Cat's Cradle", "B*-Peekaboo"
+      }, "B8"},
+      {function() return isWorldOpen("C1") end, {
+        "C1-Labyrinth", "C1-Conservatory", "C1-Blowback", "C1-MIA",
+        "C1-Star"
+      }, "C1"},
+      {function() return isWorldOpen("C2") end, {
+        "C2-Cemetery", "C2-ADaaF", "C2-Rapunzel", "C2-Short Wall",
+        "C2-Star"
+      }, "C2"},
+      {function() return isWorldOpen("C3") end, {
+        "C3-Three Connectors", "C3-BSLS", "C3-Jammer Quarantine", "C3-Weathertop",
+        "C3-Star"
+      }, "C3"},
+      {function() return isWorldOpen("C4") end, {
+        "C4-Stables", "C4-Armory", "C4-Oubliette Star", "C4-Oubliette",
+        "C4-Throne Room", "C4-Throne Room Star"
+      }, "C4"},
+      {function() return isWorldOpen("C5") end, {
+        "C5-Time Crawls", "C5-Dumbwaiter", "C5-Time Flies", "C5-UCaJ",
+        "C5-Time Flies Star", "C5-UCAJ Star", "C5-Dumbwaiter Star"
+      }, "C5"},
+      {function() return isWorldOpen("C6") end, {
+        "C6-Two Way Street", "C6-Circumlocution", "C6-Seven Doors", "C6-Star"
+      }, "C6"},
+      {function() return isWorldOpen("C7") end, {
+        "C7-Prison Break", "C7-Carrier Pigeons", "C7-Crisscross", "C7-DMS",
+        "C7-Star"
+      }, "C7"},
+      {function() return isWorldOpen("C8") end, {
+        "C*-Nexus", "C*-Cobweb", "C*-Unreachable Garden"
+      }, "C8"},
+      {function() return isWorldOpen("CMessenger") end, {
+        "CM-Star"
+      }, "CMessenger"},
+      {function() return not locked[F1] and not locked["F3"] end, {
+        "F3-Star"
+      }},
+      {function() return not locked["F1"] and (not locked["Connector"] or not locked["F3"]) end, {
+        "F0-Star"
+      }}
+    }
   end
   
   --[[
     Based on the marker lists randomize the sigils
     This will work with any mode you define in the lists
   ]]--
-  if randomization_mode == "Default" or randomization_mode == "60fps" then
+  if randomization_mode == "Default" or randomization_mode == "60fps"
+     or randomization_mode == "Intended" or randomization_mode == "Hardmode" then
     local checkGates = true
     local allSpots = false
     local placedItems = false
@@ -998,6 +1336,16 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       end
       talosProgress:SetCode(translate[markers[i]], talosProgress:GetCodeValue(translate[otherMarker]))
       talosProgress:SetCode(translate[otherMarker], i)
+    end
+  
+  --[[
+    When there is no randomization we'll still have the default marker list,
+     which happens to have all the markers in the order of their sigil
+     numbers, which means we can just use a single for loop to set them all
+  ]]--
+  elseif randomization_mode == "None" then
+    for i=1, 129 do
+      talosProgress:SetCode(translate[markers[i]], i)
     end
   end
   
