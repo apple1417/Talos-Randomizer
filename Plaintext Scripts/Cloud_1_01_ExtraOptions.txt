@@ -82,7 +82,7 @@ end
 conInfoF(string.format("\nChecksum: %08X\n\n", sum1 * 65536 + sum2))
 
 -- Give a warning about A1 gate, don't want to get rid of the arranger
-if (mode == 1 or mode == 2) and not Arranger:IsSolved() then
+if (mode == 1 or mode == 2 or mode == 5) and not Arranger:IsSolved() then
   Arranger:DontSaveProgressWhenSolved()
   RunHandled(function() WaitForever() end,
     OnEvery(Event(Arranger.Enter)),
