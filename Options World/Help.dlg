@@ -14,13 +14,14 @@ terminal when (PickOption) {
     "TTRS:notrans=Unlock All Items" next: AllItems
     "TTRS:notrans=Show Full Signs" next: AllSigns
     "TTRS:notrans=Random Portals" next: Portals
+    "TTRS:notrans=Scavenger Hunt" next: Scavenger
     "TTRS:notrans=exit" next: Finished
   }
 }
 
 
 terminal when (Seed) {
-  text: "TTRS:notrans=The seed is used to generate a random sequence of numbers, which in turn is used to randomize the sigils. The same seed will always generate the same sigil order, as long as you use the same Randomization Mode and Random Portals settings."
+  text: "TTRS:notrans=The seed is used to generate a random sequence of numbers, which in turn is used to randomize the sigils. The same seed will always generate the same sigil order, as long as you use the same Randomization Mode, Random Portals setting, and Scavenger Hunt setting."
   goto: Loop
 }
 
@@ -34,7 +35,16 @@ Randomizes everything, though it has softlock prevention ensuring you can always
 A more restrictive mode ensuring you can collect everything with your framerate locked to 60. Along with the stricter item requirements it also makes sure you can access all areas and collect all sigils like in Default.
 
 Fully Random:
-As the name suggests, fully random, no safeguards or softlock prevention. Best used along with the 'Open All Worlds' option.]]
+As the name suggests, fully random, no safeguards or softlock prevention. Best used along with the Open All Worlds option.
+
+Intended:
+The most restrictive mode, based off of the item requirements shown when you enter each level. A few spots have been changed, where the game never actually said you needed an item that you did.
+
+Hardmode:
+The least restrictive mode with softlock prevention. The only spots with item restrictions are the ones that no one's ever gotten itemless - in other words, if anyone's ever done it, it's fair game.
+
+No Randomization:
+Accessable by deselecting your currently selected mode. Does exactly what it says on the tin, all sigils are in their default locations.]]
   goto: Loop
 }
 
@@ -59,6 +69,13 @@ terminal when (Portals) {
 Note that this option turns off sigil signs in nexus. The signs in each world are still fine.
 
 Also note that no matter the randomization mode, with the same seed you will always have the same portal arrangement. But, even using the same mode and seed, when you toggle this option on and off you will have a different sigil arrangement.]]
+  goto: Loop
+}
+
+terminal when (Scavenger) {
+  text: [[TTRS:notrans=Picks a method to beat the game and hides all sigils not required for it. Forces the Open All Worlds option on and the Show Full Signs option off.
+
+Note that this option, like Random Portals, affect seeds. The same seed will give you different sigil arrangements when you toggle this option on and off.]]
   goto: Loop
 }
 
