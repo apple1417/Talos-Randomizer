@@ -38,7 +38,7 @@ Fully Random:
 As the name suggests, fully random, no safeguards or softlock prevention. Best used along with the Open All Worlds option.
 
 Intended:
-The most restrictive mode, based off of the item requirements shown when you enter each level. A few spots have been changed, where the game never actually said you needed an item that you did.
+The most restrictive mode, based off of the item requirements shown when you enter each level. A few spots have been changed, where the game never actually said you needed an item that you did. Note that because of how restrictive this mode is it may fail when used alongside other options, look for the message "'____' does not have a value assigned to it" in console when you enter A1 to see if it did.
 
 Hardmode:
 The least restrictive mode with softlock prevention. The only spots with item restrictions are the ones that no one's ever gotten itemless - in other words, if anyone's ever done it, it's fair game.
