@@ -40,7 +40,7 @@ local function printError(...)
   conErrorF(out)
 end
 
-print("Loaded Randomizer v9.4.0")
+print("Loaded Randomizer v10.0.2")
 
 --[[
   It's not fun assigning all tetros to this list, so we let other
@@ -1072,15 +1072,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     -- For scavenger hunt we have all worlds open
     if scavenger then
       accessableArrangers = {}
-      WorldA = addWorldMarkers(WorldA)
-      WorldB = addWorldMarkers(WorldB)
-      WorldC = addWorldMarkers(WorldC)
-      locked["A Gate"] = nil
-      locked["B Gate"] = nil
-      locked["C Gate"] = nil
-      locked["A Star"] = nil
-      locked["B Star"] = nil
-      locked["C Star"] = nil
     end
     
     -- Place the provided sigils in accessable areas
@@ -1505,9 +1496,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     locked["A Gate"] = {"DI1", "DJ3", "DL1", "DZ2"}
     locked["B Gate"] = {"DI2", "DL2", "DT1", "DT2", "DZ3"}
     locked["C Gate"] = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
-    locked["A Star"] = {"**1", "**2", "**3", "**4", "**5", "**6", "**7", "**8", "**9", "**10"}
-    locked["B Star"] = {"**11", "**12", "**13", "**14", "**15", "**16", "**17", "**18", "**19", "**20"}
-    locked["C Star"] = {"**21", "**22", "**23", "**24", "**25", "**26", "**27", "**28", "**29", "**30"}
     local allArrangers = {
       "A1 Gate", "A Gate", "B Gate", "C Gate",
       "A Star", "B Star", "C Star",
