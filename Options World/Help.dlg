@@ -73,7 +73,7 @@ Also note that no matter the randomization mode, with the same seed you will alw
 }
 
 terminal when (Scavenger) {
-  text: [[TTRS:notrans=Picks a method to beat the game and hides all sigils not required for it. Only places them within your starting hub, and forces the gate to that hub to be open. Also forces the Open All Worlds and Show Full Signs options off.
+  text: [[TTRS:notrans=Picks a method to beat the game and hides all sigils not required for it. Only places them within your starting hub, and forces the gate to that hub to be open. Forces the Show Full Signs option off.
 
 Note that this option, like Random Portals, affect seeds. The same seed will give you different sigil arrangements when you toggle this option on and off.]]
   goto: Loop

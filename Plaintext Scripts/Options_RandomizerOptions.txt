@@ -35,11 +35,7 @@ RunHandled(
   
   OnEvery(Event(NoGates.Activated)),
   function()
-    if scavenger then
-      NoGates:Deactivate()
-    else
-      talosProgress:SetVar("Randomizer_NoGates")
-    end
+    talosProgress:SetVar("Randomizer_NoGates")
   end,
   OnEvery(Event(NoGates.Deactivated)),
   function()
@@ -82,7 +78,6 @@ RunHandled(
   function()
     talosProgress:SetVar("Randomizer_Scavenger")
     ShowAll:Deactivate()
-    NoGates:Deactivate()
     scavenger = true
   end,
   OnEvery(Event(Scavenger.Deactivated)),
