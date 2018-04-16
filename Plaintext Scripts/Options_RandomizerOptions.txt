@@ -19,17 +19,31 @@ RunHandled(
   OnEvery(Any(Events(Modes.Activated))),
   function(event)
     local index = event.any.signaledIndex
+    -- Prevents an infinite loop
     if index ~= lastMode then
-      Modes[lastMode]:Deactivate()
-      lastMode = index
-      talosProgress:SetVarValue("Randomizer_Mode", index)
+      -- Scavenger doesn't allow fully random
+      if scavenger and index == 3 then
+        Modes[3]:Deactivate()
+      else
+        if lastMode ~= 0 then
+          Modes[lastMode]:Deactivate()
+        end
+        lastMode = index
+        talosProgress:SetVarValue("Randomizer_Mode", index)
+      end
     end
   end,
   OnEvery(Any(Events(Modes.Deactivated))),
   function(event)
     local index = event.any.signaledIndex
     if index == lastMode then
-      talosProgress:SetVarValue("Randomizer_Mode", 0)
+      -- Scavenger doesn't allow no randomization
+      if scavenger then
+        Modes[index]:Activate()
+      else
+        talosProgress:SetVarValue("Randomizer_Mode", 0)
+        lastMode = 0
+      end
     end
   end,
   
@@ -79,6 +93,11 @@ RunHandled(
     talosProgress:SetVar("Randomizer_Scavenger")
     ShowAll:Deactivate()
     scavenger = true
+    if lastMode == 0 or lastMode == 3 then
+      -- When I activate switch 1 it'll deactivate switch [lastMode]
+      lastMode = 3
+      Modes[1]:Activate()
+    end    
   end,
   OnEvery(Event(Scavenger.Deactivated)),
   function()
