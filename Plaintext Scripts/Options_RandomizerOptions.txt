@@ -9,6 +9,7 @@ local lastMode = 1
 local scavenger = 0
 
 talosProgress:SetVarValue("Randomizer_Mode", 1)
+talosProgress:SetVarValue("Randomizer_Scavenger", 0)
 talosProgress:SetVar("Randomizer_ShowAll")
 
 local seed = "Random Seed"
@@ -91,7 +92,11 @@ RunHandled(
   end,
   OnEvery(Event(NoGates.Deactivated)),
   function()
-    talosProgress:ClearVar("Randomizer_NoGates")
+    if scavenger then
+      NoGates:Activate()
+    else
+      talosProgress:ClearVar("Randomizer_NoGates")
+    end
   end,
   
   OnEvery(Event(UnlockItems.Activated)),
@@ -135,6 +140,7 @@ RunHandled(
       scavenger = index
       talosProgress:SetVarValue("Randomizer_Scavenger", index)
       ShowAll:Deactivate()
+      NoGates:Activate()
       if lastMode == 0 or lastMode == 3 then
         Modes[3]:Deactivate()
         NoRandom:Deactivate()
@@ -148,7 +154,7 @@ RunHandled(
     local index = event.any.signaledIndex
     if index == scavenger then
       scavenger = 0
-      talosProgress:ClearVar("Randomizer_Scavenger")
+      talosProgress:SetVarValue("Randomizer_Scavenger", 0)
     end
   end,
   

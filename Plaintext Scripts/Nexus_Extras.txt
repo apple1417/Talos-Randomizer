@@ -65,7 +65,6 @@ end
    extra gates incase random portals puts you outside of A
 ]]--
 local A1Location = talosProgress:GetCodeValue("A1")
-local Scavenger = talosProgress:IsVarSet("Randomizer_Scavenger")
 -- Start in A
 if A1Location <= 9 then
   AUpperGate:Disappear()
@@ -78,9 +77,6 @@ if A1Location <= 9 then
   CLowerGate:Disappear()
   CLowerArranger:Disappear()
   CLowerLight:Deactivate()
-  if Scavenger then
-    ALowerGate:AssureOpened()
-  end
 -- Start in B
 elseif 10 <= A1Location and A1Location <= 17 then
   ALowerGate:Disappear()
@@ -92,9 +88,6 @@ elseif 10 <= A1Location and A1Location <= 17 then
   CLowerGate:Disappear()
   CLowerArranger:Disappear()
   CLowerLight:Deactivate()
-  if Scavenger then
-    BLowerGate:AssureOpened()
-  end  
 -- Start in C
 elseif 18 <= A1Location then
   ALowerGate:Disappear()
@@ -107,7 +100,4 @@ elseif 18 <= A1Location then
   CUpperGate:Disappear()
   CUpperArranger:Disappear()
   CUpperLight:Deactivate()
-  if Scavenger then
-    CLowerGate:AssureOpened()
-  end  
 end
