@@ -252,9 +252,9 @@ RunHandled(
   -- The rest of these are basically all the same
   OnEvery(Event(backspace.Used)),
   function()
-    if seed ~= "No Seed" then
+    if seed ~= "Random Seed" then
       if #seed <= 1 then
-        seed = "No Seed"
+        seed = "Random Seed"
         seedDisplay:SetText(seedPtr, seed, true)
         talosProgress:ClearVar("Randomizer_Seed")
       else
@@ -277,8 +277,8 @@ RunHandled(
   
   OnEvery(Event(clear.Used)),
   function ()
-    if seed ~= "No Seed" then
-      seed = "No Seed"
+    if seed ~= "Random Seed" then
+      seed = "Random Seed"
       seedDisplay:SetText(seedPtr, seed, true)
       talosProgress:ClearVar("Randomizer_Seed")
       soundUse:PlayOnce()

@@ -5,8 +5,9 @@ local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
   If scavenger hunt mode is on we want to hide all arrangers except
    for the necessary ones
 ]]--
+Wait(CustomEvent("Randomizer_Finished"))
 local scavengerOverride = false
-if talosProgress:IsVarSet("Randomizer_Scavenger") then
+if talosProgress:GetCodeValue("Randomizer_Scavenger") ~= 0 then
   local modes = {"Connector Clip", "F2 Clip", "F3 Clip", "F1+F6"}
   local scavengerMode = modes[talosProgress:GetCodeValue("Randomizer_ScavengerMode")]
   if scavengerMode == "Connector Clip" then
