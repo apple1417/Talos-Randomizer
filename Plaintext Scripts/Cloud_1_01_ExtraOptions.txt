@@ -5,7 +5,6 @@
 
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
-local mode = talosProgress:GetCodeValue("Randomizer_Mode")
 
 -- Can't do this in options world because we can't undo it
 if talosProgress:IsVarSet("Randomizer_UnlockItems") then
@@ -60,7 +59,8 @@ local allMarkers = {
   "PaintItemSeed", "Code_Floor4", "Code_Floor5", "Code_Floor6",
   "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "ADevIsland",
   "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
-  "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "CMessenger"
+  "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "CMessenger",
+  "Randomizer_Seed", "Randomizer_Mode", "Randomizer_Scavenger"
 }
 
 --[[
@@ -79,10 +79,29 @@ for index=1, #allMarkers do
   sum1 = (sum1 + value*index) % 65536
   sum2 = (sum2 + sum1) % 65536
 end
-conInfoF(string.format("\nChecksum: %08X\n\n", sum1 * 65536 + sum2))
+local checksum = sum1 * 65536 + sum2
+
+-- Get printable versions of other vars that affect sigil arrangement
+local seed = talosProgress:GetCodeValue("Randomizer_Seed")
+local modeList = {"None", "Default", "60fps", "Fully Random", "Intended", "Hardmode", "60FPS Hardmode"}
+local mode = modeList[talosProgress:GetCodeValue("Randomizer_Mode") + 1]
+local portals = "Disabled"
+if talosProgress:IsVarSet("Randomizer_Portals") then
+  portals = "Enabled"
+end
+local scavengerList = {"Disabled", "Short", "Full"}
+local scavenger = scavengerList[talosProgress:GetCodeValue("Randomizer_Scavenger") + 1]
+
+conInfoF("\n")
+conInfoF("Seed: " .. seed .. "\n")
+conInfoF("Mode: " .. mode .. "\n")
+conInfoF("Random Portals: " .. portals .. "\n")
+conInfoF("Scavenger Hunt: " .. scavenger .. "\n")
+conInfoF(string.format("Checksum: %08X\n", checksum))
+conInfoF("\n")
 
 -- Give a warning about A1 gate, don't want to get rid of the arranger
-if (mode == 1 or mode == 2 or mode == 5) and not Arranger:IsSolved() then
+if mode ~= "None" and mode ~= "Intended" and not Arranger:IsSolved() then
   Arranger:DontSaveProgressWhenSolved()
   RunHandled(function() WaitForever() end,
     OnEvery(Event(Arranger.Enter)),
