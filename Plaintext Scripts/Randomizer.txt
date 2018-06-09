@@ -1911,8 +1911,10 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
       local world = worldIndexes[worldName]
       local F0Pos = talosProgress:GetCodeValue("Randomizer_LoopF0")
       local F3Pos = talosProgress:GetCodeValue("Randomizer_LoopF3")
-      local F0 = worldGlobals.allTetros[talosProgress:GetCodeValue("Secret_28_SRT_SPM_000_PM_004")]
-      local F3 = worldGlobals.allTetros[talosProgress:GetCodeValue("LeapOfFaith_PM_010")]
+      if worldName ~= "DeveloperIsland" then
+        local F0 = worldGlobals.allTetros[talosProgress:GetCodeValue("Secret_28_SRT_SPM_000_PM_004")]
+        local F3 = worldGlobals.allTetros[talosProgress:GetCodeValue("LeapOfFaith_PM_010")]
+        end
       if F0Pos == world or talosProgress:IsVarSet("Randomizer_LoopShowAll") then
         F0:SetPlacement(LoopMarkers[1]:GetPlacement())
         if DEBUG then
@@ -1940,7 +1942,7 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
         loopHideArranger()
       end
       for i=1, #LoopArrangers do
-        if loopHideArranger() and not talosProgress:IsVarSet("Randomizer_LoopShowAll") then
+        if loopHideArranger() and not talosProgress:IsVarSet("Randomizer_LoopShowAll") and worldName ~= "DeveloperIsland" then
           if DEBUG then
             print("Hiding Arranger: " .. LoopArrangers[i]:GetName())
           end
