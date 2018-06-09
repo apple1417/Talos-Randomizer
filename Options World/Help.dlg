@@ -15,6 +15,7 @@ terminal when (PickOption) {
     "TTRS:notrans=Show Full Signs" next: AllSigns
     "TTRS:notrans=Random Portals" next: Portals
     "TTRS:notrans=Scavenger Hunt" next: Scavenger
+    "TTRS:notrans=Möbius Mode" next: Mobius
     "TTRS:notrans=exit" next: Finished
   }
 }
@@ -81,6 +82,20 @@ terminal when (Scavenger) {
 Forces Open All Worlds on and Show Full Signs off. Cannot be used with the Fully Random or None modes.
 
 Note that this option, like Random Portals, affect seeds. The same seed will give you different sigil arrangements when you toggle this option on and off.]]
+  goto: Loop
+}
+
+terminal when (Mobius) {
+  text: [[TTRS:notrans=Links all the levels together so when you leave one you instantly enter another, skipping Nexus. When you achieve a win condition the exit portal switches to send you to messenger ending.
+  
+The win conditons are the following:
+All Sigils - When you collect all the sigils
+All of a Colour - When you collect all sigils of a single colour. Stars count as their own colour.
+All of a Shape - When you collect all sigils of a single shape. Stars count as their own shape.
+
+These win conditons are additive - if you select both All of a Colour and All of a Shape you can finish on either.
+
+Best played along side Random Portals.]]
   goto: Loop
 }
 
