@@ -6,17 +6,19 @@
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local lastMode = 1
+local loopVal = 0
 local scavenger = 0
 
 talosProgress:SetVarValue("Randomizer_Mode", 1)
 talosProgress:SetVarValue("Randomizer_Scavenger", 0)
+talosProgress:SetVarValue("Randomizer_Loop", 0)
 talosProgress:SetVar("Randomizer_ShowAll")
 
 local seed = "Random Seed"
 local seedPtr = seedDisplay:GetTextConfig()
 local allOptions = {
   NoGates, UnlockItems, ShowAll, Portals,
-  Scavenger
+  Scavenger, Loop
 }
 
 --[[
@@ -156,6 +158,25 @@ RunHandled(
       scavenger = 0
       talosProgress:SetVarValue("Randomizer_Scavenger", 0)
     end
+  end,
+  
+  --[[
+    These are all additive, so I'm just going to store the state of all
+     switches as an int, it's much easier to expand
+    Don't have any bitwise operators though so it's a bit messy
+  ]]--
+  OnEvery(Any(Any(Events(Loop.Activated)), Any(Events(Loop.Deactivated)))),
+  function()
+    loopVal = 0
+    for index=#Loop, 1, -1 do
+      if index ~= 32 then
+        loopVal = loopVal*2 + Loop[index]:IsActivated()
+      end
+    end
+    if #Loop == 32 and Loop[32]:IsActivated() then
+      loopVal = -loopVal
+    end
+    talosProgress:SetVarValue("Randomizer_Loop", loopVal)
   end,
   
   OnEvery(Event(RandomizeAll.Activated)),

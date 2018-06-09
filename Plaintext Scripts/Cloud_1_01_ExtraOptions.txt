@@ -60,7 +60,7 @@ local allMarkers = {
   "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "ADevIsland",
   "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
   "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "CMessenger",
-  "Randomizer_Seed", "Randomizer_Mode", "Randomizer_Scavenger"
+  "Randomizer_Seed", "Randomizer_Mode", "Randomizer_Scavenger", "Randomizer_Loop"
 }
 
 --[[
@@ -91,12 +91,19 @@ if talosProgress:IsVarSet("Randomizer_Portals") then
 end
 local scavengerList = {"Disabled", "Short", "Full"}
 local scavenger = scavengerList[talosProgress:GetCodeValue("Randomizer_Scavenger") + 1]
+local loop = "Disabled"
+local loopVar = talosProgress:GetCodeValue("Randomizer_Loop")
+if loopVar ~= 0 then
+  loop =  string.format("%02X", loopVar)
+end
+
 
 conInfoF("\n")
 conInfoF("Seed: " .. seed .. "\n")
 conInfoF("Mode: " .. mode .. "\n")
 conInfoF("Random Portals: " .. portals .. "\n")
 conInfoF("Scavenger Hunt: " .. scavenger .. "\n")
+conInfoF("Möbius Mode: ".. loop .. "\n")
 conInfoF(string.format("Checksum: %08X\n", checksum))
 conInfoF("\n")
 
