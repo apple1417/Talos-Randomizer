@@ -40,7 +40,7 @@ local function printError(...)
   conErrorF(out)
 end
 
-print("Loaded Randomizer v10.2.0")
+print("Loaded Randomizer v10.2.1")
 
 --[[
   It's not fun assigning all tetros to this list, so we let other
@@ -1759,8 +1759,8 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     Mobius Mode is made to work with everything else so we do this last
   ]]--
   if loop ~= 0 then
-    local F0Pos = rand(1, 52)
-    local F3Pos = rand(1, 51)
+    local F0Pos = rand(1, 50)
+    local F3Pos = rand(1, 49)
     if F3Pos >= F0Pos then
       F3Pos = F3Pos + 1
     end
@@ -1871,6 +1871,12 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 then
     local portalPos = worldGlobals.portal:GetPlacement()
     messengerPortal:SetPlacement(portalPos)
     worldGlobals.portal:SetPlacement(messengerPos)
+    if DEBUG then
+      print("Goal achieved, replacing portal " .. worldGlobals.portal:GetName() .. " with Messenger_Ending_Portal")
+    end
+  end
+  if talosProgress:IsVarSet("Randomizer_LoopDone") then
+    finished()
   end
   
   local seed = talosProgress:GetCodeValue("Randomizer_LoopSeed")
@@ -1896,11 +1902,11 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 then
       local worldIndexes = {
         ["Cloud_1_01"] =  1, ["Cloud_1_02"] =  3, ["Cloud_1_03"] =  5, ["Cloud_1_04"] =  7,
         ["Cloud_1_05"] =  9, ["Cloud_1_06"] = 11, ["Cloud_1_07"] = 13, ["Cloud_1_08"] = 15,
-        ["Cloud_2_01"] = 19, ["Cloud_2_02"] = 21, ["Cloud_2_03"] = 23, ["Cloud_2_04"] = 25,
-        ["Cloud_2_05"] = 27, ["Cloud_2_06"] = 29, ["Cloud_2_07"] = 31, ["Cloud_2_08"] = 33,
-        ["Cloud_3_01"] = 35, ["Cloud_3_02"] = 37, ["Cloud_3_03"] = 39, ["Cloud_3_04"] = 41,
-        ["Cloud_3_05"] = 43, ["Cloud_3_06"] = 45, ["Cloud_3_07"] = 47, ["Cloud_3_08"] = 49,
-        ["DeveloperIsland"] = 17, ["Islands_01"] = 51
+        ["Cloud_2_01"] = 17, ["Cloud_2_02"] = 19, ["Cloud_2_03"] = 21, ["Cloud_2_04"] = 23,
+        ["Cloud_2_05"] = 25, ["Cloud_2_06"] = 27, ["Cloud_2_07"] = 29, ["Cloud_2_08"] = 31,
+        ["Cloud_3_01"] = 33, ["Cloud_3_02"] = 35, ["Cloud_3_03"] = 37, ["Cloud_3_04"] = 39,
+        ["Cloud_3_05"] = 41, ["Cloud_3_06"] = 43, ["Cloud_3_07"] = 45, ["Cloud_3_08"] = 47,
+        ["Islands_01"] = 49, ["DeveloperIsland"] = -1
       }
       local world = worldIndexes[worldName]
       local F0Pos = talosProgress:GetCodeValue("Randomizer_LoopF0")
@@ -1918,15 +1924,15 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 then
           printWarning(string.format("Moving %s to LoopMarker2", F0:GetName()))
         end
       end
-      if F3Pos == world then
-        F3:SetPlacement(LoopMarkers[1]:GetPlacement())
-        if DEBUG then
-          printWarning(string.format("Moving %s to LoopMarker1", F3:GetName()))
-        end
-      elseif F3Pos == world + 1 or talosProgress:IsVarSet("Randomizer_LoopShowAll") then
+      if F3Pos == world + 1 or talosProgress:IsVarSet("Randomizer_LoopShowAll") then
         F3:SetPlacement(LoopMarkers[2]:GetPlacement())
         if DEBUG then
           printWarning(string.format("Moving %s to LoopMarker2", F3:GetName()))
+        end
+      elseif F3Pos == world then
+        F3:SetPlacement(LoopMarkers[1]:GetPlacement())
+        if DEBUG then
+          printWarning(string.format("Moving %s to LoopMarker1", F3:GetName()))
         end
       end
       
@@ -1947,8 +1953,7 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 then
           WaitForever()
         end,
         OnEvery(CustomEvent("TetrominoAwarded")),
-        function(e)
-          local tetro = e:GetTetromino()
+        function()
           local collected = talosProgress:GetInventoryTetrominoes()..talosProgress:GetUsedupTetrominoes()
           
           if talosProgress:GetCodeValue("Randomizer_Scavenger") ~= 0 then
