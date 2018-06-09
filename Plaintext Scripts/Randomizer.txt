@@ -1860,7 +1860,7 @@ RunAsync(function()
   end
 end)
 
-if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 then
+if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFileName() ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
   local function finished(str)
     if not talosProgress:IsVarSet("Randomizer_LoopDone") then
       worldInfo:ShowMessageToAll("Goal Achived:\n" .. str)
@@ -2060,7 +2060,7 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 then
       )
     end
   )
-else -- If mobius mode is off
+elseif worldInfo:GetWorldFileName() ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then-- If mobius mode is off
   for i=1, #LoopArrangers do
     LoopArrangers[i]:Disappear()
   end
