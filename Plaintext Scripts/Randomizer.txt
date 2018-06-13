@@ -2060,6 +2060,32 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
               finished("Collected All Stars")
             end
           end
+          
+          if options[4] then
+            local _, count = string.gsub(collected, "[DMN][IJLOSTZ]%d+;", "")
+            if count >= 90 then
+              finished("Unlocked Eternalize Ending")
+            end
+          end
+          
+          if options[5] then
+            local _, ICount = string.gsub(collected, "NI%d+;", "")
+            local _, JCount = string.gsub(collected, "NJ%d+;", "")
+            local _, LCount = string.gsub(collected, "NL%d+;", "")
+            local _, OCount = string.gsub(collected, "NO%d+;", "")
+            local _, SCount = string.gsub(collected, "NS%d+;", "")
+            local _, TCount = string.gsub(collected, "NT%d+;", "")
+            local _, ZCount = string.gsub(collected, "NZ%d+;", "")
+            local _, GCount = string.gsub(collected, "E[IJLOSTZ%*]%d+;", "")
+            
+            if LCount >= 6 and OCount >= 1 and TCount >= 4 and ZCount >= 2 then
+              finished("Collected All F1 & F2 Sigils")
+            elseif ICount >= 4 and JCount >= 2 and LCount >= 4 and SCount >= 1 and ZCount >= 3 then
+              finished("Collected All F1 & F2 Sigils")
+            elseif LCount >= 2 and ZCount >= 2 and GCount >= 9 then
+              finished("Collected All F1 & F6 Sigils")
+            end
+          end
         end
       )
     end
