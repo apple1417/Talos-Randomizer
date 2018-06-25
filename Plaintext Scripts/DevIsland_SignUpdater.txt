@@ -143,6 +143,20 @@ end
 
 updateText()
 
+if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 then
+  local F0 = talosProgress:GetCodeValue("Randomizer_LoopF0")
+  local F3 = talosProgress:GetCodeValue("Randomizer_LoopF3")
+  local worldNames = {
+    "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A*",
+    "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B*",
+    "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C*", "CM"
+  }
+  F0Text:SetText(F0Text:GetTextConfig(), worldNames[mthFloorF(F0/2)], true)
+  F3Text:SetText(F3Text:GetTextConfig(), worldNames[mthFloorF(F3/2)], true)
+else
+  WorldSign:Disappear()
+end
+
 -- Need to make sure the sign updates incase you don't reset
 RunHandled(
   function()

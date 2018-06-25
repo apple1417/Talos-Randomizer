@@ -16,6 +16,7 @@ terminal when (PickOption) {
     "TTRS:notrans=Random Portals" next: Portals
     "TTRS:notrans=Scavenger Hunt" next: Scavenger
     "TTRS:notrans=Möbius Mode" next: Mobius
+    "TTRS:notrans=Errors" next: Errors
     "TTRS:notrans=exit" next: Finished
   }
 }
@@ -39,7 +40,7 @@ Fully Random:
 As the name suggests, fully random, no safeguards or softlock prevention. Best used along with the Open All Worlds option.
 
 Intended:
-The most restrictive mode, based off of the item requirements shown when you enter each level. A few spots have been changed, where the game never actually said you needed an item that you did. Note that because of how restrictive this mode is it may fail when used alongside other options, look for the message "'____' does not have a value assigned to it" in console when you enter A1 to see if it did.
+The most restrictive mode, based off of the item requirements shown when you enter each level. A few spots have been changed, where the game never actually said you needed an item that you did. Note that because of how restrictive this mode is it may error when used with other options.
 
 Hardmode:
 The least restrictive mode with softlock prevention. The only spots with item restrictions are the ones that no one's ever gotten itemless - in other words, if anyone's ever done it, it's fair game.
@@ -97,7 +98,19 @@ First Two Tower Floors - When you have all the sigils for the first two tower fl
 
 These win conditons are additive - if you select both All of a Colour and All of a Shape you can finish on either.
 
+Item arrangers and the two stars in nexus, which would normally be inaccessable, are scattered throughout the levels.
+
 Best played alongside Random Portals.]]
+  goto: Loop
+}
+
+terminal when (Errors) {
+  text: [[TTRS:notrans=The Randomizer is not perfect. The vast majority of times it works fine, but sometimes a certain seed or combination of options will cause errors. There are two obvious signs that something has gone wrong:
+
+Sigils are missing. Puzzles you've never completed have no sigil at the end. Note that this is intended in Scavenger Hunt mode.
+Show Full Signs is on, but some signs show question marks. This is generally caused by a sigil being missing, but it's a bit more obvious, especially in Nexus.
+
+To confirm one of these errors enter A1 and open the console (` or F1) and look for the message "'____' does not have a value assigned to it". If you see this message please send me a pastebin of your log file for that session, it's at [Talos Folder]\Log\Talos.log or Talos_Unrestricted.log for the moddable version.]]
   goto: Loop
 }
 

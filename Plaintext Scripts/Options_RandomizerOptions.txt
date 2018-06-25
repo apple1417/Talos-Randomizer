@@ -46,18 +46,13 @@ RunHandled(
     local index = event.any.signaledIndex
     -- Prevents an infinite loop
     if index ~= lastMode then
-      -- Scavenger doesn't allow fully random
-      if scavenger ~= 0 and index == 3 then
-        Modes[3]:Deactivate()
+      if lastMode == 0 then
+        NoRandom:Deactivate()
       else
-        if lastMode == 0 then
-          NoRandom:Deactivate()
-        else
-          Modes[lastMode]:Deactivate()
-        end
-        lastMode = index
-        talosProgress:SetVarValue("Randomizer_Mode", index)
+        Modes[lastMode]:Deactivate()
       end
+      lastMode = index
+      talosProgress:SetVarValue("Randomizer_Mode", index)
     end
   end,
   OnEvery(Any(Events(Modes.Deactivated))),
@@ -71,14 +66,9 @@ RunHandled(
   function()
     -- Prevents an infinite loop
     if lastMode ~= 0 then
-      -- Scavenger doesn't allow no random
-      if scavenger ~= 0 then
-        NoRandom:Deactivate()
-      else
-        Modes[lastMode]:Deactivate()
-        lastMode = 0
-        talosProgress:SetVarValue("Randomizer_Mode", 0)
-      end
+      Modes[lastMode]:Deactivate()
+      lastMode = 0
+      talosProgress:SetVarValue("Randomizer_Mode", 0)
     end    
   end,
   OnEvery(Event(NoRandom.Deactivated)),
@@ -143,12 +133,6 @@ RunHandled(
       talosProgress:SetVarValue("Randomizer_Scavenger", index)
       ShowAll:Deactivate()
       NoGates:Activate()
-      if lastMode == 0 or lastMode == 3 then
-        Modes[3]:Deactivate()
-        NoRandom:Deactivate()
-        lastMode = 1
-        Modes[1]:Activate()
-      end
     end
   end,
   OnEvery(Any(Events(Scavenger.Deactivated))),
@@ -205,8 +189,9 @@ RunHandled(
       Toggles switches randomly
       If it picks a switch group it will only toggle a single switch
        in that group
-      This is so that *any* scavenger hunt has the same chance as the
-       other options, normally 2 switches would mean twice as likely
+      This is so that *any* scavenger hunt/mobius switch has the same
+       chance as the other options, normally 2 switches would mean
+       it's twice as likely
     ]]--
     local loops = mthRndRangeL(1, #allOptions)
     for i=0, loops do
