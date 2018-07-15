@@ -12,7 +12,7 @@ if talosProgress:GetCodeValue("Randomizer_Scavenger") ~= 0 then
   local scavengerMode = modes[talosProgress:GetCodeValue("Randomizer_ScavengerMode")]
   if scavengerMode == "Connector Clip" then
     scavengerOverride = thisScript:GetName() ~= "Connector"
-  elseif scavengerMode == "F1+F2+H" then
+  elseif scavengerMode == "F2 Clip" then
     scavengerOverride = thisScript:GetName() ~= "Cube"
   else
     scavengerOverride = true

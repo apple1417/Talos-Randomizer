@@ -40,7 +40,7 @@ local function printError(...)
   conErrorF(out)
 end
 
-print("Loaded Randomizer v11.0.1")
+print("Loaded Randomizer v11.0.2")
 
 --[[
   It's not fun assigning all tetros to this list, so we let other
