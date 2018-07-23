@@ -94,7 +94,7 @@ All Sigils - When you collect all the sigils
 All of a Colour - When you collect all sigils of a single colour. Stars count as their own colour.
 All of a Shape - When you collect all sigils of a single shape. Stars count as their own shape.
 Eternalize Ending - When Eternalize Ending normally triggers, when you collect all green, yellow, and red tetrominoes.
-First Two Tower Floors - When you have all the sigils for the first two tower floors, F1 and one of: F2, F3 or F6.
+Two Tower Floors - When you have all the sigils to be able to unlock any two tower floors (at the same time).
 
 These win conditons are additive - if you select both All of a Colour and All of a Shape you can finish on either.
 

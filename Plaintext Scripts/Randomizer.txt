@@ -40,7 +40,7 @@ local function printError(...)
   conErrorF(out)
 end
 
-print("Loaded Randomizer v11.0.2")
+print("Loaded Randomizer v11.0.3")
 
 --[[
   It's not fun assigning all tetros to this list, so we let other
@@ -2031,21 +2031,49 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
           end
           
           if options[5] then
-            local _, ICount = string.gsub(collected, "NI%d+;", "")
-            local _, JCount = string.gsub(collected, "NJ%d+;", "")
-            local _, LCount = string.gsub(collected, "NL%d+;", "")
-            local _, OCount = string.gsub(collected, "NO%d+;", "")
-            local _, SCount = string.gsub(collected, "NS%d+;", "")
-            local _, TCount = string.gsub(collected, "NT%d+;", "")
-            local _, ZCount = string.gsub(collected, "NZ%d+;", "")
-            local _, GCount = string.gsub(collected, "E[IJLOSTZ%*]%d+;", "")
+            local totals = {["I"] = 0, ["J"] = 0, ["L"] = 0, ["O"] = 0, ["S"] = 0, ["T"] = 0, ["Z"] = 0}
+            for shape, _ in pairs(totals) do
+              local _, count = string.gsub(collected, "N" .. shape .. "%d+;", "")
+              totals[shape] = totals[shape] + count
+            end
+            local _, greys = string.gsub(collected, "E[IJLOSTZ%*]%d+;", "")
             
-            if LCount >= 6 and OCount >= 1 and TCount >= 4 and ZCount >= 2 then
-              finished("Collected All F1 & F2 Sigils")
-            elseif ICount >= 4 and JCount >= 2 and LCount >= 4 and SCount >= 1 and ZCount >= 3 then
-              finished("Collected All F1 & F2 Sigils")
-            elseif LCount >= 2 and ZCount >= 2 and GCount >= 9 then
-              finished("Collected All F1 & F6 Sigils")
+            local floorCount = {
+              {["I"] = 0, ["J"] = 0, ["L"] = 2, ["O"] = 0, ["S"] = 0, ["T"] = 0, ["Z"] = 2},
+              {["I"] = 0, ["J"] = 0, ["L"] = 4, ["O"] = 1, ["S"] = 0, ["T"] = 4, ["Z"] = 0},
+              {["I"] = 4, ["J"] = 2, ["L"] = 2, ["O"] = 0, ["S"] = 1, ["T"] = 0, ["Z"] = 1},
+              {["I"] = 0, ["J"] = 1, ["L"] = 1, ["O"] = 2, ["S"] = 2, ["T"] = 4, ["Z"] = 2},
+              {["I"] = 2, ["J"] = 1, ["L"] = 1, ["O"] = 4, ["S"] = 1, ["T"] = 4, ["Z"] = 1}
+            }
+            for i=1, #floorCount do
+              for j=i+1, #floorCount + 1 do
+                -- Need a copy of floorCount[i] rather than a reference
+                local requirements = {}
+                for k, v in pairs(floorCount[i]) do
+                  requirements[k] = v
+                end
+                
+                if j <= #floorCount then
+                  for shape, amount in pairs(floorCount[j]) do
+                    requirements[shape] = requirements[shape] + amount
+                  end
+                end
+                
+                local complete = true
+                for shape, _ in pairs(totals) do
+                  if totals[shape] < requirements[shape] then
+                    complete = false
+                    break
+                  end
+                end
+                if j == #floorCount + 1 then
+                  complete = complete and greys >= 9
+                end
+                
+                if complete then
+                  finished("Collected all sigils for F" .. i .. " & F" .. j)
+                end
+              end
             end
           end
         end
