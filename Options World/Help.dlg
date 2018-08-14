@@ -16,6 +16,7 @@ terminal when (PickOption) {
     "TTRS:notrans=Random Portals" next: Portals
     "TTRS:notrans=Scavenger Hunt" next: Scavenger
     "TTRS:notrans=Möbius Mode" next: Mobius
+    "TTRS:notrans=Moody Sigils" next: Moody
     "TTRS:notrans=Errors" next: Errors
     "TTRS:notrans=exit" next: Finished
   }
@@ -101,6 +102,11 @@ These win conditons are additive - if you select both All of a Colour and All of
 Item arrangers and the two stars in nexus, which would normally be inaccessable, are scattered throughout the levels.
 
 Best played alongside Random Portals.]]
+  goto: Loop
+}
+
+terminal when (Moody) {
+  text: "TTRS:notrans=Prevents you from collecting two sigils of the same colour and/or shape (based on the options) in a row. If you enable both options both restrictions will apply. The sigils still appear in the world allowing you to plan out your route, just collection is disabled."
   goto: Loop
 }
 

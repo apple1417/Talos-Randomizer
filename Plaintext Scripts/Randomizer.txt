@@ -40,7 +40,7 @@ local function printError(...)
   conErrorF(out)
 end
 
-print("Loaded Randomizer v11.0.3")
+print("Loaded Randomizer v11.1.0")
 
 --[[
   It's not fun assigning all tetros to this list, so we let other
@@ -258,9 +258,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     ["F6"] = {"EL1", "EL2", "EL3", "EL4", "EO1", "ES1", "ES2", "ES3", "ES4"}
   }
   
-  -- Make sure Randomizer_Loop is set
+  -- Make sure some vars that default to 0 are set, so everything works from a clearTalosProgress()
   if not talosProgress:IsVarSet("Randomizer_Loop") then
     talosProgress:SetVarValue("Randomizer_Loop", 0)
+  end
+  if not talosProgress:IsVarSet("Randomizer_Moody") then
+    talosProgress:SetVarValue("Randomizer_Moody", 0)
   end
   
   -- If scavenger hunt mode is on decide what ending we're doing
@@ -1740,6 +1743,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   end
 end
 
+-- Send a signal to all other scripts that might error if randomization hasn't finished
+Wait(CustomEvent("OnStep"))
+SignalEvent("Randomizer_Finished")
+
 -- Now that Randomization's finished we can use RunAsync()
 RunAsync(function()
   if worldInfo:GetWorldFileName() == "Content/Talos/Levels/Randomizer/DeveloperIsland.wld" then
@@ -2086,6 +2093,58 @@ elseif worldInfo:GetWorldFileName() ~= "Content/Talos/Levels/Randomizer/Nexus.wl
   end
 end
 
--- Send a signal to all other scripts that might error if this hasn't finished
-Wait(CustomEvent("OnStep"))
-SignalEvent("Randomizer_Finished")
+if talosProgress:GetCodeValue("Randomizer_Moody") ~= 0 then
+  local colours = {
+    ["*"] = 1,
+    ["D"] = 2,
+    ["E"] = 3,
+    ["M"] = 4,
+    ["N"] = 5
+  }
+  local shapes = {
+    ["*"] = 1,
+    ["I"] = 2,
+    ["J"] = 3,
+    ["L"] = 4,
+    ["O"] = 5,
+    ["S"] = 6,
+    ["T"] = 7,
+    ["Z"] = 8,
+  }
+  
+  local checkColour = talosProgress:GetCodeValue("Randomizer_Moody") % 2 == 1
+  local checkShape = talosProgress:GetCodeValue("Randomizer_Moody") > 1
+  
+  local function disableTetros()
+    for i=1,#worldMarkers do
+      local sigilNum = talosProgress:GetCodeValue(worldMarkers[i]:GetName())
+      local sigil = worldGlobals.allTetros[sigilNum]
+      local sigilColour = colours[string.sub(sigil:GetName(), 1, 1)]
+      local sigilShape = shapes[string.sub(sigil:GetName(), 2, 2)]
+      
+      if checkColour and sigilColour == talosProgress:GetCodeValue("Randomizer_MoodyColour") then
+        sigil:DisablePicking()
+      elseif checkShape and sigilShape == talosProgress:GetCodeValue("Randomizer_MoodyShape") then
+        sigil:DisablePicking()
+      else
+        sigil:EnablePicking()
+      end
+    end
+  end
+  
+  RunAsync(function()
+    disableTetros()
+    RunHandled(
+      WaitForever,
+      OnEvery(CustomEvent("TetrominoAwarded")),
+      -- event : CTetrominoAwardedScriptEvent
+      function(event)
+        local sigil = event:GetTetromino()
+        talosProgress:SetVarValue("Randomizer_MoodyColour", colours[string.sub(sigil, 1, 1)])
+        talosProgress:SetVarValue("Randomizer_MoodyShape", shapes[string.sub(sigil, 2, 2)])
+        talBackupAndSaveTalosProgress(worldInfo)
+        disableTetros()
+      end
+    )
+  end)
+end

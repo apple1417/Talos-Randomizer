@@ -7,15 +7,18 @@
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local lastMode = 1
 local loopVal = 0
+local moodyVal = 0
 local scavenger = 0
 
 talosProgress:SetVarValue("Randomizer_Mode", 1)
 talosProgress:SetVarValue("Randomizer_Scavenger", 0)
 talosProgress:SetVarValue("Randomizer_Loop", 0)
+talosProgress:SetVarValue("Randomizer_Moody", 0)
 talosProgress:SetVar("Randomizer_ShowAll")
 
 local seed = "Random Seed"
 local seedPtr = seedDisplay:GetTextConfig()
+local awarded = false
 local allOptions = {
   NoGates, UnlockItems, ShowAll, Portals,
   Scavenger, Loop
@@ -163,6 +166,13 @@ RunHandled(
     talosProgress:SetVarValue("Randomizer_Loop", loopVal)
   end,
   
+  -- Like Loop these are additive
+  OnEvery(Any(Any(Events(Moody.Activated)), Any(Events(Moody.Deactivated)))),
+  function()
+    moodyVal = Moody[1]:IsActivated() + 2*Moody[2]:IsActivated()
+    talosProgress:SetVarValue("Randomizer_Moody", moodyVal)
+  end,  
+  
   OnEvery(Event(RandomizeAll.Activated)),
   function()
     RandomizeAll:Deactivate()
@@ -234,8 +244,12 @@ RunHandled(
         talosProgress:SetVarValue("Randomizer_Seed", tonumber(seed))
         failSeed = false
       else
-        seed = talosProgress:GetCodeValue("Randomizer_Seed")
+        seed = tostring(talosProgress:GetCodeValue("Randomizer_Seed"))
       end
+    end
+    if not awarded and seed == "20171226" then
+      award:PlayOnce()
+      awarded = true
     end
     --[[
       This goes in a RunAsync() so that you can press other buttons
