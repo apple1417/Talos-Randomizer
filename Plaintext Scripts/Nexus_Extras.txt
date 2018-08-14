@@ -73,6 +73,8 @@ if A1Location <= 9 then
   BLowerGate:Disappear()
   BLowerArranger:Disappear()
   BLowerWalls:Disappear()
+  BLowerBumpWall:Disable()
+  BLowerBumpDetector:Deactivate()
   BLowerLight:Deactivate()
   CLowerGate:Disappear()
   CLowerArranger:Disappear()
@@ -87,7 +89,24 @@ elseif 10 <= A1Location and A1Location <= 17 then
   BUpperLight:Deactivate()
   CLowerGate:Disappear()
   CLowerArranger:Disappear()
-  CLowerLight:Deactivate()
+  CLowerLight:Deactivate()  
+  -- We get rid of the bump wall once you're through the gate
+  if BLowerArranger:IsSolved() then
+    BLowerBumpWall:Disable()
+    BLowerBumpDetector:Deactivate()
+  else
+    RunAsync(function()
+      Wait(Event(BLowerArranger.Solved))
+      BLowerBumpWall:Disable()
+      BLowerBumpDetector:Deactivate()
+    end)
+    RunAsync(function()
+      -- This will never trigger if you solve the arranger
+      Wait(Event(BLowerBumpDetector.Activated))
+      Wait(Delay(1.25))
+      worldInfo:ShowMessageToAll("Where do you think you're going?")
+    end)
+  end
 -- Start in C
 elseif 18 <= A1Location then
   ALowerGate:Disappear()
@@ -96,6 +115,8 @@ elseif 18 <= A1Location then
   BLowerGate:Disappear()
   BLowerArranger:Disappear()
   BLowerWalls:Disappear()
+  BLowerBumpWall:Disable()
+  BLowerBumpDetector:Deactivate()  
   BLowerLight:Deactivate()
   CUpperGate:Disappear()
   CUpperArranger:Disappear()
