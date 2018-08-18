@@ -1885,27 +1885,27 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
       if worldName ~= "DeveloperIsland" then
         F0 = worldGlobals.allTetros[talosProgress:GetCodeValue("Secret_28_SRT_SPM_000_PM_004")]
         F3 = worldGlobals.allTetros[talosProgress:GetCodeValue("LeapOfFaith_PM_010")]
-      end
-      if F0Pos == world or talosProgress:IsVarSet("Randomizer_LoopShowAll") then
-        F0:SetPlacement(LoopMarkers[1]:GetPlacement())
-        if DEBUG then
-          printWarning(string.format("Moving %s to LoopMarker1", F0:GetName()))
+        if F0Pos == world or talosProgress:IsVarSet("Randomizer_LoopShowAll") then
+          F0:SetPlacement(LoopMarkers[1]:GetPlacement())
+          if DEBUG then
+            printWarning(string.format("Moving %s to LoopMarker1", F0:GetName()))
+          end
+        elseif F0Pos == world + 1 then
+          F0:SetPlacement(LoopMarkers[2]:GetPlacement())
+          if DEBUG then
+            printWarning(string.format("Moving %s to LoopMarker2", F0:GetName()))
+          end
         end
-      elseif F0Pos == world + 1 then
-        F0:SetPlacement(LoopMarkers[2]:GetPlacement())
-        if DEBUG then
-          printWarning(string.format("Moving %s to LoopMarker2", F0:GetName()))
-        end
-      end
-      if F3Pos == world + 1 or talosProgress:IsVarSet("Randomizer_LoopShowAll") then
-        F3:SetPlacement(LoopMarkers[2]:GetPlacement())
-        if DEBUG then
-          printWarning(string.format("Moving %s to LoopMarker2", F3:GetName()))
-        end
-      elseif F3Pos == world then
-        F3:SetPlacement(LoopMarkers[1]:GetPlacement())
-        if DEBUG then
-          printWarning(string.format("Moving %s to LoopMarker1", F3:GetName()))
+        if F3Pos == world + 1 or talosProgress:IsVarSet("Randomizer_LoopShowAll") then
+          F3:SetPlacement(LoopMarkers[2]:GetPlacement())
+          if DEBUG then
+            printWarning(string.format("Moving %s to LoopMarker2", F3:GetName()))
+          end
+        elseif F3Pos == world then
+          F3:SetPlacement(LoopMarkers[1]:GetPlacement())
+          if DEBUG then
+            printWarning(string.format("Moving %s to LoopMarker1", F3:GetName()))
+          end
         end
       end
       

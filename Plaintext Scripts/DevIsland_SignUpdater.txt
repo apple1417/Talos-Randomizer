@@ -1,4 +1,4 @@
---[[
+﻿--[[
   For the three spots without a sign - C Messenger, F0 Star, F3 Star
   These sigils don't actually exist in the world so we need to do a
    bunch of stuff differently
@@ -151,8 +151,8 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 then
     "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B*",
     "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C*", "CM"
   }
-  F0Text:SetText(F0Text:GetTextConfig(), worldNames[mthFloorF(F0/2)], true)
-  F3Text:SetText(F3Text:GetTextConfig(), worldNames[mthFloorF(F3/2)], true)
+  F0Text:SetText(F0Text:GetTextConfig(), worldNames[mthFloorF((F0 + 1)/2)], true)
+  F3Text:SetText(F3Text:GetTextConfig(), worldNames[mthFloorF((F3 + 1)/2)], true)
 else
   WorldSign:Disappear()
 end
