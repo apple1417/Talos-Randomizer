@@ -4,11 +4,11 @@
 ]]--
 
 -- talosProgress : CTalosProgress
-local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
+local talosProgress = nexGetTalosProgress(worldInfo)
 local lastMode = 1
 local loopVal = 0
 local moodyVal = 0
-local scavenger = 0
+local scavengerVal = 0
 
 talosProgress:SetVarValue("Randomizer_Mode", 1)
 talosProgress:SetVarValue("Randomizer_Scavenger", 0)
@@ -21,7 +21,7 @@ local seedPtr = seedDisplay:GetTextConfig()
 local awarded = false
 local allOptions = {
   NoGates, UnlockItems, ShowAll, Portals,
-  Scavenger, Loop
+  Scavenger, Loop, Moody
 }
 
 --[[
@@ -87,10 +87,11 @@ RunHandled(
   end,
   OnEvery(Event(NoGates.Deactivated)),
   function()
-    if scavenger then
-      NoGates:Activate()
-    else
-      talosProgress:ClearVar("Randomizer_NoGates")
+    talosProgress:ClearVar("Randomizer_NoGates")
+    if scavengerVal ~= 0 then
+      for index=1, #Scavenger do
+        Scavenger[index]:Deactivate()
+      end
     end
   end,
   
@@ -105,10 +106,11 @@ RunHandled(
   
   OnEvery(Event(ShowAll.Activated)),
   function()
-    if scavenger then
-      ShowAll:Deactivate()
-    else
-      talosProgress:SetVar("Randomizer_ShowAll")
+    talosProgress:SetVar("Randomizer_ShowAll")
+    if scavengerVal ~= 0 then
+      for index=1, #Scavenger do
+        Scavenger[index]:Deactivate()
+      end
     end
   end,
   OnEvery(Event(ShowAll.Deactivated)),
@@ -128,21 +130,27 @@ RunHandled(
   OnEvery(Any(Events(Scavenger.Activated))),
   function(event)
     local index = event.any.signaledIndex
-    if index ~= scavenger then
-      if scavenger ~= 0 then
-        Scavenger[scavenger]:Deactivate()
+    if index ~= scavengerVal then
+      if scavengerVal ~= 0 then
+        Scavenger[scavengerVal]:Deactivate()
       end
-      scavenger = index
+      scavengerVal = index
       talosProgress:SetVarValue("Randomizer_Scavenger", index)
       ShowAll:Deactivate()
       NoGates:Activate()
+
+      if moodyVal ~= 0 then
+        for index=1, #Moody do
+          Moody[index]:Deactivate()
+        end
+      end
     end
   end,
   OnEvery(Any(Events(Scavenger.Deactivated))),
   function(event)
     local index = event.any.signaledIndex
-    if index == scavenger then
-      scavenger = 0
+    if index == scavengerVal then
+      scavengerVal = 0
       talosProgress:SetVarValue("Randomizer_Scavenger", 0)
     end
   end,
@@ -168,10 +176,20 @@ RunHandled(
   
   -- Like Loop these are additive
   OnEvery(Any(Any(Events(Moody.Activated)), Any(Events(Moody.Deactivated)))),
-  function()
+  function(event)
     moodyVal = Moody[1]:IsActivated() + 2*Moody[2]:IsActivated()
-    talosProgress:SetVarValue("Randomizer_Moody", moodyVal)
-  end,  
+    talosProgress:SetVarValue("Randomizer_Moody", moodyVal)  
+    --[[
+      We only want this to trigger on activation, otherwise, if moody is
+       already on, scavenger will deactivate it, and trigger this which in
+       turn deactivates the scavenger switch
+    ]]--
+    if (scavengerVal ~= 0) and (event.any.signaledIndex == 1) then
+      for index=1, #Scavenger do
+        Scavenger[index]:Deactivate()
+      end
+    end
+  end,
   
   OnEvery(Event(RandomizeAll.Activated)),
   function()
