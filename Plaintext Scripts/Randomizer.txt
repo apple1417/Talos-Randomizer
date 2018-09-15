@@ -284,11 +284,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     end
     scavengerMode = rand(1, #sModes)
     -- The only one you can actually do intended
+    if randomization_mode == "Intended" then
+      scavengerMode = 4
+    end
     talosProgress:SetVarValue("Randomizer_ScavengerMode", scavengerMode)
     scavengerMode = sModes[scavengerMode]
-    if randomization_mode == "Intended" then
-      scavengerMode = "F1+F6"
-    end
+
     if DEBUG then
       print("Using scavenger hunt mode: " .. scavengerMode)
     end
