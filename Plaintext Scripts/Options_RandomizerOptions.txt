@@ -164,12 +164,7 @@ RunHandled(
   function()
     loopVal = 0
     for index=#Loop, 1, -1 do
-      if index ~= 32 then
-        loopVal = loopVal*2 + Loop[index]:IsActivated()
-      end
-    end
-    if #Loop == 32 and Loop[32]:IsActivated() then
-      loopVal = -loopVal
+      loopVal = loopVal*2 + Loop[index]:IsActivated()
     end
     talosProgress:SetVarValue("Randomizer_Loop", loopVal)
   end,

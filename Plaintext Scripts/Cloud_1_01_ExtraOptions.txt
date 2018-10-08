@@ -22,6 +22,26 @@ if talosProgress:IsVarSet("Randomizer_NoGates") then
 end
 
 Wait(CustomEvent("Randomizer_Finished"))
+
+-- Arranger Hints for mobius, here for same reason as items
+if talosProgress:GetCodeValue("Randomizer_Loop") >= 32 then
+  local allArrangers = {
+    A1Gate, AGate, BGate, CGate,
+    Connector, Cube, Fan, Recorder, Platform,
+    F1, F2, F3, F4, F5, F6
+  }
+  
+  local arrangers = talosProgress:GetCodeValue("Randomizer_LoopArrangers")
+  for index=1, 15 do
+    if arrangers % 2 == 1 then
+      -- currentArranger : CPuzzleData
+      local currentArranger = allArrangers[index]
+      talosProgress:FakeSeenArranger(currentArranger)
+    end
+    arrangers = mthFloorF(arrangers / 2)
+  end
+end
+
 local allMarkers = {
   "001_SPM_000_PM_005", "001a_SPM_000_PM_008", "005_SPM_000_PM_009", "006_SPM_000_PM_003",
   "007_SPM_000_PM_006", "008_SPM_000_PM_016", "011_SPM_000_PM_009", "012_SPM_000_PM_004",

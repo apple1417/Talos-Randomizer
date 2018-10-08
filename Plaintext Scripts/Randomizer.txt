@@ -40,7 +40,7 @@ local function printError(...)
   conErrorF(out)
 end
 
-print("Loaded Randomizer v11.1.2")
+print("Loaded Randomizer v11.2.0")
 
 --[[
   It's not fun assigning all tetros to this list, so we let other
@@ -97,14 +97,14 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   local modes = {"None", "Default", "60fps", "Fully Random", "Intended", "Hardmode", "60FPS Hardmode"}
   randomization_mode = modes[randomization_mode + 1]
   print("Using randomization mode: ".. randomization_mode)
-  
+
   local seed = talosProgress:GetCodeValue("Randomizer_Seed")
   if seed == -1 then
     seed = mthRndRangeL(0, 2147483647)
     talosProgress:SetCode("Randomizer_Seed", seed)
   end
   print("Using Seed", seed)
-  
+
   --[[
     Linear congruential generator using Microsoft VC++ seeds
     Unlike the built-in, we can seed this
@@ -116,7 +116,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     if min == max then return min end
     return (seed % (max - (min - 1))) + min
   end
-  
+
   -- Set the few things that are normally random based on seed
   talosProgress:SetVarValue("PaintItemSeed", rand(0, 8909478))
   talosProgress:SetVarValue("Code_Floor4", rand(1, 999))
@@ -130,7 +130,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     codeF6 = codeF6*10 + digit
   end
   talosProgress:SetVarValue("Code_Floor6", codeF6)
-  
+
   -- Again we can only save numbers, so this is how tetros are ordered
   local tetroIndexes = {
     ["**1"] =  1, ["**2"] =  2, ["**3"] =  3, ["**4"] =  4, ["**5"] =  5,
@@ -160,7 +160,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     ["NT10"]=121, ["NT11"]=122, ["NT12"]=123, ["NZ1"] =124, ["NZ2"] =125,
     ["NZ3"] =126, ["NZ4"] =127, ["NZ5"] =128, ["NZ6"] =129
   }
-  
+
   --[[
     More readable names than just the marker names we save them as
     The sigil names are the same as in MarkerNames.txt, with the
@@ -195,7 +195,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     ["C*-Unreachable Garden"] = "235_SRT_SPM_000_PM_037", ["C*-Nexus"] = "320_SRT_SPM_000_PM_046", ["C*-Cobweb"] = "504_SRT_SPM_000_PM_021",
     ["CM-Star"] = "Islands_01_SRT_SPM_000_PM_003", ["F0-Star"] = "Secret_28_SRT_SPM_000_PM_004", ["F3-Star"] = "LeapOfFaith_PM_010"
   }
-  
+
   --[[
     The sigils are ordered here according to the numbering of sigil
      from earlier and the levels those sigils are normally in
@@ -230,7 +230,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     "C5-UCaJ", "C7-Prison Break", "C7-Crisscross", "A5-FC", "A6-Bichromatic",
     "B5-Chambers", "C1-Blowback", "C2-Short Wall", "C3-Weathertop"
   }
-  
+
   --[[
     This list has two purposes:
      1. Hold the sigils for each arranger
@@ -257,7 +257,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     ["F5"] = {"NI5", "NI6", "NJ4", "NL10", "NO4", "NO5", "NO6", "NO7", "NS4", "NT9", "NT10", "NT11", "NT12", "NZ6"},
     ["F6"] = {"EL1", "EL2", "EL3", "EL4", "EO1", "ES1", "ES2", "ES3", "ES4"}
   }
-  
+
   -- Make sure some vars that default to 0 are set, so everything works from a clearTalosProgress()
   if not talosProgress:IsVarSet("Randomizer_Loop") then
     talosProgress:SetVarValue("Randomizer_Loop", 0)
@@ -265,7 +265,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   if not talosProgress:IsVarSet("Randomizer_Moody") then
     talosProgress:SetVarValue("Randomizer_Moody", 0)
   end
-  
+
   -- If scavenger hunt mode is on decide what ending we're doing
   local scavenger = talosProgress:GetCodeValue("Randomizer_Scavenger")
   local scavengerMode = ""
@@ -294,7 +294,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       print("Using scavenger hunt mode: " .. scavengerMode)
     end
   end
-  
+
   --[[
     Randomize Portals
     If the option is off all portals will be put in their normal
@@ -370,7 +370,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     end
     portalOrder[1], portalOrder[index] = portalOrder[index], portalOrder[1]
   end
-  
+
   --[[
     Based on the portal configuration we need to make some more lists
      to help us unlock worlds properly
@@ -399,7 +399,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       WorldCNames[name] = true
     end
   end
-  
+
   --[[
     Check if a world is accessible
     This does not necessarily  mean a set of markers will unlock
@@ -409,17 +409,17 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     -- An empty list still evaluates to true
     if randomization_mode == "Intended" and locked["A1 Gate"] then return false end
     if (scavenger + loop) ~= 0 then return true end
-    
+
     local starOverride = true
     local num = talosProgress:GetCodeValue(world)
     -- Is this a star world?
     if num == 8 or num == 17 or num == 25 then
       starOverride = not (locked["A Star"] or locked["B Star"] or locked["C Star"])
     end
-    
+
     return starOverride and open[world]
   end
-  
+
   --[[
     These lists create the softlock prevention
     Because we use arbitray functions we can add modes with arbitray
@@ -763,7 +763,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       }, "A6"},
       {function() return isWorldOpen("A6") and not locked["Connector"] and not locked["Cube"] end, {
         "A6-Door too Far"
-      }, "A6"},                  
+      }, "A6"},
       {function() return isWorldOpen("A7") and not locked["Connector"] end, {
         "A7-LFI", "A7-Pinhole", "A7-WiaL", "A7-Trapped Inside",
         "A7-Star"
@@ -794,7 +794,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       }, "B2"},
       {function() return isWorldOpen("B2") and not locked["Cube"] and not locked["Fan"] end, {
         "B2-Moonshot"
-      }, "B2"},      
+      }, "B2"},
       {function() return isWorldOpen("B3") and not locked["Cube"] and not locked["Fan"] end, {
         "B3-Sunshot"
       }, "B3"},
@@ -832,7 +832,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "B6-JDaW", "B6-Crisscross"
       }, "B6"},
       {function() return isWorldOpen("B7") end, {
-        "B7-WLJ", 
+        "B7-WLJ",
       }, "B7"},
       {function() return isWorldOpen("B7") and not locked["Connector"] end, {
         "B7-BSbS"
@@ -856,7 +856,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "B*-Peekaboo"
       }, "B8"},
       {function() return isWorldOpen("C1") end, {
-        "C1-Labyrinth", 
+        "C1-Labyrinth",
       }, "C1"},
       {function() return isWorldOpen("C1") and not locked["Connector"] end, {
         "C1-Conservatory", "C1-Star"
@@ -1172,7 +1172,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       }}
     }
   end
-  
+
   --[[
     Based on the marker lists randomize the sigils
     This will work with any mode you define in the lists
@@ -1184,7 +1184,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     local arrangerStage = 0
     local availableMarkers = 0
     local openMarkers = {}
-    
+
     --[[
       In scavenger hunt or loop mode you don't have to deal with
        doors, so we can disable that softlock protection
@@ -1196,7 +1196,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       locked["B Gate"]  = {"DI2", "DL2", "DT1", "DT2", "DZ3"}
       locked["C Gate"]  = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
     end
-    
+
     --[[
       We just have a list of the world names in each hub, we want the indexes
        of the marker lists using those worlds
@@ -1216,7 +1216,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         table.insert(closedMarkers, i)
       end
     end
-    
+
     -- Adds all markers from provided locations to the global lists
     local function addWorldMarkers(worlds)
       if not worlds then return end
@@ -1225,7 +1225,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         open[markers[worlds[i]][3]] = true
       end
     end
-    
+
     local arranger = ""
     local accessableArrangers = {}
     local lastHubs = {}
@@ -1249,12 +1249,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     if scavenger ~= 0 then
       accessableArrangers = {}
     end
-    if loop ~= 0 or scavenger == 2 then 
+    if loop ~= 0 or scavenger == 2 then
       WorldA = addWorldMarkers(WorldA)
       WorldB = addWorldMarkers(WorldB)
       WorldC = addWorldMarkers(WorldC)
     end
-    
+
     -- Place the provided sigils in accessable areas
     local function placeSigils(sigils)
       for i=1, #sigils do
@@ -1278,7 +1278,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         end
       end
     end
-    
+
     --[[
       F3 star has issues with the intended mode, as explained later,
        so we manually set it to either a star or a grey sigil here
@@ -1307,7 +1307,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       -- Also while we're here fix A1 gate
       locked["A1 Gate"] = {"DJ1", "DJ2", "DZ1"}
     end
-    
+
     --[[
       This loop is what actually does it all
       The basic idea is as follows:
@@ -1323,7 +1323,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     while arrangerStage ~= -1 or #accessableArrangers > 0 do
       -- To make sure I don't hit the instruction limit per frame
       Wait(CustomEvent("OnStep"))
-      
+
       -- Find the markers that are currently accessable
       local toRemove = {}
       for i=1, #closedMarkers do
@@ -1345,7 +1345,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       if DEBUG then
         print(availableMarkers .. " total markers accessable")
       end
-      
+
       -- Chose what arrangers can be picked
       if arrangerStage ~= -1 then
         -- In scavenger hunt mode we only want the specific arrangers for each ending
@@ -1376,7 +1376,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
             1. A1 Gate
             2. First Hub Items (Connector, Cube)
             3. Other Hubs
-            4. Other Items 
+            4. Other Items
             5. Star Worlds
             6. F1
             7. Rest of Tower
@@ -1473,7 +1473,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
           end
         end
       end
-      
+
       local index = rand(1, #accessableArrangers)
       arranger = table.remove(accessableArrangers, index)
       local sigils = locked[arranger]
@@ -1484,7 +1484,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       if not sigils then
         printError(arranger .. " does not have any sigils assigned to it")
       end
-      
+
       --[[
         Make sure you can't go to the wrong hub first and softlock.
         Sometimes does this by unlocking both, but usually by hiding
@@ -1499,7 +1499,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
             if DEBUG then
               print("Both Hubs open after " .. startHub)
             end
-            
+
             -- If so we're going to manually add the sigils for both
             if startHub == "A" then
               sigils = {"DI2", "DL2", "DT1", "DT2", "DZ3",
@@ -1511,12 +1511,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
               sigils = {"DI1", "DJ3", "DL1", "DZ2",
                         "DI2", "DL2", "DT1", "DT2", "DZ3"}
             end
-            
+
             -- For the intended mode we don't want to re-create this list
             if randomization_mode ~= "Intended" then
               locked["A1 Gate"] = {"DJ1", "DJ2", "DZ1"}
             end
-            
+
             -- Only one of these will be left in the table by this point
             for i=1, #accessableArrangers do
               -- "**Gate" - > "A Gate", "B Gate" and "C Gate" but not "A1 Gate"
@@ -1585,7 +1585,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
               sigils = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
               WorldC = addWorldMarkers(WorldC)
             end
-            
+
             --[[
               For the intended mode we've already placed A1 Gate, which means:
               1. We don't want to re-set locked["A1"]
@@ -1597,7 +1597,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
                 uniqueSigils = {"DJ4", "DJ5"}
               end
             end
-            
+
             -- Find the markers this world unlocked
             local tempOpenMarkers = {}
             local tempAvailableMarkers = 0
@@ -1611,7 +1611,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
             if DEBUG then
               print("Found " .. tempAvailableMarkers .. " newly-available spots")
             end
-            
+
             -- Place the unique sigils in the new spots
             for i=1, #uniqueSigils do
               local index = rand(1, tempAvailableMarkers)
@@ -1651,7 +1651,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
           WorldC = addWorldMarkers(WorldC)
         end
       end
-      
+
       placeSigils(sigils)
     end
   --[[
@@ -1695,7 +1695,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       end
     end
   end
-  
+
   --[[
     Fully Random ignores all that logic to do simple knuth randomization
      over everything
@@ -1709,7 +1709,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       talosProgress:SetCode(translate[markers[i]], talosProgress:GetCodeValue(translate[otherMarker]))
       talosProgress:SetCode(translate[otherMarker], i)
     end
-  
+
   --[[
     When there is no randomization we'll still have the default marker list,
      which happens to have all the markers in the order of their sigil
@@ -1720,7 +1720,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       talosProgress:SetCode(translate[markers[i]], i)
     end
   end
-  
+
   --[[
     Mobius Mode is made to work with everything else so we do this last
   ]]--
@@ -1733,8 +1733,16 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     talosProgress:SetVarValue("Randomizer_LoopF0", F0Pos)
     talosProgress:SetVarValue("Randomizer_LoopF3", F3Pos)
     talosProgress:SetVarValue("Randomizer_LoopSeed", rand(1, 2147483647))
+
+    if loop >= 32 then
+      --[[
+        Arrangers are each represented by a single bit, so by picking a random 15-bit
+         number every one has a 50% chance, leading to 49.5 sigils required on average
+      ]]--
+      talosProgress:SetVarValue("Randomizer_LoopArrangers", rand(0, 32767))
+    end
   end
-  
+
   talosProgress:SetVar("Randomizer_Generated")
   talBackupAndSaveTalosProgress(worldInfo)
   if DEBUG then
@@ -1811,19 +1819,19 @@ RunAsync(function()
       B1_I, B2_I, B3_I, B4_I, B5_I, B6_I, B7_I, B8_I,
       C1_I, C2_I, C3_I, C4_I, C5_I, C6_I, C7_I, C8_I, CMessenger_I
     }
-    
+
     local portalNum = talosProgress:GetCodeValue(emptyPortal:GetName())
     assert(portalNum > 0, "Portal " .. emptyPortal:GetName() .. " does not have a location assigned to it!")
     if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 then
       portalNum = portalNum + 26
     end
     worldGlobals.portal = allPortals[portalNum]
-    
+
     local emptyPos = emptyPortal:GetPlacement()
     local portalPos = worldGlobals.portal:GetPlacement()
     emptyPortal:SetPlacement(portalPos)
     worldGlobals.portal:SetPlacement(emptyPos)
-    
+
     if DEBUG then
       printWarning(string.format("Placing %s at %s", worldGlobals.portal:GetName(),  emptyPortal:GetName()))
     end
@@ -1848,26 +1856,22 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
   if talosProgress:IsVarSet("Randomizer_LoopDone") then
     finished()
   end
-  
+
   local seed = talosProgress:GetCodeValue("Randomizer_LoopSeed")
   local function loopHideArranger()
     seed = (214013 * seed + 2531011) % 2147483648
     return (seed % 100) < LOOP_ARRANGER_HIDE_PERCENT
   end
-  
+
   RunAsync(
     function()
       local options = {}
       local optionsVal = talosProgress:GetCodeValue("Randomizer_Loop")
-      if optionsVal < 0 then
-        options[32] = true
-        optionsVal = -optionsVal
-      end
       for index=1, 31 do
         options[index] = optionsVal % 2 == 1
         optionsVal = mthFloorF(optionsVal / 2)
       end
-      
+
       local _, _, worldName = string.find(worldInfo:GetWorldFileName(), "/([^/]-)%.wld")
       local worldIndexes = {
         ["Cloud_1_01"] =  1, ["Cloud_1_02"] =  3, ["Cloud_1_03"] =  5, ["Cloud_1_04"] =  7,
@@ -1909,7 +1913,7 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
           end
         end
       end
-      
+
       for _=1, world*5 do
         loopHideArranger()
       end
@@ -1921,7 +1925,45 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
           LoopArrangers[i]:Disappear()
         end
       end
-      
+
+      -- Setup the requirements for Random Arrangers, don't need to do it every time we get a sigil
+      local allSigilCounts = {
+      -- DI DJ DL DT DZ  EL EO ES  MI MJ ML MO MS MT MZ  NI NJ NL NO NS NT NZ
+        {0, 2, 0, 0, 1,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0}, -- A1 Gate
+        {1, 1, 1, 0, 1,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0}, -- A Gate
+        {1, 0, 1, 2, 1,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0}, -- B Gate
+        {0, 2, 1, 2, 1,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0}, -- C Gate
+
+        {0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 1, 0, 0, 2, 0,  0, 0, 0, 0, 0, 0, 0}, -- Connector
+        {0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 1, 0, 0, 2, 1,  0, 0, 0, 0, 0, 0, 0}, -- Cube
+        {0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 1, 0, 1, 2, 1,  0, 0, 0, 0, 0, 0, 0}, -- Fan
+        {0, 0, 0, 0, 0,  0, 0, 0,  0, 1, 0, 0, 1, 2, 1,  0, 0, 0, 0, 0, 0, 0}, -- Recorder
+        {0, 0, 0, 0, 0,  0, 0, 0,  1, 0, 1, 1, 0, 2, 1,  0, 0, 0, 0, 0, 0, 0}, -- Platform
+
+        {0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  0, 0, 2, 0, 0, 0, 2}, -- F1
+        {0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  0, 0, 4, 1, 0, 4, 0}, -- F2
+        {0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  4, 2, 2, 0, 1, 0, 1}, -- F3
+        {0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  0, 1, 1, 2, 2, 4, 2}, -- F4
+        {0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  2, 1, 1, 4, 1, 4, 1}, -- F5
+
+        {0, 0, 0, 0, 0,  4, 1, 4,  0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0}, -- F6
+
+        ["key"] = {"DI", "DJ", "DL", "DT", "DZ", "EL", "EO", "ES", "MI", "MJ", "ML",
+                   "MO", "MS", "MT", "MZ", "NI", "NJ", "NL", "NO", "NS", "NT", "NZ"}
+      }
+      local neededArrangerSigils = {0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0}
+      if options[6] then
+        local arrangers = talosProgress:GetCodeValue("Randomizer_LoopArrangers")
+        for i=1, #allSigilCounts do
+          if arrangers % 2 == 1 then
+            for j=1, #neededArrangerSigils do
+              neededArrangerSigils[j] = neededArrangerSigils[j] + allSigilCounts[i][j]
+            end
+          end
+          arrangers = mthFloorF(arrangers / 2)
+        end
+      end
+
       RunHandled(
         function()
           WaitForever()
@@ -1929,7 +1971,7 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
         OnEvery(CustomEvent("TetrominoAwarded")),
         function()
           local collected = talosProgress:GetInventoryTetrominoes()..talosProgress:GetUsedupTetrominoes()
-          
+
           if talosProgress:GetCodeValue("Randomizer_Scavenger") ~= 0 then
             local sModes = {"Connector Clip", "F2 Clip", "F3 Clip", "F1+F6"}
             local scavengerMode =  sModes[talosProgress:GetCodeValue("Randomizer_ScavengerMode")]
@@ -1965,14 +2007,14 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
               finished("Finished Scavenger Hunt")
             end
           end
-          
+
           if options[1] then
             local _, sigilCount = string.gsub(collected, "[DMNE%*][IJLOSTZ%*]%d+;", "")
             if sigilCount == 129 then
               finished("Collected All Sigils")
             end
           end
-          
+
           if options[2] then
             local _, count = string.gsub(collected, "[DMNE%*]I%d+;", "")
             if count >= 9 then
@@ -2007,7 +2049,7 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
               finished("Collected All Stars")
             end
           end
-          
+
           if options[3] then
             local _, count = string.gsub(collected, "D[IJLOSTZ%*]%d+;", "")
             if count >= 18 then
@@ -2030,14 +2072,14 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
               finished("Collected All Stars")
             end
           end
-          
+
           if options[4] then
             local _, count = string.gsub(collected, "[DMN][IJLOSTZ]%d+;", "")
             if count >= 90 then
               finished("Unlocked Eternalize Ending")
             end
           end
-          
+
           if options[5] then
             local totals = {["I"] = 0, ["J"] = 0, ["L"] = 0, ["O"] = 0, ["S"] = 0, ["T"] = 0, ["Z"] = 0}
             for shape, _ in pairs(totals) do
@@ -2045,7 +2087,7 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
               totals[shape] = totals[shape] + count
             end
             local _, greys = string.gsub(collected, "E[IJLOSTZ%*]%d+;", "")
-            
+
             local floorCount = {
               {["I"] = 0, ["J"] = 0, ["L"] = 2, ["O"] = 0, ["S"] = 0, ["T"] = 0, ["Z"] = 2},
               {["I"] = 0, ["J"] = 0, ["L"] = 4, ["O"] = 1, ["S"] = 0, ["T"] = 4, ["Z"] = 0},
@@ -2060,13 +2102,13 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
                 for k, v in pairs(floorCount[i]) do
                   requirements[k] = v
                 end
-                
+
                 if j <= #floorCount then
                   for shape, amount in pairs(floorCount[j]) do
                     requirements[shape] = requirements[shape] + amount
                   end
                 end
-                
+
                 local complete = true
                 for shape, _ in pairs(totals) do
                   if totals[shape] < requirements[shape] then
@@ -2077,11 +2119,26 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
                 if j == #floorCount + 1 then
                   complete = complete and greys >= 9
                 end
-                
+
                 if complete then
                   finished("Collected all sigils for F" .. i .. " & F" .. j)
                 end
               end
+            end
+          end
+
+          if options[6] then
+            local collectedAll = true
+            for index=1, #allSigilCounts.key do
+              local pattern = allSigilCounts.key[index] .. "%d+;"
+              local _, count = string.gsub(collected, pattern, "")
+              if count < neededArrangerSigils[index] then
+                collectedAll = false
+                break
+              end
+            end
+            if collectedAll then
+              finished("Completed all Random Arrangers")
             end
           end
         end
@@ -2112,17 +2169,17 @@ if talosProgress:GetCodeValue("Randomizer_Moody") ~= 0 then
     ["T"] = 7,
     ["Z"] = 8,
   }
-  
+
   local checkColour = talosProgress:GetCodeValue("Randomizer_Moody") % 2 == 1
   local checkShape = talosProgress:GetCodeValue("Randomizer_Moody") > 1
-  
+
   local function disableTetros()
     for i=1,#worldMarkers do
       local sigilNum = talosProgress:GetCodeValue(worldMarkers[i]:GetName())
       local sigil = worldGlobals.allTetros[sigilNum]
       local sigilColour = colours[string.sub(sigil:GetName(), 1, 1)]
       local sigilShape = shapes[string.sub(sigil:GetName(), 2, 2)]
-      
+
       if checkColour and sigilColour == talosProgress:GetCodeValue("Randomizer_MoodyColour") then
         sigil:DisablePicking()
       elseif checkShape and sigilShape == talosProgress:GetCodeValue("Randomizer_MoodyShape") then
@@ -2132,7 +2189,7 @@ if talosProgress:GetCodeValue("Randomizer_Moody") ~= 0 then
       end
     end
   end
-  
+
   RunAsync(function()
     disableTetros()
     RunHandled(

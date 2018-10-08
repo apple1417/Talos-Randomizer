@@ -90,12 +90,13 @@ Note that this option, like Random Portals, affect seeds. The same seed will giv
 terminal when (Mobius) {
   text: [[TTRS:notrans=Links all the levels together so when you leave one you instantly enter another, skipping Nexus. When you achieve a win condition the exit portal switches to send you to messenger ending.
 
-The win conditons are the following:
+The win conditons are as follows:
 All Sigils - When you collect all the sigils
 All of a Colour - When you collect all sigils of a single colour. Stars count as their own colour.
 All of a Shape - When you collect all sigils of a single shape. Stars count as their own shape.
 Eternalize Ending - When Eternalize Ending normally triggers, when you collect all green, yellow, and red tetrominoes.
 Two Tower Floors - When you have all the sigils to be able to unlock any two tower floors (at the same time).
+Random Arrangers - When you have the sigils to be able to complete all the random arranger hints it gives you at the start of the game.
 
 These win conditons are additive - if you select both All of a Colour and All of a Shape you can finish on either.
 
