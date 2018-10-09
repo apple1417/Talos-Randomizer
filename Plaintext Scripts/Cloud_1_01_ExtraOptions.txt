@@ -1,10 +1,15 @@
+Wait(CustomEvent("Randomizer_Finished"))
+
 --[[
   There are a few extra things we need to do to get everything setup
    properly, they're all in this script
 ]]--
 
 -- talosProgress : CTalosProgress
-local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
+local talosProgress = nexGetTalosProgress(worldInfo)
+local print = worldGlobals.print
+local printWarning = worldGlobals.printWarning
+local printError = worldGlobals.printError
 
 -- Can't do this in options world because we can't undo it
 if talosProgress:IsVarSet("Randomizer_UnlockItems") then
@@ -20,8 +25,6 @@ end
 if talosProgress:IsVarSet("Randomizer_NoGates") then
   Gate:AssureOpened()
 end
-
-Wait(CustomEvent("Randomizer_Finished"))
 
 -- Arranger Hints for mobius, here for same reason as items
 if talosProgress:GetCodeValue("Randomizer_Loop") >= 32 then
@@ -94,7 +97,7 @@ local sum2 = 0
 for index=1, #allMarkers do
   local value = talosProgress:GetCodeValue(allMarkers[index])
   if value == -1 then
-    conErrorF("'" .. allMarkers[index] .. "' does not have a value assigned to it\n")
+    printError("'" .. allMarkers[index] .. "' does not have a value assigned to it\n")
   end
   sum1 = (sum1 + value*index) % 65536
   sum2 = (sum2 + sum1) % 65536
@@ -118,14 +121,14 @@ if loopVar ~= 0 then
 end
 
 
-conInfoF("\n")
-conInfoF("Seed: " .. seed .. "\n")
-conInfoF("Mode: " .. mode .. "\n")
-conInfoF("Random Portals: " .. portals .. "\n")
-conInfoF("Scavenger Hunt: " .. scavenger .. "\n")
-conInfoF("Möbius Mode: ".. loop .. "\n")
-conInfoF(string.format("Checksum: %08X\n", checksum))
-conInfoF("\n")
+print("")
+print("Seed: " .. seed)
+print("Mode: " .. mode)
+print("Random Portals: " .. portals)
+print("Scavenger Hunt: " .. scavenger)
+print("Möbius Mode: ".. loop)
+print(string.format("Checksum: %08X", checksum))
+print("")
 
 -- Give a warning about A1 gate, don't want to get rid of the arranger
 if mode ~= "None" and mode ~= "Intended" and not Arranger:IsSolved() then
