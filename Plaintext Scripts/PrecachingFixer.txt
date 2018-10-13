@@ -8,7 +8,7 @@ Wait(CustomEvent("Randomizer_Finished"))
 
 
 -- talosProgress : CTalosProgress
-local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
+local talosProgress = nexGetTalosProgress(worldInfo)
 --[[
   Caching causes a bunch of log lines, which spam the console and are kind
    of annoying, so if debug mode is on don't do anything
@@ -26,10 +26,10 @@ if not talosProgress:IsVarSet("Randomizer_Debug") then
     "Cloud_1_01", "Cloud_1_02", "Cloud_1_03", "Cloud_1_04",
     "Cloud_1_05", "Cloud_1_06", "Cloud_1_07", "Cloud_1_08",
     "DeveloperIsland",
-    "Cloud_1_01", "Cloud_1_02", "Cloud_1_03", "Cloud_1_04",
-    "Cloud_1_05", "Cloud_1_06", "Cloud_1_07", "Cloud_1_08",
-    "Cloud_1_01", "Cloud_1_02", "Cloud_1_03", "Cloud_1_04",
-    "Cloud_1_05", "Cloud_1_06", "Cloud_1_07", "Cloud_1_08",  
+    "Cloud_2_01", "Cloud_2_02", "Cloud_2_03", "Cloud_2_04",
+    "Cloud_2_05", "Cloud_2_06", "Cloud_2_07", "Cloud_2_08",
+    "Cloud_3_01", "Cloud_3_02", "Cloud_3_03", "Cloud_3_04",
+    "Cloud_3_05", "Cloud_3_06", "Cloud_3_07", "Cloud_3_08",  
     "Islands_01"
   }
   local shortNames = {
@@ -43,7 +43,7 @@ if not talosProgress:IsVarSet("Randomizer_Debug") then
   end
   
   -- Trims out the folder structure and the filetype
-  local currentWorld = string.sub(worldInfo:GetWorldFileName(), 33, -5)
+  local currentWorld = string.sub(worldGlobals.currentWorld, 33, -5)
   
   --[[
     If we're in standard mode we always want to cache Nexus with high

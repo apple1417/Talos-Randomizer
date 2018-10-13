@@ -6,6 +6,9 @@
 
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
+local print = worldGlobals.print
+local printWarning = worldGlobals.printWarning
+local printError = worldGlobals.printError
 
 -- It's easier to open all gates, even the ones that'll dissapear later
 if talosProgress:IsVarSet("Randomizer_NoGates") then
@@ -45,13 +48,13 @@ if talosProgress:IsVarSet("Randomizer_Portals") then
   for i=1, #portalNames do
     local locationNum = talosProgress:GetCodeValue(portalNames[i])
     if locationNum < 0 then
-      conErrorF("Portal " .. portalNames[i] .. " does not have a location assigned to it!\n")
+      printError("Portal " .. portalNames[i] .. " does not have a location assigned to it!\n")
       -- To make sure you notice, incase you're not looking at console
       portalList[i]:SetPlacement(OOB)
     else
       portalList[i]:SetPlacement(portalLocations[locationNum])
       if talosProgress:IsVarSet("Randomizer_Debug") then
-        conWarningF(string.format("Placing %s at %s\n", portalList[i]:GetName(),  portalNames[locationNum]))
+        printWarning(string.format("Placing %s at %s\n", portalList[i]:GetName(),  portalNames[locationNum]))
       end
     end
   end

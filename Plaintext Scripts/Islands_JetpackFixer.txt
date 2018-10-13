@@ -1,0 +1,9 @@
+local event = Wait(Event(worldInfo.PlayerBorn))
+-- player : CPlayerPuppetEntity
+local player = event:GetBornPlayer()
+
+-- This will probably be expanded
+local jetpack = nexGetTalosProgress(worldInfo):GetCodeValue("Randomizer_Jetpack")
+if jetpack == 1 then
+  player:AddJetpack()
+end
