@@ -606,10 +606,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         "B5-Two Jammers"
       }, "B5"},
       {function() return isWorldOpen("B6") end, {
-        "B6-Egyptian Arcade"
+        "B6-Egyptian Arcade", "B6-Crisscross"
       }, "B6"},
       {function() return isWorldOpen("B6") and not locked["Connector"] end, {
-        "B6-JDaW", "B6-Crisscross"
+        "B6-JDaW"
       }, "B6"},
       {function() return isWorldOpen("B7") end, {
         "B7-WLJ", "B7-AFaF"
