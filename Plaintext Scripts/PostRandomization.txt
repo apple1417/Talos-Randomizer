@@ -1,4 +1,8 @@
-Wait(CustomEvent("Randomizer_Generated"))
+-- We want to get the player, but also have to wait for rando setup to finish
+local event = Wait(All(Event(worldInfo.PlayerBorn), CustomEvent("Randomizer_Generated")))
+ -- player : CPlayerPuppetEntity
+local player = event.all[1]:GetBornPlayer()
+
 --[[
   This script deals with setting up the world after randomization
   This is stuff like moving sigils and portals into position, as
@@ -43,11 +47,33 @@ worldGlobals.allTetros = {
   NZ1, NZ2, NZ3, NZ4, NZ5, NZ6
 }
 worldGlobals.worldMarkers = worldMarkers
+worldGlobals.currentWorld = worldInfo:GetWorldFileName()
+
+local allTetros = worldGlobals.allTetros
+local currentWorld = worldGlobals.currentWorld
+
+--[[
+  Send a signal to all other scripts that might error if randomization
+   hasn't finished or those worldGlobals values haven't been assigned
+]]--
+Wait(CustomEvent("OnStep"))
+SignalEvent("Randomizer_Finished")
+
+
+
+-- Jetpack
+if currentWorld ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
+  -- This will probably be expanded
+  local jetpack = talosProgress:GetCodeValue("Randomizer_Jetpack")
+  if jetpack == 1 then
+    player:AddJetpack()
+  end
+end
 
 
 
 -- Place sigils
-if worldInfo:GetWorldFileName() == "Content/Talos/Levels/Randomizer/DeveloperIsland.wld" then
+if currentWorld == "Content/Talos/Levels/Randomizer/DeveloperIsland.wld" then
   talosProgress:SetVar("DevIslandVisited")
 else
   local acceptableSigils = false
@@ -79,7 +105,7 @@ else
   for i=1, #worldMarkers do
     local worldMarker = worldMarkers[i]
     local sigilNum = talosProgress:GetCodeValue(worldMarker:GetName())
-    local sigil = worldGlobals.allTetros[sigilNum]
+    local sigil = allTetros[sigilNum]
     assert(sigil ~= nil, "Marker " .. worldMarker:GetName() .. " does not have a sigil assigned to it!")
     -- For scavenger hunt, decide if to actually move the sigils
     if not acceptableSigils or acceptableSigils[sigil:GetName()] then
@@ -99,7 +125,7 @@ end
   Moving portals leaves the base behind, so we have useless ones as our
    markers, which we then get rid of so that animations don't overlap
 ]]--
-if worldInfo:GetWorldFileName() ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
+if currentWorld ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
   local allPortals = {
     A1, A2, A3, A4, A5, A6, A7, A8, ADevIsland,
     B1, B2, B3, B4, B5, B6, B7, B8,
@@ -154,7 +180,7 @@ if talosProgress:GetCodeValue("Randomizer_Moody") ~= 0 then
   local function disableTetros()
     for i=1,#worldMarkers do
       local sigilNum = talosProgress:GetCodeValue(worldMarkers[i]:GetName())
-      local sigil = worldGlobals.allTetros[sigilNum]
+      local sigil = allTetros[sigilNum]
       local sigilColour = colours[string.sub(sigil:GetName(), 1, 1)]
       local sigilShape = shapes[string.sub(sigil:GetName(), 2, 2)]
 
@@ -169,24 +195,26 @@ if talosProgress:GetCodeValue("Randomizer_Moody") ~= 0 then
   end
 
   disableTetros()
-  RunHandled(
-    WaitForever,
-    OnEvery(CustomEvent("TetrominoAwarded")),
-    -- event : CTetrominoAwardedScriptEvent
-    function(event)
-      local sigil = event:GetTetromino()
-      talosProgress:SetVarValue("Randomizer_MoodyColour", colours[string.sub(sigil, 1, 1)])
-      talosProgress:SetVarValue("Randomizer_MoodyShape", shapes[string.sub(sigil, 2, 2)])
-      talBackupAndSaveTalosProgress(worldInfo)
-      disableTetros()
-    end
-  )
+  RunAsync(function()
+    RunHandled(WaitForever,
+      OnEvery(CustomEvent("TetrominoAwarded")),
+      -- event : CTetrominoAwardedScriptEvent
+      function(event)
+        local sigil = event:GetTetromino()
+        talosProgress:SetVarValue("Randomizer_MoodyColour", colours[string.sub(sigil, 1, 1)])
+        talosProgress:SetVarValue("Randomizer_MoodyShape", shapes[string.sub(sigil, 2, 2)])
+        talBackupAndSaveTalosProgress(worldInfo)
+        disableTetros()
+      end
+    )
+  end)
 end
 
 
 
 -- Deal with the mobius mode endings
-if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFileName() ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
+local LOOP_ARRANGER_HIDE_PERCENT = 40
+if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and currentWorld ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
   local function finished(str)
     if not talosProgress:IsVarSet("Randomizer_LoopDone") then
       worldInfo:ShowMessageToAll("Goal Achived:\n" .. str)
@@ -198,7 +226,7 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
     messengerPortal:SetPlacement(portalPos)
     worldGlobals.portal:SetPlacement(messengerPos)
     if DEBUG then
-      conInfoF("Goal achieved, replacing portal " .. worldGlobals.portal:GetName() .. " with Messenger_Ending_Portal")
+      print("Goal achieved, replacing portal " .. worldGlobals.portal:GetName() .. " with Messenger_Ending_Portal")
     end
   end
   if talosProgress:IsVarSet("Randomizer_LoopDone") then
@@ -218,7 +246,7 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
     optionsVal = mthFloorF(optionsVal / 2)
   end
 
-  local _, _, worldName = string.find(worldInfo:GetWorldFileName(), "/([^/]-)%.wld")
+  local _, _, worldName = string.find(currentWorld, "/([^/]-)%.wld")
   local worldIndexes = {
     ["Cloud_1_01"] =  1, ["Cloud_1_02"] =  3, ["Cloud_1_03"] =  5, ["Cloud_1_04"] =  7,
     ["Cloud_1_05"] =  9, ["Cloud_1_06"] = 11, ["Cloud_1_07"] = 13, ["Cloud_1_08"] = 15,
@@ -234,8 +262,8 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
   local F0 = nil
   local F3 = nil
   if worldName ~= "DeveloperIsland" then
-    F0 = worldGlobals.allTetros[talosProgress:GetCodeValue("Secret_28_SRT_SPM_000_PM_004")]
-    F3 = worldGlobals.allTetros[talosProgress:GetCodeValue("LeapOfFaith_PM_010")]
+    F0 = allTetros[talosProgress:GetCodeValue("Secret_28_SRT_SPM_000_PM_004")]
+    F3 = allTetros[talosProgress:GetCodeValue("LeapOfFaith_PM_010")]
     if F0Pos == world or talosProgress:IsVarSet("Randomizer_LoopShowAll") then
       F0:SetPlacement(LoopMarkers[1]:GetPlacement())
       if DEBUG then
@@ -309,192 +337,186 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and worldInfo:GetWorldFile
       arrangers = mthFloorF(arrangers / 2)
     end
   end
-
-  RunHandled(
-    function()
-      WaitForever()
-    end,
-    OnEvery(CustomEvent("TetrominoAwarded")),
-    function()
-      local collected = talosProgress:GetInventoryTetrominoes()..talosProgress:GetUsedupTetrominoes()
-
-      if talosProgress:GetCodeValue("Randomizer_Scavenger") ~= 0 then
-        local sModes = {"Connector Clip", "F2 Clip", "F3 Clip", "F1+F6"}
-        local scavengerMode =  sModes[talosProgress:GetCodeValue("Randomizer_ScavengerMode")]
-        local acceptableSigils = {}
-        if scavengerMode == "Connector Clip" then
-          acceptableSigils = {"ML1;", "MT1;", "MT2;",
-                              "NL1;", "NL2;", "NZ1;", "NZ2;"}
-        elseif scavengerMode == "F2 Clip" then
-          acceptableSigils = {"ML2;", "MT3;", "MT4;", "MZ1;",
-                              "NL1;", "NL2;", "NZ1;", "NZ2;",
-                              "NL3;", "NL4;", "NL5;", "NL6;", "NO1;", "NT1;", "NT2;", "NT3;", "NT4;"}
-        elseif scavengerMode == "F3 Clip" then
-          acceptableSigils = {"NL1;", "NL2;", "NZ1;", "NZ2;",
-                              "NI1;", "NI2;", "NI3;", "NI4;", "NJ1;", "NJ2;", "NL7;", "NL8;", "NS1;", "NZ3;"}
-        elseif scavengerMode == "F1+F6" then
-          acceptableSigils = {"NL1;", "NL2;", "NZ1;", "NZ2;",
-                              "EL1;", "EL2;", "EL3;", "EL4;", "EO1;", "ES1;", "ES2;", "ES3;", "ES4;"}
-        end
-        -- In the intended mode we also accept A1 gate
-        if talosProgress:GetCodeValue("Randomizer_Mode") == 4 then
-          table.insert(acceptableSigils, "DJ1;")
-          table.insert(acceptableSigils, "DJ2;")
-          table.insert(acceptableSigils, "DZ1;")
-        end
-        local allScavenger = true
-        for i=1, #acceptableSigils do
-          local _, count = string.gsub(collected, acceptableSigils[i], "")
-          if count == 0 then
-            allScavenger = false
+  RunAsync(function()
+    RunHandled(WaitForever,
+      OnEvery(CustomEvent("TetrominoAwarded")),
+      function()
+        local collected = talosProgress:GetInventoryTetrominoes()..talosProgress:GetUsedupTetrominoes()
+  
+        if talosProgress:GetCodeValue("Randomizer_Scavenger") ~= 0 then
+          local sModes = {"Connector Clip", "F2 Clip", "F3 Clip", "F1+F6"}
+          local scavengerMode =  sModes[talosProgress:GetCodeValue("Randomizer_ScavengerMode")]
+          local acceptableSigils = {}
+          if scavengerMode == "Connector Clip" then
+            acceptableSigils = {"ML1;", "MT1;", "MT2;",
+                                "NL1;", "NL2;", "NZ1;", "NZ2;"}
+          elseif scavengerMode == "F2 Clip" then
+            acceptableSigils = {"ML2;", "MT3;", "MT4;", "MZ1;",
+                                "NL1;", "NL2;", "NZ1;", "NZ2;",
+                                "NL3;", "NL4;", "NL5;", "NL6;", "NO1;", "NT1;", "NT2;", "NT3;", "NT4;"}
+          elseif scavengerMode == "F3 Clip" then
+            acceptableSigils = {"NL1;", "NL2;", "NZ1;", "NZ2;",
+                                "NI1;", "NI2;", "NI3;", "NI4;", "NJ1;", "NJ2;", "NL7;", "NL8;", "NS1;", "NZ3;"}
+          elseif scavengerMode == "F1+F6" then
+            acceptableSigils = {"NL1;", "NL2;", "NZ1;", "NZ2;",
+                                "EL1;", "EL2;", "EL3;", "EL4;", "EO1;", "ES1;", "ES2;", "ES3;", "ES4;"}
+          end
+          -- In the intended mode we also accept A1 gate
+          if talosProgress:GetCodeValue("Randomizer_Mode") == 4 then
+            table.insert(acceptableSigils, "DJ1;")
+            table.insert(acceptableSigils, "DJ2;")
+            table.insert(acceptableSigils, "DZ1;")
+          end
+          local allScavenger = true
+          for i=1, #acceptableSigils do
+            local _, count = string.gsub(collected, acceptableSigils[i], "")
+            if count == 0 then
+              allScavenger = false
+            end
+          end
+          if allScavenger then
+            finished("Finished Scavenger Hunt")
           end
         end
-        if allScavenger then
-          finished("Finished Scavenger Hunt")
+  
+        if options[1] then
+          local _, sigilCount = string.gsub(collected, "[DMNE%*][IJLOSTZ%*]%d+;", "")
+          if sigilCount == 129 then
+            finished("Collected All Sigils")
+          end
         end
-      end
-
-      if options[1] then
-        local _, sigilCount = string.gsub(collected, "[DMNE%*][IJLOSTZ%*]%d+;", "")
-        if sigilCount == 129 then
-          finished("Collected All Sigils")
+  
+        if options[2] then
+          local _, count = string.gsub(collected, "[DMNE%*]I%d+;", "")
+          if count >= 9 then
+            finished("Collected All 'I' Sigils")
+          end
+          local _, count = string.gsub(collected, "[DMNE%*]J%d+;", "")
+          if count >= 10 then
+            finished("Collected All 'J' Sigils")
+          end
+          local _, count = string.gsub(collected, "[DMNE%*]L%d+;", "")
+          if count >= 21 then
+            finished("Collected All 'L' Sigils")
+          end
+          local _, count = string.gsub(collected, "[DMNE%*]O%d+;", "")
+          if count >= 9 then
+            finished("Collected All 'O' Sigils")
+          end
+          local _, count = string.gsub(collected, "[DMNE%*]S%d+;", "")
+          if count >= 10 then
+            finished("Collected All 'S' Sigils")
+          end
+          local _, count = string.gsub(collected, "[DMNE%*]T%d+;", "")
+          if count >= 26 then
+            finished("Collected All 'T' Sigils")
+          end
+          local _, count = string.gsub(collected, "[DMNE%*]Z%d+;", "")
+          if count >= 14 then
+            finished("Collected All 'Z' Sigils")
+          end
+          local _, count = string.gsub(collected, "[DMNE%*]%*%d+;", "")
+          if count >= 30 then
+            finished("Collected All Stars")
+          end
         end
-      end
-
-      if options[2] then
-        local _, count = string.gsub(collected, "[DMNE%*]I%d+;", "")
-        if count >= 9 then
-          finished("Collected All 'I' Sigils")
+  
+        if options[3] then
+          local _, count = string.gsub(collected, "D[IJLOSTZ%*]%d+;", "")
+          if count >= 18 then
+            finished("Collected All Green Sigils")
+          end
+          local _, count = string.gsub(collected, "M[IJLOSTZ%*]%d+;", "")
+          if count >= 23 then
+            finished("Collected All Yellow Sigils")
+          end
+          local _, count = string.gsub(collected, "N[IJLOSTZ%*]%d+;", "")
+          if count >= 49 then
+            finished("Collected All Red Sigils")
+          end
+          local _, count = string.gsub(collected, "E[IJLOSTZ%*]%d+;", "")
+          if count >= 9 then
+            finished("Collected All Grey Sigils")
+          end
+          local _, count = string.gsub(collected, "%*[IJLOSTZ%*]%d+;", "")
+          if count >= 30 then
+            finished("Collected All Stars")
+          end
         end
-        local _, count = string.gsub(collected, "[DMNE%*]J%d+;", "")
-        if count >= 10 then
-          finished("Collected All 'J' Sigils")
+  
+        if options[4] then
+          local _, count = string.gsub(collected, "[DMN][IJLOSTZ]%d+;", "")
+          if count >= 90 then
+            finished("Unlocked Eternalize Ending")
+          end
         end
-        local _, count = string.gsub(collected, "[DMNE%*]L%d+;", "")
-        if count >= 21 then
-          finished("Collected All 'L' Sigils")
-        end
-        local _, count = string.gsub(collected, "[DMNE%*]O%d+;", "")
-        if count >= 9 then
-          finished("Collected All 'O' Sigils")
-        end
-        local _, count = string.gsub(collected, "[DMNE%*]S%d+;", "")
-        if count >= 10 then
-          finished("Collected All 'S' Sigils")
-        end
-        local _, count = string.gsub(collected, "[DMNE%*]T%d+;", "")
-        if count >= 26 then
-          finished("Collected All 'T' Sigils")
-        end
-        local _, count = string.gsub(collected, "[DMNE%*]Z%d+;", "")
-        if count >= 14 then
-          finished("Collected All 'Z' Sigils")
-        end
-        local _, count = string.gsub(collected, "[DMNE%*]%*%d+;", "")
-        if count >= 30 then
-          finished("Collected All Stars")
-        end
-      end
-
-      if options[3] then
-        local _, count = string.gsub(collected, "D[IJLOSTZ%*]%d+;", "")
-        if count >= 18 then
-          finished("Collected All Green Sigils")
-        end
-        local _, count = string.gsub(collected, "M[IJLOSTZ%*]%d+;", "")
-        if count >= 23 then
-          finished("Collected All Yellow Sigils")
-        end
-        local _, count = string.gsub(collected, "N[IJLOSTZ%*]%d+;", "")
-        if count >= 49 then
-          finished("Collected All Red Sigils")
-        end
-        local _, count = string.gsub(collected, "E[IJLOSTZ%*]%d+;", "")
-        if count >= 9 then
-          finished("Collected All Grey Sigils")
-        end
-        local _, count = string.gsub(collected, "%*[IJLOSTZ%*]%d+;", "")
-        if count >= 30 then
-          finished("Collected All Stars")
-        end
-      end
-
-      if options[4] then
-        local _, count = string.gsub(collected, "[DMN][IJLOSTZ]%d+;", "")
-        if count >= 90 then
-          finished("Unlocked Eternalize Ending")
-        end
-      end
-
-      if options[5] then
-        local totals = {["I"] = 0, ["J"] = 0, ["L"] = 0, ["O"] = 0, ["S"] = 0, ["T"] = 0, ["Z"] = 0}
-        for shape, _ in pairs(totals) do
-          local _, count = string.gsub(collected, "N" .. shape .. "%d+;", "")
-          totals[shape] = totals[shape] + count
-        end
-        local _, greys = string.gsub(collected, "E[IJLOSTZ%*]%d+;", "")
-
-        local floorCount = {
-          {["I"] = 0, ["J"] = 0, ["L"] = 2, ["O"] = 0, ["S"] = 0, ["T"] = 0, ["Z"] = 2},
-          {["I"] = 0, ["J"] = 0, ["L"] = 4, ["O"] = 1, ["S"] = 0, ["T"] = 4, ["Z"] = 0},
-          {["I"] = 4, ["J"] = 2, ["L"] = 2, ["O"] = 0, ["S"] = 1, ["T"] = 0, ["Z"] = 1},
-          {["I"] = 0, ["J"] = 1, ["L"] = 1, ["O"] = 2, ["S"] = 2, ["T"] = 4, ["Z"] = 2},
-          {["I"] = 2, ["J"] = 1, ["L"] = 1, ["O"] = 4, ["S"] = 1, ["T"] = 4, ["Z"] = 1}
-        }
-        for i=1, #floorCount do
-          for j=i+1, #floorCount + 1 do
-            -- Need a copy of floorCount[i] rather than a reference
-            local requirements = {}
-            for k, v in pairs(floorCount[i]) do
-              requirements[k] = v
-            end
-
-            if j <= #floorCount then
-              for shape, amount in pairs(floorCount[j]) do
-                requirements[shape] = requirements[shape] + amount
+  
+        if options[5] then
+          local totals = {["I"] = 0, ["J"] = 0, ["L"] = 0, ["O"] = 0, ["S"] = 0, ["T"] = 0, ["Z"] = 0}
+          for shape, _ in pairs(totals) do
+            local _, count = string.gsub(collected, "N" .. shape .. "%d+;", "")
+            totals[shape] = totals[shape] + count
+          end
+          local _, greys = string.gsub(collected, "E[IJLOSTZ%*]%d+;", "")
+  
+          local floorCount = {
+            {["I"] = 0, ["J"] = 0, ["L"] = 2, ["O"] = 0, ["S"] = 0, ["T"] = 0, ["Z"] = 2},
+            {["I"] = 0, ["J"] = 0, ["L"] = 4, ["O"] = 1, ["S"] = 0, ["T"] = 4, ["Z"] = 0},
+            {["I"] = 4, ["J"] = 2, ["L"] = 2, ["O"] = 0, ["S"] = 1, ["T"] = 0, ["Z"] = 1},
+            {["I"] = 0, ["J"] = 1, ["L"] = 1, ["O"] = 2, ["S"] = 2, ["T"] = 4, ["Z"] = 2},
+            {["I"] = 2, ["J"] = 1, ["L"] = 1, ["O"] = 4, ["S"] = 1, ["T"] = 4, ["Z"] = 1}
+          }
+          for i=1, #floorCount do
+            for j=i+1, #floorCount + 1 do
+              -- Need a copy of floorCount[i] rather than a reference
+              local requirements = {}
+              for k, v in pairs(floorCount[i]) do
+                requirements[k] = v
+              end
+  
+              if j <= #floorCount then
+                for shape, amount in pairs(floorCount[j]) do
+                  requirements[shape] = requirements[shape] + amount
+                end
+              end
+  
+              local complete = true
+              for shape, _ in pairs(totals) do
+                if totals[shape] < requirements[shape] then
+                  complete = false
+                  break
+                end
+              end
+              if j == #floorCount + 1 then
+                complete = complete and greys >= 9
+              end
+  
+              if complete then
+                finished("Collected all sigils for F" .. i .. " & F" .. j)
               end
             end
-
-            local complete = true
-            for shape, _ in pairs(totals) do
-              if totals[shape] < requirements[shape] then
-                complete = false
-                break
-              end
+          end
+        end
+  
+        if options[6] then
+          local collectedAll = true
+          for index=1, #allSigilCounts.key do
+            local pattern = allSigilCounts.key[index] .. "%d+;"
+            local _, count = string.gsub(collected, pattern, "")
+            if count < neededArrangerSigils[index] then
+              collectedAll = false
+              break
             end
-            if j == #floorCount + 1 then
-              complete = complete and greys >= 9
-            end
-
-            if complete then
-              finished("Collected all sigils for F" .. i .. " & F" .. j)
-            end
+          end
+          if collectedAll then
+            finished("Completed all Random Arrangers")
           end
         end
       end
-
-      if options[6] then
-        local collectedAll = true
-        for index=1, #allSigilCounts.key do
-          local pattern = allSigilCounts.key[index] .. "%d+;"
-          local _, count = string.gsub(collected, pattern, "")
-          if count < neededArrangerSigils[index] then
-            collectedAll = false
-            break
-          end
-        end
-        if collectedAll then
-          finished("Completed all Random Arrangers")
-        end
-      end
-    end
-  )
-elseif worldInfo:GetWorldFileName() ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then-- If mobius mode is off
+    )
+  end)
+elseif currentWorld ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then-- If mobius mode is off
   for i=1, #LoopArrangers do
     LoopArrangers[i]:Disappear()
   end
 end
-
--- Send a signal to all other scripts that might error if randomization hasn't finished
-Wait(CustomEvent("OnStep"))
-SignalEvent("Randomizer_Finished")

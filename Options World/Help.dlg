@@ -14,6 +14,7 @@ terminal when (PickOption) {
     "TTRS:notrans=Unlock All Items" next: AllItems
     "TTRS:notrans=Show Full Signs" next: AllSigns
     "TTRS:notrans=Random Portals" next: Portals
+    "TTRS:notrans=Jetpack" next: Jetpack
     "TTRS:notrans=Scavenger Hunt" next: Scavenger
     "TTRS:notrans=Möbius Mode" next: Mobius
     "TTRS:notrans=Moody Sigils" next: Moody
@@ -78,6 +79,11 @@ Also note that no matter the randomization mode, with the same seed you will alw
   goto: Loop
 }
 
+terminal when (Jetpack) {
+  text: "TTRS:notrans=Gives you a jetpack in every world except nexus. Going too far outside of the level will cause the jetpack to overheat."
+  goto: Loop
+}
+
 terminal when (Scavenger) {
   text: [[TTRS:notrans=Picks a method to beat the game and hides all sigils not required for it. In the Short mode all these sigils are in your first hub, in Full they can be anywhere.
 
@@ -90,7 +96,7 @@ Note that this option, like Random Portals, affect seeds. The same seed will giv
 terminal when (Mobius) {
   text: [[TTRS:notrans=Links all the levels together so when you leave one you instantly enter another, skipping Nexus. When you achieve a win condition the exit portal switches to send you to messenger ending.
 
-The win conditons are as follows:
+The win conditions are as follows:
 All Sigils - When you collect all the sigils
 All of a Colour - When you collect all sigils of a single colour. Stars count as their own colour.
 All of a Shape - When you collect all sigils of a single shape. Stars count as their own shape.
@@ -98,7 +104,7 @@ Eternalize Ending - When Eternalize Ending normally triggers, when you collect a
 Two Tower Floors - When you have all the sigils to be able to unlock any two tower floors (at the same time).
 Random Arrangers - When you have the sigils to be able to complete all the random arranger hints it gives you at the start of the game.
 
-These win conditons are additive - if you select both All of a Colour and All of a Shape you can finish on either.
+These win conditions are additive - if you select both All of a Colour and All of a Shape you can finish on either.
 
 Item arrangers and the two stars in nexus, which would normally be inaccessable, are scattered throughout the levels.
 
@@ -116,6 +122,7 @@ terminal when (Errors) {
 
 Sigils are missing. Puzzles you've never completed have no sigil at the end. Note that this is intended in Scavenger Hunt mode.
 Show Full Signs is on, but some signs show question marks. This is generally caused by a sigil being missing, but it's a bit more obvious, especially in Nexus.
+Loading is especially slow. Some errors will stop the precaching from starting, causing loads to be a lot slower. Note however that just rapidly changing worlds (for example in möbius mode) can also cause this.
 
 To confirm one of these errors enter A1 and open the console (` or F1) and look for the message "'____' does not have a value assigned to it". If you see this message please send me a pastebin of your log file for that session, it's at [Talos Folder]\Log\Talos.log or Talos_Unrestricted.log for the moddable version.]]
   goto: Loop
