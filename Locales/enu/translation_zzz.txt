@@ -1,0 +1,4 @@
+3
+Randomizer.Version=v11.2.1
+Episode.Name.Randomizer=Randomizer
+Episode.Name.TalosPrinciple=Test
