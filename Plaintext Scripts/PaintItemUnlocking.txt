@@ -17,12 +17,9 @@ local function RandomFomStringChars(str, multiplier)
 end
 
 -- talosProgress : CTalosProgress
-local talosProgress = nexGetTalosProgress(worldInfo)
+local talosProgress = nexGetTalosProgress(thisScript)
 local randomSeed = talosProgress:GetCodeValue("PaintItemSeed")
-if randomSeed == -1 then
-  randomSeed = mthRoundF(mthRndF()*8909478)
-  talosProgress:SetCode("PaintItemSeed", randomSeed)
-end
+
 local worldName = string.match(worldGlobals.currentWorld, "([^/]+)%.wld$")
 if randomSeed < 0 then
   randomSeed = -randomSeed

@@ -21,7 +21,7 @@ local seedPtr = seedDisplay:GetTextConfig()
 local awarded = false
 local allOptions = {
   NoGates, UnlockItems, ShowAll, Portals,
-  Scavenger, Loop, Moody
+  Scavenger, Loop, Moody, Jetpack
 }
 
 --[[
@@ -126,6 +126,15 @@ RunHandled(
   function()
     talosProgress:ClearVar("Randomizer_Portals")
   end,
+  
+  OnEvery(Event(Jetpack.Activated)),
+  function()
+    talosProgress:SetVar("Randomizer_Jetpack")
+  end,
+  OnEvery(Event(Jetpack.Deactivated)),
+  function()
+    talosProgress:ClearVar("Randomizer_Jetpack")
+  end,  
   
   OnEvery(Any(Events(Scavenger.Activated))),
   function(event)

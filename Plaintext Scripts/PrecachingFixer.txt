@@ -9,11 +9,14 @@ Wait(CustomEvent("Randomizer_Finished"))
 
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldInfo)
+local printWarning = worldGlobals.printWarning
 --[[
   Caching causes a bunch of log lines, which spam the console and are kind
    of annoying, so if debug mode is on don't do anything
 ]]
-if not talosProgress:IsVarSet("Randomizer_Debug") then
+if talosProgress:IsVarSet("Randomizer_Debug") then
+  printWarning("Disabling Precaching")
+else
   local function cache(world, high)
     if high then
         worldInfo:AddToWorldCache_AsHighPriority("Content/Talos/Levels/Randomizer/" .. world .. ".wld")
