@@ -34,6 +34,7 @@ RunHandled(
       -- This one is redundant, but I don't want to leave options out
       local Loop = talosProgress:GetCodeValue("Randomizer_Loop")
       local Moody = talosProgress:GetCodeValue("Randomizer_Moody")
+      local Jetpack = talosProgress:IsVarSet("Randomizer_Jetpack")
       
       -- clear the talos progress (so we can start the game anew)
       talClearTalosProgress(exitPortal)
@@ -52,6 +53,7 @@ RunHandled(
       talosProgress:SetVarValue("Randomizer_Scavenger", Scavenger)
       talosProgress:SetVarValue("Randomizer_Loop", Loop)
       talosProgress:SetVarValue("Randomizer_Moody", Moody)
+      if Jetpack then talosProgress:SetVar("Randomizer_Jetpack") end
 
       exitPortal:Enable(true)
     end
