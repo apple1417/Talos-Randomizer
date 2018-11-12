@@ -1710,7 +1710,20 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         Arrangers are each represented by a single bit, so by picking a random 15-bit
          number every one has a 50% chance, leading to 49.5 sigils required on average
       ]]--
-      talosProgress:SetVarValue("Randomizer_LoopArrangers", rand(0, 32767))
+      local randArrangers = rand(0, 32767)
+      --[[
+        When you unlock items all the yellow arrangers are completed, without using up the
+         sigils, so if it selects a yellow arranger you won't be able to tell which one it
+         selected, so you won't know what sigils you need to collect
+        To fix this we force the yellow bits to be off (mask with 0x7e0f)
+        Unfortuantly we don't have access to  bitwise operators so this gets kind of messy
+      ]]--
+      if talosProgress:IsVarSet("Randomizer_UnlockItems") then
+        local upperMask = mthFloorF(randArrangers / 512) * 32
+        local mask = (mthFloorF(randArrangers / 16) - upperMask) * 16
+        randArrangers = randArrangers - mask
+      end
+      talosProgress:SetVarValue("Randomizer_LoopArrangers", randArrangers)
     end
   end
 
