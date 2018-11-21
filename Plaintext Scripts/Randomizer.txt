@@ -44,7 +44,7 @@ worldGlobals.print = print
 worldGlobals.printWarning = printWarning
 worldGlobals.printError = printError
 
-print("Loaded Randomizer v12.0.2")
+print("Loaded Randomizer v13.0.0")
 
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldInfo)
@@ -59,6 +59,18 @@ local DEBUG = talosProgress:IsVarSet("Randomizer_Debug")
 -- Where the magic happens
 if not talosProgress:IsVarSet("Randomizer_Generated") then
   print("Randomizing...")
+
+  --[[
+    First make sure that all variables are set to their defaults, so this
+     all works properly from a clearTalosProgress()
+  ]]--
+  if not talosProgress:IsVarSet("Randomizer_Loop") then
+    talosProgress:SetVarValue("Randomizer_Loop", 0)
+  end
+  if not talosProgress:IsVarSet("Randomizer_Moody") then
+    talosProgress:SetVarValue("Randomizer_Moody", 0)
+  end
+
   -- We have to store this as a number, so converted it for readability
   local randomization_mode = talosProgress:GetCodeValue("Randomizer_Mode")
   if randomization_mode == -1 then
@@ -209,10 +221,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     #2 is the reason for the weird name
   ]]--
   local locked = {
-    ["A1 Gate"] = {}, -- All the greens get set later, as we need to
-    ["A Gate"] = {}, --   lock parts of them to make sure you can't
-    ["B Gate"] = {}, --   enter the wrong hub and softlock, but which
-    ["C Gate"] = {}, --   parts depends on the starting hub
+    ["A1 Gate"] = {"DJ1", "DJ2", "DZ1"},
+    ["A Gate"]  = {"DI1", "DJ3", "DL1", "DZ2"},
+    ["B Gate"]  = {"DI2", "DL2", "DT1", "DT2", "DZ3"},
+    ["C Gate"]  = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"},
     ["A Star"] = {"**1", "**2", "**3", "**4", "**5", "**6", "**7", "**8", "**9", "**10"},
     ["B Star"] = {"**11", "**12", "**13", "**14", "**15", "**16", "**17", "**18", "**19", "**20"},
     ["C Star"] = {"**21", "**22", "**23", "**24", "**25", "**26", "**27", "**28", "**29", "**30"},
@@ -229,40 +241,37 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     ["F6"] = {"EL1", "EL2", "EL3", "EL4", "EO1", "ES1", "ES2", "ES3", "ES4"}
   }
 
-  -- Make sure some vars that default to 0 are set, so everything works from a clearTalosProgress()
-  if not talosProgress:IsVarSet("Randomizer_Loop") then
-    talosProgress:SetVarValue("Randomizer_Loop", 0)
-  end
-  if not talosProgress:IsVarSet("Randomizer_Moody") then
-    talosProgress:SetVarValue("Randomizer_Moody", 0)
-  end
-
   -- If scavenger hunt mode is on decide what ending we're doing
   local scavenger = talosProgress:GetCodeValue("Randomizer_Scavenger")
-  local scavengerMode = ""
+  local scavengerEnding = ""
+  local sLengths = {"Off", "Short", "Full"}
+  local sEndings = {"Connector Clip", "F2 Clip", "F3 Clip"}
   if scavenger == -1 then
     scavenger = 0
     talosProgress:SetVarValue("Randomizer_Scavenger", 0)
   end
-  if scavenger then
-    local sModes = {"Connector Clip", "F2 Clip", "F3 Clip"}
+  scavenger = sLengths[scavenger + 1]
+  if scavenger ~= 0 then
     --[[
       This one's no fun in short, you either need to hope for multiple
        star worlds in first hub or spend forever guessing the code
     ]]--
-    if scavenger == 2 then
-      table.insert(sModes, "F1+F6")
+    if scavenger == "Full" then
+      table.insert(sEndings, "F1+F6")
     end
-    scavengerMode = rand(1, #sModes)
+    scavengerEnding = rand(1, #sEndings)
+    talosProgress:SetVarValue("Randomizer_ScavengerMode", scavengerEnding)
+    scavengerEnding = sEndings[scavengerEnding]
+
     -- The only one you can actually do intended
     if randomization_mode == "Intended" then
-      scavengerMode = 4
+      scavengerEnding = "F1+F6"
+      talosProgress:SetVarValue("Randomizer_ScavengerMode", 4)
     end
-    talosProgress:SetVarValue("Randomizer_ScavengerMode", scavengerMode)
-    scavengerMode = sModes[scavengerMode]
 
     if DEBUG then
-      print("Using scavenger hunt mode: " .. scavengerMode)
+      print("Using scavenger hunt mode: " .. scavenger)
+      print("Using scavenger hunt ending: " .. scavengerEnding)
     end
   end
 
@@ -291,7 +300,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       print("Möbius mode is on")
     end
     if portals then
-      -- TODO: double check Sattolo's algorithm works
       for index=2, #portalOrder do
         local otherIndex = rand(1, index - 1)
         portalOrder[index], portalOrder[otherIndex] = portalOrder[otherIndex], portalOrder[index]
@@ -321,7 +329,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       Short scavenger limits you to one hub so it just kind of
        sucks making you walk to another to get items
     ]]--
-    if randomization_mode == "Intended" or scavenger == 1 then
+    if randomization_mode == "Intended" or scavenger == "Short" then
       index = rand(1, 8)
     end
     if index < 8 then
@@ -347,9 +355,9 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
      to help us unlock worlds properly
   ]]--
   local open = {}
-  local WorldANames = {}
-  local WorldBNames = {}
-  local WorldCNames = {}
+  local WorldA = {}
+  local WorldB = {}
+  local WorldC = {}
   for index=1, #portalOrder do
     local name = portalOrder[index]
     if DEBUG and portals then
@@ -360,14 +368,14 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       end
     end
     talosProgress:SetVarValue(name, index)
-    -- These lists help us avoid instantly clogging the marker list
+    -- These lists help us work out what worlds are accessable
     local placedName = portalIndexes[index]
     if string.sub(placedName, 1, 1) == "A" then
-      WorldANames[name] = true
+      table.insert(WorldA, name)
     elseif string.sub(placedName, 1, 1) == "B" then
-      WorldBNames[name] = true
+      table.insert(WorldB, name)
     elseif string.sub(placedName, 1, 1) == "C" then
-      WorldCNames[name] = true
+      table.insert(WorldC, name)
     end
   end
 
@@ -377,9 +385,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   ]]--
   local function isWorldOpen(world)
     if world == "A1" then return true end
-    -- An empty list still evaluates to true
+    -- So that nothing is accessable before A1 Gate is open
     if randomization_mode == "Intended" and locked["A1 Gate"] then return false end
-    if (scavenger + loop) ~= 0 then return true end
+    -- Full Scavenger and Mobius force all worlds open
+    if scavenger == "Full" or loop ~= 0 then return true end
 
     local starOverride = true
     local num = talosProgress:GetCodeValue(world)
@@ -397,9 +406,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
      restrictions just by making new lists
     The list entries are formatted as follows:
     {function() [if to unlock], {"list", "of, "markers"}, "world"},
-    If no world is given OR the world is not recognised it will
-     always be checked, otherwise we can save some iterations and
-     add it later, when it's actually unlocked
+    World no longer does anything, I'll clean it up when I rewrite this bit
   ]]--
   if randomization_mode == "Default" then
     markers = {
@@ -904,8 +911,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       }, "CMessenger"},
       {function() return not locked["F1"] and not locked["Connector"] end, {
         "F0-Star"
+      }},
+      {function() return not locked["F5"] end, {
+        "F3-Star"
       }}
-      -- Yes F3 star is missing, it's explained further down
     }
   elseif randomization_mode == "Hardmode" then
     markers = {
@@ -1151,49 +1160,24 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   if randomization_mode == "Default" or randomization_mode == "60fps"
      or randomization_mode == "Intended" or randomization_mode == "Hardmode"
      or randomization_mode == "60FPS Hardmode" then
-    local checkGates = true
+     --[[
+      In scavenger hunt or mobius mode you don't have to deal with
+       doors, so we can disable that softlock protection
+    ]]--
+    local checkGates = scavenger == "Off" or loop == 0
     local arrangerStage = 0
     local availableMarkers = 0
     local openMarkers = {}
-
-    --[[
-      In scavenger hunt or loop mode you don't have to deal with
-       doors, so we can disable that softlock protection
-    ]]--
-    if (scavenger + loop) ~= 0 then
-      checkGates = false
-      locked["A1 Gate"] = {"DJ1", "DJ2", "DZ1"}
-      locked["A Gate"]  = {"DI1", "DJ3", "DL1", "DZ2"}
-      locked["B Gate"]  = {"DI2", "DL2", "DT1", "DT2", "DZ3"}
-      locked["C Gate"]  = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
-    end
-
-    --[[
-      We just have a list of the world names in each hub, we want the indexes
-       of the marker lists using those worlds
-    ]]--
     local closedMarkers = {}
-    local WorldA = {}
-    local WorldB = {}
-    local WorldC = {}
     for i=1, #markers do
-      if WorldANames[markers[i][3]] then
-        table.insert(WorldA, i)
-      elseif WorldBNames[markers[i][3]] then
-        table.insert(WorldB, i)
-      elseif WorldCNames[markers[i][3]] then
-        table.insert(WorldC, i)
-      else
-        table.insert(closedMarkers, i)
-      end
+      table.insert(closedMarkers, i)
     end
 
-    -- Adds all markers from provided locations to the global lists
+    -- Adds all markers from provided locations to the global "open" list
     local function addWorldMarkers(worlds)
       if not worlds then return end
       for i=1, #worlds do
-        table.insert(closedMarkers, worlds[i])
-        open[markers[worlds[i]][3]] = true
+        open[worlds[i]] = true
       end
     end
 
@@ -1201,29 +1185,21 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     local accessableArrangers = {}
     local lastHubs = {}
     if startHub == "A" then
-      accessableArrangers = {"A Gate"}
-      locked["A Gate"] = {"DI1", "DJ3", "DL1", "DZ2"}
+      accessableArrangers = {"A1 Gate", "A Gate", "A Star", "Connector", "Cube"}
       WorldA = addWorldMarkers(WorldA)
       lastHubs = {"B Gate", "C Gate"}
     elseif startHub == "B" then
-      accessableArrangers = {"B Gate"}
-      locked["B Gate"] = {"DI2", "DL2", "DT1", "DT2", "DZ3"}
+      accessableArrangers = {"A1 Gate", "B Gate", "B Star", "Fan", "Recorder"}
       WorldB = addWorldMarkers(WorldB)
       lastHubs = {"A Gate", "C Gate"}
     elseif startHub == "C" then
-      accessableArrangers = {"C Gate"}
-      locked["C Gate"] = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
+      accessableArrangers = {"A1 Gate", "C Gate", "C Star", "Platform"}
       WorldC = addWorldMarkers(WorldC)
       lastHubs = {"A Gate", "B Gate"}
     end
-    -- For scavenger hunt we have all worlds open
-    if scavenger ~= 0 then
+    -- Scavenger hunt has it's own arranger unlocking
+    if scavenger ~= "Off" then
       accessableArrangers = {}
-    end
-    if loop ~= 0 or scavenger == 2 then
-      WorldA = addWorldMarkers(WorldA)
-      WorldB = addWorldMarkers(WorldB)
-      WorldC = addWorldMarkers(WorldC)
     end
 
     -- Place the provided sigils in accessable areas
@@ -1251,35 +1227,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     end
 
     --[[
-      F3 star has issues with the intended mode, as explained later,
-       so we manually set it to either a star or a grey sigil here
-       before it can cause problems
-      In scavenger hunts we don't want this because intended ones
-       can only be F1+F6, and if this locks a grey it's uncompletable
-      We fix the missing marker later
-    ]]--
-    if randomization_mode == "Intended" and scavenger == 0 then
-      local sigil = ""
-      local marker = "F3-Star"
-      -- Weighted based on the amount of sigils of each type
-      local sigilIndex = rand(1, 39)
-      if sigilIndex <= 9 then
-        -- Place a grey sigil (9/39)
-        sigil = table.remove(locked["F6"], sigilIndex)
-      else
-        -- Place a star (30/39)
-        sigil = table.remove(locked["A Star"], 1)
-      end
-      talosProgress:SetCode(translate[marker], tetroIndexes[sigil])
-      tetroIndexes[sigil] = nil
-      if DEBUG then
-        printWarning(string.format("Placed %s at marker %s", sigil, marker))
-      end
-      -- Also while we're here fix A1 gate
-      locked["A1 Gate"] = {"DJ1", "DJ2", "DZ1"}
-    end
-
-    --[[
       This loop is what actually does it all
       The basic idea is as follows:
        1. Work out what markers are currently unlocked
@@ -1299,7 +1246,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       local toRemove = {}
       for i=1, #closedMarkers do
         local index = closedMarkers[i]
-        --printError(markers[index][3])
         if markers[index][1]() then
           table.insert(openMarkers, index)
           table.insert(toRemove, i)
@@ -1320,7 +1266,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       -- Chose what arrangers can be picked
       if arrangerStage ~= -1 then
         -- In scavenger hunt mode we only want the specific arrangers for each ending
-        if scavenger ~= 0 then
+        if scavenger ~= "Off" then
           --[[
             Intended always needs A1 Gate
             Because the others don't it's kind of awkward using arrangerStage
@@ -1328,127 +1274,154 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
           if randomization_mode == "Intended" and locked["A1 Gate"] then
             accessableArrangers = {"A1 Gate"}
           else
-            if scavengerMode == "Connector Clip" then
+            if scavengerEnding == "Connector Clip" then
               accessableArrangers = {"Connector", "F1"}
-            elseif scavengerMode == "F2 Clip" then
+            elseif scavengerEnding == "F2 Clip" then
               accessableArrangers = {"Cube", "F1", "F2"}
-            elseif scavengerMode == "F3 Clip" then
+            elseif scavengerEnding == "F3 Clip" then
               accessableArrangers = {"F1", "F3"}
-            elseif scavengerMode == "F1+F6" then
+            elseif scavengerEnding == "F1+F6" then
               accessableArrangers = {"F1", "F6"}
             end
             arrangerStage = -1
           end
-        elseif randomization_mode == "Intended"then
-          --[[
-            Because of how restrictive Intended is we need a special unlocking order,
-             the default one breaks every time
-            The order we use instead is:
-            1. A1 Gate
-            2. First Hub Items (Connector, Cube)
-            3. Other Hubs
-            4. Other Items
-            5. Star Worlds
-            6. F1
-            7. Rest of Tower
-            Note that this does mean F3 star could only ever be a grey sigil
-            Looking at the restrictions it could theoretically also be a star,
-             which is why we set it earlier
-          ]]--
-          if arrangerStage == 0 then
-            accessableArrangers = {"A1 Gate"}
-            arrangerStage = 1
-          elseif arrangerStage == 1 then
-            accessableArrangers = {"Connector", "Cube"}
-            arrangerStage = 2
-          elseif arrangerStage == 2 and #accessableArrangers == 0 then
-            accessableArrangers = {startHub .. " Gate"}
-            arrangerStage = 3
-          elseif arrangerStage == 3 then
-            if startHub == "A" then
-              accessableArrangers =  {"B Gate", "C Gate"}
-            elseif startHub == "B" then
-              accessableArrangers =  {"A Gate", "C Gate"}
-            elseif startHub == "C" then
-              accessableArrangers =  {"A Gate", "B Gate"}
-            end
-            arrangerStage = 4
-          elseif arrangerStage == 4 and #accessableArrangers == 0 then
-            if startHub == "A" then
-              accessableArrangers = {"Fan", "Recorder", "Platform"}
-            elseif startHub == "B" then
-              accessableArrangers = {"Connector", "Cube", "Platform"}
-            elseif startHub == "C" then
-              accessableArrangers = {"Connector", "Cube", "Fan", "Recorder"}
-            end
-            arrangerStage = 5
-          elseif arrangerStage == 5 and #accessableArrangers == 0 then
-              accessableArrangers = {"A Star", "B Star", "C Star"}
-              arrangerStage = 6
-          elseif arrangerStage == 6 and #accessableArrangers == 0 then
-            accessableArrangers = {"F1"}
-            arrangerStage = 7
-          elseif arrangerStage == 7 then
-            accessableArrangers = {"F2", "F3", "F4", "F5", "F6"}
-            arrangerStage = -1
-          end
-        --[[
-          The default unlocking order is as follows:
-          1. Hubs
-          2. Items
-          3. Star worlds
-          4. F1 + F2 + F3
-          5. Everything else
-          This does restrict certain combinations (e.g. you have to visit a star world to leave
-           your starting hub), but it ends up distributing the sigils much more nicely than
-           the old orders that did
-        ]]--
         else
+          -- The general idea here is to unlock arrangers as they actually become accessable
           if arrangerStage == 0 then
             if arranger == "A Gate" then
               table.insert(accessableArrangers, "B Gate")
               table.insert(accessableArrangers, "C Gate")
+              table.insert(accessableArrangers, "F1")
               arrangerStage = 1
             elseif arranger == "B Gate" then
               table.insert(accessableArrangers, "A Gate")
               table.insert(accessableArrangers, "C Gate")
+              table.insert(accessableArrangers, "F1")
               arrangerStage = 1
             elseif arranger == "C Gate" then
               table.insert(accessableArrangers, "A Gate")
               table.insert(accessableArrangers, "B Gate")
+              table.insert(accessableArrangers, "F1")
               arrangerStage = 1
             end
-          elseif arrangerStage == 1 and #accessableArrangers == 0 then
-            table.insert(accessableArrangers, "Connector")
-            table.insert(accessableArrangers, "Cube")
-            table.insert(accessableArrangers, "Fan")
-            table.insert(accessableArrangers, "Recorder")
-            table.insert(accessableArrangers, "Platform")
-            arrangerStage = 2
-          elseif arrangerStage == 2 and #accessableArrangers == 0 then
-            table.insert(accessableArrangers, "A Star")
-            table.insert(accessableArrangers, "B Star")
-            table.insert(accessableArrangers, "C Star")
-            arrangerStage = 3
-          elseif arrangerStage == 3 and #accessableArrangers == 0 then
-            table.insert(accessableArrangers, "F1")
-            table.insert(accessableArrangers, "F2")
-            table.insert(accessableArrangers, "F3")
-            arrangerStage = 4
-          elseif arrangerStage == 4 and #accessableArrangers == 0 then
-            table.insert(accessableArrangers, "F4")
-            table.insert(accessableArrangers, "F5")
-            table.insert(accessableArrangers, "F6")
-            table.insert(accessableArrangers, "A1 Gate")
-            arrangerStage = -1
+          elseif arrangerStage > 0 then
+            if arranger == "A Gate" then
+              table.insert(accessableArrangers, "Connector")
+              table.insert(accessableArrangers, "Cube")
+              table.insert(accessableArrangers, "A Star")
+              arrangerStage = arrangerStage + 1
+            elseif arranger == "B Gate" then
+              table.insert(accessableArrangers, "Fan")
+              table.insert(accessableArrangers, "Recorder")
+              table.insert(accessableArrangers, "B Star")
+              arrangerStage = arrangerStage + 1
+            elseif arranger == "C Gate" then
+              table.insert(accessableArrangers, "Platform")
+              table.insert(accessableArrangers, "C Star")
+              arrangerStage = arrangerStage + 1
+            elseif arranger == "F1" then
+              table.insert(accessableArrangers, "F2")
+              table.insert(accessableArrangers, "F3")
+              table.insert(accessableArrangers, "F4")
+              table.insert(accessableArrangers, "F5")
+              table.insert(accessableArrangers, "F6")
+              arrangerStage = arrangerStage + 1
+            end
+            -- One of the gates in this block has already been opened, so we only get to 1+3 = 4
+            if arrangerStage == 4 then
+              arrangerStage = -1
+            end
           end
         end
       end
 
-      local index = rand(1, #accessableArrangers)
-      arranger = table.remove(accessableArrangers, index)
+      --[[
+        Pick the next arranger
+        The idea is to prefer picking ones that unlock new spots, and to never pick ones that will
+         cause us to run out of spots
+        First we work out how many spots each arranger unlocks
+      ]]--
+      local noNewSpots = {}
+      local netLossName = {}
+      local netLossAmount = {}
+      local netGainName = {}
+      local netGainAmount = {}
+      for i=1, #accessableArrangers do
+        local tmpArranger = accessableArrangers[i]
+
+        -- The gates don't add spots directly like the other arrangers do, so we force this
+        if tmpArranger == "A Gate" or
+           tmpArranger == "B Gate" or
+           tmpArranger == "C Gate" then
+          table.insert(netGainName, tmpArranger)
+          table.insert(netGainAmount, 40)
+        else
+          local tmpSigils = locked[tmpArranger]
+          locked[tmpArranger] = nil
+
+          local newSpots = 0
+          for i=1, #closedMarkers do
+            local index = closedMarkers[i]
+            if markers[index][1]() then
+              newSpots = newSpots + #markers[index][2]
+            end
+          end
+
+          if newSpots == 0 then
+            table.insert(noNewSpots, tmpArranger)
+          elseif newSpots < #tmpSigils then
+            table.insert(netLossName, tmpArranger)
+            table.insert(netLossAmount, (newSpots - #tmpSigils) * -1)
+          else
+            table.insert(netGainName, tmpArranger)
+            table.insert(netGainAmount, (newSpots - #tmpSigils))
+          end
+          locked[tmpArranger] = tmpSigils
+        end
+      end
+      -- If none of our arrangers unlock new markers we can just pick a random one
+      if (#netLossName + #netGainName) == 0 then
+        arranger = noNewSpots[rand(1, #noNewSpots)]
+      else
+        -- Find the lowest amount of sigils we need to use a net gain arranger
+        local lowestAmount = 130
+        for i=1, #netGainAmount do
+          local amount = #locked[netGainName[i]]
+          if amount < lowestAmount then
+            lowestAmount = amount
+          end
+        end
+        if lowestAmount == 130 then
+          lowestAmount = 0
+        end
+
+        -- Remove all net losses that wouldn't let us use any net gain arranger next time
+        local toRemove = {}
+        local biggestLoss = availableMarkers - lowestAmount
+        for i=1, #netLossAmount do
+          if netLossAmount[i] > biggestLoss then
+            table.insert(toRemove, i)
+          end
+        end
+        for i=1, #toRemove do
+          table.remove(netLossName, toRemove[i] - (i - 1))
+        end
+
+        -- Pick a random arranger from what's left
+        local index = rand(1, #netGainName + #netLossName)
+        if index > #netLossName then
+          arranger = netGainName[index - #netLossName]
+        else
+          arranger = netLossName[index]
+        end
+      end
       local sigils = locked[arranger]
       locked[arranger] = nil
+      for i=1, #accessableArrangers do
+        if accessableArrangers[i] == arranger then
+          table.remove(accessableArrangers, i)
+        end
+      end
       if DEBUG then
         print("Selected " .. arranger .. " Arranger")
       end
@@ -1471,27 +1444,53 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
               print("Both Hubs open after " .. startHub)
             end
 
-            -- If so we're going to manually add the sigils for both
+            --[[
+              If so we're going to manually add the sigils for both
+              We also need to make sure to add the arranger unlocks from the
+               second world and update the arranger stage
+            ]]--
             if startHub == "A" then
               sigils = {"DI2", "DL2", "DT1", "DT2", "DZ3",
                         "DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
+              if arranger == "B Gate" then
+                table.insert(accessableArrangers, "Platform")
+                table.insert(accessableArrangers, "C Star")
+              elseif arranger == "C Gate" then
+                table.insert(accessableArrangers, "Fan")
+                table.insert(accessableArrangers, "Recorder")
+                table.insert(accessableArrangers, "B Star")
+              end
             elseif startHub == "B" then
               sigils = {"DI1", "DJ3", "DL1", "DZ2",
                         "DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
+              if arranger == "A Gate" then
+                table.insert(accessableArrangers, "Platform")
+                table.insert(accessableArrangers, "C Star")
+              elseif arranger == "C Gate" then
+                table.insert(accessableArrangers, "Connector")
+                table.insert(accessableArrangers, "Cube")
+                table.insert(accessableArrangers, "A Star")
+              end
             elseif startHub == "C" then
               sigils = {"DI1", "DJ3", "DL1", "DZ2",
                         "DI2", "DL2", "DT1", "DT2", "DZ3"}
+              if arranger == "A Gate" then
+                table.insert(accessableArrangers, "Fan")
+                table.insert(accessableArrangers, "Recorder")
+                table.insert(accessableArrangers, "B Star")
+              elseif arranger == "B Gate" then
+                table.insert(accessableArrangers, "Connector")
+                table.insert(accessableArrangers, "Cube")
+                table.insert(accessableArrangers, "A Star")
+              end
             end
-
-            -- For the intended mode we don't want to re-create this list
-            if randomization_mode ~= "Intended" then
-              locked["A1 Gate"] = {"DJ1", "DJ2", "DZ1"}
-            end
+            arrangerStage = arrangerStage + 1
 
             -- Only one of these will be left in the table by this point
             for i=1, #accessableArrangers do
-              -- "**Gate" - > "A Gate", "B Gate" and "C Gate" but not "A1 Gate"
-              if string.sub(accessableArrangers[i], 3, 6) == "Gate" then
+              if accessableArrangers[i] == "A Gate" or
+                 accessableArrangers[i] == "B Gate" or
+                 accessableArrangers[i] == "C Gate" then
                 table.remove(accessableArrangers, i)
                 break
               end
@@ -1512,13 +1511,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
               print(string.sub(arranger, 1, 1) .. " open after " .. startHub)
             end
             --[[
-              Based on world order, these are the sigils that
-               need to be locked:
+              Based on world order, these are the sigils that need to be locked:
               ABC and CBA -> JJJ lock
               BAC and CAB -> T lock
               ACB and BCA -> I lock
-              We now get a list of these sigils to lock, and fix
-               the sigils for the other gates
+              We now get a list of these sigils to lock, and remove them from
+               their original location
             ]]--
             local uniqueSigils = {}
             if arranger == "A Gate" then
@@ -1529,8 +1527,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
                 uniqueSigils = {"DT1"}
                 locked["B Gate"] = {"DI2", "DL2", "DT2", "DZ3"}
               end
-              locked["A1 Gate"] = {"DJ1", "DJ2", "DZ1"}
-              sigils = {"DI1", "DJ3", "DL1", "DZ2"}
               WorldA = addWorldMarkers(WorldA)
             elseif arranger == "B Gate" then
               if startHub == "A" then
@@ -1542,7 +1538,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
                 locked["A1 Gate"] = {"DZ1"}
                 locked["A Gate"] = {"DI1", "DL1", "DZ2"}
               end
-              sigils = {"DI2", "DL2", "DT1", "DT2", "DZ3"}
               WorldB = addWorldMarkers(WorldB)
             elseif arranger == "C Gate" then
               if startHub == "A" then
@@ -1552,8 +1547,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
                 uniqueSigils = {"DI1"}
                 locked["A Gate"] = {"DJ3", "DL1", "DZ2"}
               end
-              locked["A1 Gate"] = {"DJ1", "DJ2", "DZ1"}
-              sigils = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
               WorldC = addWorldMarkers(WorldC)
             end
 
@@ -1610,7 +1603,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
               print("Finished locking unique sigils")
             end
           end
-          -- We need to add A1 gate at some point, might as well do it here
           checkGates = false
         end
       elseif not checkGates then
@@ -1630,7 +1622,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
      the sigils, but for the other modes we need to make sure we
      actually do that too
   ]]--
-  if scavenger ~= 0 then
+  if scavenger ~= "Off" then
     Wait(CustomEvent("OnStep"))
     local allArrangers = {
       "A1 Gate", "A Gate", "B Gate", "C Gate",
@@ -1691,10 +1683,13 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       talosProgress:SetCode(translate[markers[i]], i)
     end
   end
-
   --[[
-    Mobius Mode is made to work with everything else so we do this last
+    Some things might want to keep doing random stuff after generation,
+     to try make it less predictable they should base it off of this
   ]]--
+  talosProgress:SetVarValue("Randomizer_ContinueSeed", rand(1, 2147483647))
+
+  -- Mobius Mode is made to work with everything else so we can do this last
   if loop ~= 0 then
     local F0Pos = rand(1, 50)
     local F3Pos = rand(1, 49)
@@ -1703,8 +1698,8 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     end
     talosProgress:SetVarValue("Randomizer_LoopF0", F0Pos)
     talosProgress:SetVarValue("Randomizer_LoopF3", F3Pos)
-    talosProgress:SetVarValue("Randomizer_LoopSeed", rand(1, 2147483647))
 
+    -- Random Arrangers mode
     if loop >= 32 then
       --[[
         Arrangers are each represented by a single bit, so by picking a random 15-bit

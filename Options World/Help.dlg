@@ -1,10 +1,10 @@
 terminal when (Booting) {
   text: [[TTRS:notrans=What would you like to know more about?
 ]]
-  goto: PickOption
+  goto: PickLeft
 }
 
-terminal when (PickOption) {
+terminal when (PickLeft) {
   text: [[TTRS:notrans=
 ]]
   options: {
@@ -16,17 +16,26 @@ terminal when (PickOption) {
     "TTRS:notrans=Random Portals" next: Portals
     "TTRS:notrans=Jetpack" next: Jetpack
     "TTRS:notrans=Scavenger Hunt" next: Scavenger
-    "TTRS:notrans=Möbius Mode" next: Mobius
-    "TTRS:notrans=Moody Sigils" next: Moody
-    "TTRS:notrans=Errors" next: Errors
+    "TTRS:notrans=Next Page" next: LoopRight
     "TTRS:notrans=exit" next: Finished
   }
 }
 
+terminal when (PickRight) {
+  text: [[TTRS:notrans=
+]]
+  options: {
+    "TTRS:notrans=Möbius Mode" next: Mobius
+    "TTRS:notrans=Moody Sigils" next: Moody
+    "TTRS:notrans=Errors" next: Errors
+    "TTRS:notrans=Previous Page" next: LoopLeft
+    "TTRS:notrans=exit" next: Finished
+  }
+}
 
 terminal when (Seed) {
   text: "TTRS:notrans=The seed is used to generate a random sequence of numbers, which in turn is used to randomize the sigils. The same seed will always generate the same sigil order, as long as you use the same Randomization Mode, Random Portals setting, and Scavenger Hunt setting."
-  goto: Loop
+  goto: LoopLeft
 }
 
 terminal when (Mode) {
@@ -52,22 +61,22 @@ A more restrictive version of hardmode that is completeable entirely at 60fps. A
 
 None:
 Does exactly what it says on the tin, there's no randomization, all sigils are in their default locations.]]
-  goto: Loop
+  goto: LoopLeft
 }
 
 terminal when (AllWorlds) {
   text: "TTRS:notrans=Opens up all hubs and star worlds, so you don't need to collect sigils to access them. The tower is not opened up, beating the game would be too easy otherwise."
-  goto: Loop
+  goto: LoopLeft
 }
 
 terminal when (AllItems) {
   text: "TTRS:notrans=As the name suggests, it unlocks all items from the beginning of the game so that you don't need to collect sigils to unlock them."
-  goto: Loop
+  goto: LoopLeft
 }
 
 terminal when (AllSigns) {
   text: "TTRS:notrans=Normally world overview signs show all sigils in that world. Turning this off means that only collected sigils will be displayed."
-  goto: Loop
+  goto: LoopLeft
 }
 
 terminal when (Portals) {
@@ -76,21 +85,21 @@ terminal when (Portals) {
 Note that this option turns off sigil signs in nexus. The signs in each world are still fine.
 
 Also note that no matter the randomization mode, with the same seed you will always have the same portal arrangement. But, even using the same mode and seed, when you toggle this option on and off you will have a different sigil arrangement.]]
-  goto: Loop
+  goto: LoopLeft
 }
 
 terminal when (Jetpack) {
   text: "TTRS:notrans=Gives you a jetpack in every world except nexus. Going too far outside of the level will cause the jetpack to overheat."
-  goto: Loop
+  goto: LoopLeft
 }
 
 terminal when (Scavenger) {
   text: [[TTRS:notrans=Picks a method to beat the game and hides all sigils not required for it. In the Short mode all these sigils are in your first hub, in Full they can be anywhere.
 
-Forces Open All Worlds on and Show Full Signs off. Cannot be used with the Fully Random or None modes.
+Forces Open All Worlds on and Show Full Signs off.
 
 Note that this option, like Random Portals, affect seeds. The same seed will give you different sigil arrangements when you toggle this option on and off.]]
-  goto: Loop
+  goto: LoopLeft
 }
 
 terminal when (Mobius) {
@@ -103,18 +112,21 @@ All of a Shape - When you collect all sigils of a single shape. Stars count as t
 Eternalize Ending - When Eternalize Ending normally triggers, when you collect all green, yellow, and red tetrominoes.
 Two Tower Floors - When you have all the sigils to be able to unlock any two tower floors (at the same time).
 Random Arrangers - When you have the sigils to be able to complete all the random arranger hints it gives you at the start of the game.
+Scavenger - When you finish your scavenger hunt.
+
+Note that the scavenger win condition is always active when you're doing a scavenger hunt, there is no explicit switch.
 
 These win conditions are additive - if you select both All of a Colour and All of a Shape you can finish on either.
 
 Item arrangers and the two stars in nexus, which would normally be inaccessable, are scattered throughout the levels.
 
 Best played alongside Random Portals.]]
-  goto: Loop
+  goto: LoopRight
 }
 
 terminal when (Moody) {
   text: "TTRS:notrans=Prevents you from collecting two sigils of the same colour and/or shape (based on the options) in a row. If you enable both options both restrictions will apply. The sigils still appear in the world allowing you to plan out your route, just collection is disabled."
-  goto: Loop
+  goto: LoopRight
 }
 
 terminal when (Errors) {
@@ -124,14 +136,20 @@ Sigils are missing. Puzzles you've never completed have no sigil at the end. Not
 Show Full Signs is on, but some signs show question marks. This is generally caused by a sigil being missing, but it's a bit more obvious, especially in Nexus.
 Loading is especially slow. Some errors will stop the precaching from starting, causing loads to be a lot slower. Note however that just rapidly changing worlds (for example in möbius mode) can also cause this.
 
-To confirm one of these errors enter A1 and open the console (` or F1) and look for the message "'____' does not have a value assigned to it". If you see this message please send me a pastebin of your log file for that session, it's at [Talos Folder]\Log\Talos.log or Talos_Unrestricted.log for the moddable version.]]
-  goto: Loop
+To confirm one of these errors open the console (` or F1) and look for the message "'____' does not have a value assigned to it". If you see this message please send me a pastebin of your log file for that session, it's at [Talos Folder]\Log\Talos.log or Talos_Unrestricted.log for the moddable version.]]
+  goto: LoopRight
 }
 
-terminal when (Loop) {
+terminal when (LoopLeft) {
   text: [[TTRS:notrans=
 ]]
-  goto: PickOption
+  goto: PickLeft
+}
+
+terminal when (LoopRight) {
+  text: [[TTRS:notrans=
+]]
+  goto: PickRight
 }
 
 terminal when (Finished) {

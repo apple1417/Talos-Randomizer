@@ -144,6 +144,8 @@ RunAsync(function()
   print("")
 end)
 
+
+
 -- Jetpack
 RunAsync(function()
    -- player : CPlayerPuppetEntity
@@ -306,7 +308,6 @@ end
 
 
 -- Deal with the mobius mode endings
-local LOOP_ARRANGER_HIDE_PERCENT = 40
 if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and currentWorld ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
   local function finished(str)
     if not talosProgress:IsVarSet("Randomizer_LoopDone") then
@@ -324,12 +325,6 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and currentWorld ~= "Conte
   end
   if talosProgress:IsVarSet("Randomizer_LoopDone") then
     finished()
-  end
-
-  local seed = talosProgress:GetCodeValue("Randomizer_LoopSeed")
-  local function loopHideArranger()
-    seed = (214013 * seed + 2531011) % 2147483648
-    return (seed % 100) < LOOP_ARRANGER_HIDE_PERCENT
   end
   
   RunAsync(function()
@@ -379,18 +374,6 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and currentWorld ~= "Conte
         if DEBUG then
           printWarning(string.format("Moving %s to LoopMarker1", F3:GetName()))
         end
-      end
-    end
-  
-    for _=1, world*5 do
-      loopHideArranger()
-    end
-    for i=1, #LoopArrangers do
-      if loopHideArranger() and not talosProgress:IsVarSet("Randomizer_LoopShowAll") and worldName ~= "DeveloperIsland" then
-        if DEBUG then
-          print("Hiding Arranger: " .. LoopArrangers[i]:GetName())
-        end
-        LoopArrangers[i]:Disappear()
       end
     end
   
