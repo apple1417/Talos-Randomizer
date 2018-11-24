@@ -56,6 +56,8 @@ local currentWorld = worldGlobals.currentWorld
 ]]--
 SignalEvent("Randomizer_Finished")
 
+
+
 -- Checksum
 RunAsync(function()
   local allMarkers = {
@@ -144,6 +146,8 @@ RunAsync(function()
   print("")
 end)
 
+
+
 -- Jetpack
 RunAsync(function()
    -- player : CPlayerPuppetEntity
@@ -167,7 +171,7 @@ RunAsync(function()
     local acceptableSigils = false
     if talosProgress:GetCodeValue("Randomizer_Scavenger") ~= 0 then
       local sModes = {"Connector Clip", "F2 Clip", "F3 Clip", "F1+F6"}
-      local scavengerMode =  sModes[talosProgress:GetCodeValue("Randomizer_ScavengerMode")]
+      local scavengerMode = sModes[talosProgress:GetCodeValue("Randomizer_ScavengerMode")]
       if scavengerMode == "Connector Clip" then
         acceptableSigils = {["ML1"] = true, ["MT1"] = true, ["MT2"] = true,
                             ["NL1"] = true, ["NL2"] = true, ["NZ1"] = true, ["NZ2"] = true}
@@ -305,8 +309,12 @@ end
 
 
 
--- Deal with the mobius mode endings
-local LOOP_ARRANGER_HIDE_PERCENT = 40
+--[[
+  Deal with the mobius mode endings
+  Might re-enable mobius arranger hiding at some point so that
+   code's been left in
+]]--
+local LOOP_ARRANGER_HIDE_PERCENT = 0
 if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and currentWorld ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
   local function finished(str)
     if not talosProgress:IsVarSet("Randomizer_LoopDone") then
@@ -326,7 +334,7 @@ if talosProgress:GetCodeValue("Randomizer_Loop") ~= 0 and currentWorld ~= "Conte
     finished()
   end
 
-  local seed = talosProgress:GetCodeValue("Randomizer_LoopSeed")
+  local seed = talosProgress:GetCodeValue("Randomizer_ExtraSeed")
   local function loopHideArranger()
     seed = (214013 * seed + 2531011) % 2147483648
     return (seed % 100) < LOOP_ARRANGER_HIDE_PERCENT

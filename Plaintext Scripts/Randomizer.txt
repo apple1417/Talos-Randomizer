@@ -44,7 +44,7 @@ worldGlobals.print = print
 worldGlobals.printWarning = printWarning
 worldGlobals.printError = printError
 
-print("Loaded Randomizer v12.0.2")
+print("Loaded Randomizer v12.1.0")
 
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldInfo)
@@ -59,6 +59,18 @@ local DEBUG = talosProgress:IsVarSet("Randomizer_Debug")
 -- Where the magic happens
 if not talosProgress:IsVarSet("Randomizer_Generated") then
   print("Randomizing...")
+
+  --[[
+    First make sure that all variables are set to their defaults, so this
+     all works properly from a clearTalosProgress()
+  ]]--
+  if not talosProgress:IsVarSet("Randomizer_Loop") then
+    talosProgress:SetVarValue("Randomizer_Loop", 0)
+  end
+  if not talosProgress:IsVarSet("Randomizer_Moody") then
+    talosProgress:SetVarValue("Randomizer_Moody", 0)
+  end
+
   -- We have to store this as a number, so converted it for readability
   local randomization_mode = talosProgress:GetCodeValue("Randomizer_Mode")
   if randomization_mode == -1 then
@@ -229,40 +241,38 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     ["F6"] = {"EL1", "EL2", "EL3", "EL4", "EO1", "ES1", "ES2", "ES3", "ES4"}
   }
 
-  -- Make sure some vars that default to 0 are set, so everything works from a clearTalosProgress()
-  if not talosProgress:IsVarSet("Randomizer_Loop") then
-    talosProgress:SetVarValue("Randomizer_Loop", 0)
-  end
-  if not talosProgress:IsVarSet("Randomizer_Moody") then
-    talosProgress:SetVarValue("Randomizer_Moody", 0)
-  end
-
   -- If scavenger hunt mode is on decide what ending we're doing
   local scavenger = talosProgress:GetCodeValue("Randomizer_Scavenger")
-  local scavengerMode = ""
+  local scavengerEnding = ""
+  local sLengths = {"Off", "Short", "Full"}
+  local sEndings = {"Connector Clip", "F2 Clip", "F3 Clip"}
   if scavenger == -1 then
     scavenger = 0
     talosProgress:SetVarValue("Randomizer_Scavenger", 0)
   end
-  if scavenger then
+  scavenger = sLengths[scavenger + 1]
+  if scavenger ~= "Off" then
     local sModes = {"Connector Clip", "F2 Clip", "F3 Clip"}
     --[[
       This one's no fun in short, you either need to hope for multiple
        star worlds in first hub or spend forever guessing the code
     ]]--
-    if scavenger == 2 then
-      table.insert(sModes, "F1+F6")
+    if scavenger == "Full" then
+      table.insert(sEndings, "F1+F6")
     end
-    scavengerMode = rand(1, #sModes)
+    scavengerEnding = rand(1, #sEndings)
+    talosProgress:SetVarValue("Randomizer_ScavengerMode", scavengerEnding)
+    scavengerEnding = sEndings[scavengerEnding]
+    
     -- The only one you can actually do intended
     if randomization_mode == "Intended" then
-      scavengerMode = 4
+      scavengerEnding = "F1+F6"
+      talosProgress:SetVarValue("Randomizer_ScavengerMode", 4)
     end
-    talosProgress:SetVarValue("Randomizer_ScavengerMode", scavengerMode)
-    scavengerMode = sModes[scavengerMode]
 
     if DEBUG then
-      print("Using scavenger hunt mode: " .. scavengerMode)
+      print("Using scavenger hunt mode: " .. scavenger)
+      print("Using scavenger hunt ending: " .. scavengerEnding)
     end
   end
 
@@ -291,7 +301,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       print("Möbius mode is on")
     end
     if portals then
-      -- TODO: double check Sattolo's algorithm works
       for index=2, #portalOrder do
         local otherIndex = rand(1, index - 1)
         portalOrder[index], portalOrder[otherIndex] = portalOrder[otherIndex], portalOrder[index]
@@ -321,7 +330,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       Short scavenger limits you to one hub so it just kind of
        sucks making you walk to another to get items
     ]]--
-    if randomization_mode == "Intended" or scavenger == 1 then
+    if randomization_mode == "Intended" or scavenger == "Short" then
       index = rand(1, 8)
     end
     if index < 8 then
@@ -379,7 +388,8 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     if world == "A1" then return true end
     -- An empty list still evaluates to true
     if randomization_mode == "Intended" and locked["A1 Gate"] then return false end
-    if (scavenger + loop) ~= 0 then return true end
+    -- Full Scavenger and Mobius force all worlds open
+    if scavenger == "Full" or loop ~= 0 then return true end
 
     local starOverride = true
     local num = talosProgress:GetCodeValue(world)
@@ -1160,7 +1170,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       In scavenger hunt or loop mode you don't have to deal with
        doors, so we can disable that softlock protection
     ]]--
-    if (scavenger + loop) ~= 0 then
+    if scavenger ~= "Off" or loop ~= 0 then
       checkGates = false
       locked["A1 Gate"] = {"DJ1", "DJ2", "DZ1"}
       locked["A Gate"]  = {"DI1", "DJ3", "DL1", "DZ2"}
@@ -1217,10 +1227,10 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       lastHubs = {"A Gate", "B Gate"}
     end
     -- For scavenger hunt we have all worlds open
-    if scavenger ~= 0 then
+    if scavenger ~= "Off" then
       accessableArrangers = {}
     end
-    if loop ~= 0 or scavenger == 2 then
+    if loop ~= 0 or scavenger == "Full" then
       WorldA = addWorldMarkers(WorldA)
       WorldB = addWorldMarkers(WorldB)
       WorldC = addWorldMarkers(WorldC)
@@ -1258,7 +1268,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
        can only be F1+F6, and if this locks a grey it's uncompletable
       We fix the missing marker later
     ]]--
-    if randomization_mode == "Intended" and scavenger == 0 then
+    if randomization_mode == "Intended" and scavenger == "Off" then
       local sigil = ""
       local marker = "F3-Star"
       -- Weighted based on the amount of sigils of each type
@@ -1320,7 +1330,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       -- Chose what arrangers can be picked
       if arrangerStage ~= -1 then
         -- In scavenger hunt mode we only want the specific arrangers for each ending
-        if scavenger ~= 0 then
+        if scavenger ~= "Off" then
           --[[
             Intended always needs A1 Gate
             Because the others don't it's kind of awkward using arrangerStage
@@ -1328,13 +1338,13 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
           if randomization_mode == "Intended" and locked["A1 Gate"] then
             accessableArrangers = {"A1 Gate"}
           else
-            if scavengerMode == "Connector Clip" then
+            if scavengerEnding == "Connector Clip" then
               accessableArrangers = {"Connector", "F1"}
-            elseif scavengerMode == "F2 Clip" then
+            elseif scavengerEnding == "F2 Clip" then
               accessableArrangers = {"Cube", "F1", "F2"}
-            elseif scavengerMode == "F3 Clip" then
+            elseif scavengerEnding == "F3 Clip" then
               accessableArrangers = {"F1", "F3"}
-            elseif scavengerMode == "F1+F6" then
+            elseif scavengerEnding == "F1+F6" then
               accessableArrangers = {"F1", "F6"}
             end
             arrangerStage = -1
@@ -1610,7 +1620,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
               print("Finished locking unique sigils")
             end
           end
-          -- We need to add A1 gate at some point, might as well do it here
           checkGates = false
         end
       elseif not checkGates then
@@ -1630,7 +1639,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
      the sigils, but for the other modes we need to make sure we
      actually do that too
   ]]--
-  if scavenger ~= 0 then
+  if scavenger ~= "Off" then
     Wait(CustomEvent("OnStep"))
     local allArrangers = {
       "A1 Gate", "A Gate", "B Gate", "C Gate",
@@ -1692,9 +1701,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     end
   end
 
-  --[[
-    Mobius Mode is made to work with everything else so we do this last
-  ]]--
+  -- Mobius Mode is made to work with everything else so we do this last
   if loop ~= 0 then
     local F0Pos = rand(1, 50)
     local F3Pos = rand(1, 49)
@@ -1703,8 +1710,8 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     end
     talosProgress:SetVarValue("Randomizer_LoopF0", F0Pos)
     talosProgress:SetVarValue("Randomizer_LoopF3", F3Pos)
-    talosProgress:SetVarValue("Randomizer_LoopSeed", rand(1, 2147483647))
 
+    -- Random Arrangers
     if loop >= 32 then
       --[[
         Arrangers are each represented by a single bit, so by picking a random 15-bit
@@ -1726,6 +1733,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       talosProgress:SetVarValue("Randomizer_LoopArrangers", randArrangers)
     end
   end
+
+  --[[
+    Some things might want to keep doing random stuff after generation,
+     to try make it less predictable they should base it off of this
+  ]]--
+  talosProgress:SetVarValue("Randomizer_ExtraSeed", rand(1, 2147483647))
 
   talosProgress:SetVar("Randomizer_Generated")
   talBackupAndSaveTalosProgress(worldInfo)
