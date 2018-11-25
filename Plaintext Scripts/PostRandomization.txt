@@ -7,7 +7,7 @@ Wait(CustomEvent("Randomizer_Generated"))
 ]]--
 
 -- talosProgress : CTalosProgress
-local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
+local talosProgress = nexGetTalosProgress(worldInfo)
 local print = worldGlobals.print
 local printWarning = worldGlobals.printWarning
 local printError = worldGlobals.printError
@@ -620,4 +620,107 @@ elseif currentWorld ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then-- If mob
   for i=1, #LoopArrangers do
     LoopArrangers[i]:Disappear()
   end
+end
+
+
+
+-- Random Items
+if talosProgress:GetCodeValue("Randomizer_RandItems") ~= 0 then
+  RunAsync(function()
+    local seed = talosProgress:GetCodeValue("Randomizer_ExtraSeed")
+    for i = 1, #worldGlobals.currentWorld do
+      seed = seed + string.byte(worldGlobals.currentWorld, i)
+    end
+    
+    for i=1, #allItems do
+      seed = (214013 * seed + 2531011) % 2147483648
+      
+      local index = 1
+      if talosProgress:GetCodeValue("Randomizer_RandItems") == 1 then
+        --[[
+          Weighting for Balanced mode, based off amounts usually in game:
+          Crowbar               1
+          Cube                 88
+          EnergyRod           145
+          FanItem              63
+          Jammer               72
+          Jetpack               1
+          NexusAxe              2
+          NexusShield           6
+          PaintBucket          25
+          Sword                 1
+          MessageInABottle01    1
+          MessageInABottle02    1
+          StatuePartLArm        1
+          StatuePartLeftFoot    1
+          StatuePartLeftLeg     1
+          StatuePartLHand       1
+          StatuePartRArm        1
+          StatuePartRHand       1
+          StatuePartRightFoot   1
+          StatuePartRightLeg    1
+          StatuePartTorso       1
+          StatuePartTorsoBack   1
+        ]]--        
+        local selected = seed % 416
+        if 0 < selected then index = index + 1 end
+        if 88 < selected then index = index + 1 end
+        if 233 < selected then index = index + 1 end
+        if 296 < selected then index = index + 1 end
+        if 368 < selected then index = index + 1 end
+        if 369 < selected then index = index + 1 end
+        if 371 < selected then index = index + 1 end
+        if 377 < selected then index = index + 1 end
+        if 402 < selected then index = index + 1 end
+        if 403 < selected then
+          index = index + selected - 403
+        end
+      else
+        --[[
+          Weighting for "Uniform" mode
+          Statue parts and message in a bottle are kind of
+           annoyingly common otherwise
+          Crowbar              10
+          Cube                 10
+          EnergyRod            10
+          FanItem              10
+          Jammer               10
+          Jetpack              10
+          NexusAxe             10
+          NexusShield          10
+          PaintBucket          10
+          Sword                10
+          MessageInABottle01    5
+          MessageInABottle02    5
+          StatuePartLArm        1
+          StatuePartLeftFoot    1
+          StatuePartLeftLeg     1
+          StatuePartLHand       1
+          StatuePartRArm        1
+          StatuePartRHand       1
+          StatuePartRightFoot   1
+          StatuePartRightLeg    1
+          StatuePartTorso       1
+          StatuePartTorsoBack   1
+        ]]--
+        local selected = seed % 120
+        if selected < 100 then
+          index = mthFloorF(selected/10) + 1
+        elseif 100 <= selected  and selected < 105 then
+          index = 11
+        elseif 105 <= selected and selected < 110 then
+          index = 12
+        elseif 110 <= selected then
+          index = 13 + (selected - 110)
+        end
+      end
+      
+      -- newItem : CGenericItemEntity
+      -- oldItem : CGenericItemEntity
+      local newItem = allSpawners[index]:SpawnOne()
+      local oldItem = allItems[i]
+      newItem:SetPlacement(oldItem:GetPlacement())
+      oldItem:SetPlacement(OOBPlat:GetPlacement())
+    end
+  end)
 end

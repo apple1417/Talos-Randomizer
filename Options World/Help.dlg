@@ -15,7 +15,7 @@ terminal when (PickLeft) {
     "TTRS:notrans=Show Full Signs" next: AllSigns
     "TTRS:notrans=Random Portals" next: Portals
     "TTRS:notrans=Jetpack" next: Jetpack
-    "TTRS:notrans=Scavenger Hunt" next: Scavenger
+    "TTRS:notrans=Random Items" next: RandItems
     "TTRS:notrans=Next Page" next: LoopRight
     "TTRS:notrans=exit" next: Finished
   }
@@ -25,6 +25,7 @@ terminal when (PickRight) {
   text: [[TTRS:notrans=
 ]]
   options: {
+    "TTRS:notrans=Scavenger Hunt" next: Scavenger
     "TTRS:notrans=Möbius Mode" next: Mobius
     "TTRS:notrans=Moody Sigils" next: Moody
     "TTRS:notrans=Errors" next: Errors
@@ -93,13 +94,20 @@ terminal when (Jetpack) {
   goto: LoopLeft
 }
 
+terminal when (RandItems) {
+  text: [[TTRS:notrans=Randomizes the type of most carriable items. What used to be a cube might now be a fan, an axe, or part of the gnar statue. Note however that this has no softlock protection.
+
+Best played alongside Unlock All Items]]
+  goto: LoopLeft
+}
+
 terminal when (Scavenger) {
   text: [[TTRS:notrans=Picks a method to beat the game and hides all sigils not required for it. In the Short mode all these sigils are in your first hub, in Full they can be anywhere.
 
 Forces Open All Worlds on and Show Full Signs off.
 
 Note that this option, like Random Portals, affect seeds. The same seed will give you different sigil arrangements when you toggle this option on and off.]]
-  goto: LoopLeft
+  goto: LoopRight
 }
 
 terminal when (Mobius) {
