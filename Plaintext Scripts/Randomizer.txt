@@ -70,6 +70,9 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   if not talosProgress:IsVarSet("Randomizer_Moody") then
     talosProgress:SetVarValue("Randomizer_Moody", 0)
   end
+  if not talosProgress:IsVarSet("Randomizer_RandItems") then
+    talosProgress:SetVarValue("Randomizer_RandItems", 0)
+  end
 
   -- We have to store this as a number, so converted it for readability
   local randomization_mode = talosProgress:GetCodeValue("Randomizer_Mode")

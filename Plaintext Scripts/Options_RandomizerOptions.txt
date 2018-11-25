@@ -9,6 +9,7 @@ local lastMode = 1
 local loopVal = 0
 local moodyVal = 0
 local scavengerVal = 0
+local itemsVal = 0
 
 talosProgress:SetVarValue("Randomizer_Mode", 1)
 talosProgress:SetVarValue("Randomizer_Scavenger", 0)
@@ -21,7 +22,7 @@ local seedPtr = seedDisplay:GetTextConfig()
 local awarded = false
 local allOptions = {
   NoGates, UnlockItems, ShowAll, Portals,
-  Scavenger, Loop, Moody, Jetpack
+  Scavenger, Loop, Moody, Jetpack, RandItems
 }
 
 --[[
@@ -194,6 +195,26 @@ RunHandled(
       end
     end
   end,
+  
+  OnEvery(Any(Events(RandItems.Activated))),
+  function(event)
+    local index = event.any.signaledIndex
+    if index ~= itemsVal then
+      if itemsVal ~= 0 then
+        RandItems[itemsVal]:Deactivate()
+      end
+      itemsVal = index
+      talosProgress:SetVarValue("Randomizer_RandItems", index)
+    end
+  end,
+  OnEvery(Any(Events(RandItems.Deactivated))),
+  function(event)
+    local index = event.any.signaledIndex
+    if index == itemsVal then
+      itemsVal = 0
+      talosProgress:SetVarValue("Randomizer_RandItems", 0)
+    end
+  end,  
   
   OnEvery(Event(RandomizeAll.Activated)),
   function()
