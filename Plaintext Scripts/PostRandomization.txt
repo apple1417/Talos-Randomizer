@@ -98,7 +98,8 @@ RunAsync(function()
     "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "ADevIsland",
     "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
     "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "CMessenger",
-    "Randomizer_Seed", "Randomizer_Mode", "Randomizer_Scavenger", "Randomizer_Loop", "Randomizer_Moody"
+    "Randomizer_Seed", "Randomizer_Mode", "Randomizer_Scavenger", "Randomizer_Loop", "Randomizer_Moody",
+    "Randomizer_ExtraSeed"    
   }
   
   --[[
@@ -647,7 +648,7 @@ if talosProgress:GetCodeValue("Randomizer_RandItems") ~= 0 then
           Jetpack               1
           NexusAxe              2
           NexusShield           6
-          PaintBucket          25
+          PaintBucket          99
           Sword                 1
           MessageInABottle01    1
           MessageInABottle02    1
@@ -662,18 +663,17 @@ if talosProgress:GetCodeValue("Randomizer_RandItems") ~= 0 then
           StatuePartTorso       1
           StatuePartTorsoBack   1
         ]]--        
-        local selected = seed % 416
-        if 0 < selected then index = index + 1 end
-        if 88 < selected then index = index + 1 end
-        if 233 < selected then index = index + 1 end
-        if 296 < selected then index = index + 1 end
-        if 368 < selected then index = index + 1 end
-        if 369 < selected then index = index + 1 end
-        if 371 < selected then index = index + 1 end
-        if 377 < selected then index = index + 1 end
-        if 402 < selected then index = index + 1 end
-        if 403 < selected then
-          index = index + selected - 403
+        local selected = seed % 490
+        if selected >   0 then index = index + 1 end
+        if selected >  88 then index = index + 1 end
+        if selected > 233 then index = index + 1 end
+        if selected > 296 then index = index + 1 end
+        if selected > 368 then index = index + 1 end
+        if selected > 369 then index = index + 1 end
+        if selected > 371 then index = index + 1 end
+        if selected > 377 then index = index + 1 end
+        if selected > 476 then 
+          index = 10 + (selected - 477)
         end
       else
         --[[
@@ -719,8 +719,12 @@ if talosProgress:GetCodeValue("Randomizer_RandItems") ~= 0 then
       -- oldItem : CGenericItemEntity
       local newItem = allSpawners[index]:SpawnOne()
       local oldItem = allItems[i]
+      
+      local OOB = oldItem:GetPlacement()
+      OOB.vy = -4000
+      
       newItem:SetPlacement(oldItem:GetPlacement())
-      oldItem:SetPlacement(OOBPlat:GetPlacement())
+      oldItem:SetPlacement(OOB)
     end
   end)
 end
