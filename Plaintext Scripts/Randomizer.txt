@@ -44,7 +44,7 @@ worldGlobals.print = print
 worldGlobals.printWarning = printWarning
 worldGlobals.printError = printError
 
-print("Loaded Randomizer v12.1.0")
+print("Loaded Randomizer v12.2.0")
 
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldInfo)

@@ -82,7 +82,7 @@ else
     
   --[[
     In mobius mode we of course never visit Nexus, so instead we cache
-     the next two worlds with high priority, and then the next 8 with
+     the next two worlds with high priority, and then the next 6 with
      standard
     If you're just looping through worlds I have a feeling it still won't
      keep up, though nothing I can really do about it
@@ -92,7 +92,7 @@ else
     cache(fileNames[nextIndex], true)
     nextIndex = talosProgress:GetCodeValue(shortNames[nextIndex])
     cache(fileNames[nextIndex], true)    
-    for _=1, 8 do
+    for _=1, 6 do
       nextIndex = talosProgress:GetCodeValue(shortNames[nextIndex])
       cache(fileNames[nextIndex], false)
     end
