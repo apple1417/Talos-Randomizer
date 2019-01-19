@@ -44,7 +44,7 @@ worldGlobals.print = print
 worldGlobals.printWarning = printWarning
 worldGlobals.printError = printError
 
-print("Loaded Randomizer v12.2.0")
+print("Loaded Randomizer v12.2.1")
 
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldInfo)
@@ -252,7 +252,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   end
   scavenger = sLengths[scavenger + 1]
   if scavenger ~= "Off" then
-    local sModes = {"Connector Clip", "F2 Clip", "F3 Clip"}
     --[[
       This one's no fun in short, you either need to hope for multiple
        star worlds in first hub or spend forever guessing the code
