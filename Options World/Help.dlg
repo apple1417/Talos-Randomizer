@@ -15,9 +15,9 @@ terminal when (PickLeft) {
     "TTRS:notrans=Show Full Signs" next: AllSigns
     "TTRS:notrans=Random Portals" next: Portals
     "TTRS:notrans=Jetpack" next: Jetpack
-    "TTRS:notrans=Scavenger Hunt" next: Scavenger
+    "TTRS:notrans=Random Extra Sigils" next: ExtraSigils
     "TTRS:notrans=Next Page" next: LoopRight
-    "TTRS:notrans=exit" next: Finished
+    "TTRS:notrans=Exit" next: Finished
   }
 }
 
@@ -25,11 +25,12 @@ terminal when (PickRight) {
   text: [[TTRS:notrans=
 ]]
   options: {
+    "TTRS:notrans=Scavenger Hunt" next: Scavenger
     "TTRS:notrans=Möbius Mode" next: Mobius
     "TTRS:notrans=Moody Sigils" next: Moody
     "TTRS:notrans=Errors" next: Errors
     "TTRS:notrans=Previous Page" next: LoopLeft
-    "TTRS:notrans=exit" next: Finished
+    "TTRS:notrans=Exit" next: Finished
   }
 }
 
@@ -93,13 +94,18 @@ terminal when (Jetpack) {
   goto: LoopLeft
 }
 
+terminal when (ExtraSigils) {
+  text: "TTRS:notrans=Gives you 15 random sigils when you start a run. These are extra sigils, they are not the same as what you'll find in worlds. This does mean that the sigils will not automatically fill arranger hints, they'll only show in any you currently have."
+  goto: LoopLeft
+}
+
 terminal when (Scavenger) {
   text: [[TTRS:notrans=Picks a method to beat the game and hides all sigils not required for it. In the Short mode all these sigils are in your first hub, in Full they can be anywhere.
 
 Forces Open All Worlds on and Show Full Signs off.
 
 Note that this option, like Random Portals, affect seeds. The same seed will give you different sigil arrangements when you toggle this option on and off.]]
-  goto: LoopLeft
+  goto: LoopRight
 }
 
 terminal when (Mobius) {

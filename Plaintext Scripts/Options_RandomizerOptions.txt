@@ -43,7 +43,7 @@ RunHandled(
   function()
     WaitForever()
   end,
-  
+
   OnEvery(Any(Events(Modes.Activated))),
   function(event)
     local index = event.any.signaledIndex
@@ -72,15 +72,15 @@ RunHandled(
       Modes[lastMode]:Deactivate()
       lastMode = 0
       talosProgress:SetVarValue("Randomizer_Mode", 0)
-    end    
+    end
   end,
   OnEvery(Event(NoRandom.Deactivated)),
   function()
     if lastMode == 0 then
       NoRandom:Activate()
-    end    
-  end,  
-  
+    end
+  end,
+
   OnEvery(Event(NoGates.Activated)),
   function()
     talosProgress:SetVar("Randomizer_NoGates")
@@ -94,7 +94,7 @@ RunHandled(
       end
     end
   end,
-  
+
   OnEvery(Event(UnlockItems.Activated)),
   function()
     talosProgress:SetVar("Randomizer_UnlockItems")
@@ -103,7 +103,7 @@ RunHandled(
   function()
     talosProgress:ClearVar("Randomizer_UnlockItems")
   end,
-  
+
   OnEvery(Event(ShowAll.Activated)),
   function()
     talosProgress:SetVar("Randomizer_ShowAll")
@@ -117,7 +117,7 @@ RunHandled(
   function()
     talosProgress:ClearVar("Randomizer_ShowAll")
   end,
-  
+
   OnEvery(Event(Portals.Activated)),
   function()
     talosProgress:SetVar("Randomizer_Portals")
@@ -126,7 +126,7 @@ RunHandled(
   function()
     talosProgress:ClearVar("Randomizer_Portals")
   end,
-  
+
   OnEvery(Event(Jetpack.Activated)),
   function()
     talosProgress:SetVar("Randomizer_Jetpack")
@@ -134,8 +134,17 @@ RunHandled(
   OnEvery(Event(Jetpack.Deactivated)),
   function()
     talosProgress:ClearVar("Randomizer_Jetpack")
-  end,  
-  
+  end,
+
+  OnEvery(Event(ExtraSigils.Activated)),
+  function()
+    talosProgress:SetVar("Randomizer_ExtraSigils")
+  end,
+  OnEvery(Event(ExtraSigils.Deactivated)),
+  function()
+    talosProgress:ClearVar("Randomizer_ExtraSigils")
+  end,
+
   OnEvery(Any(Events(Scavenger.Activated))),
   function(event)
     local index = event.any.signaledIndex
@@ -163,7 +172,7 @@ RunHandled(
       talosProgress:SetVarValue("Randomizer_Scavenger", 0)
     end
   end,
-  
+
   --[[
     These are all additive, so I'm just going to store the state of all
      switches as an int, it's much easier to expand
@@ -177,12 +186,12 @@ RunHandled(
     end
     talosProgress:SetVarValue("Randomizer_Loop", loopVal)
   end,
-  
+
   -- Like Loop these are additive
   OnEvery(Any(Any(Events(Moody.Activated)), Any(Events(Moody.Deactivated)))),
   function(event)
     moodyVal = Moody[1]:IsActivated() + 2*Moody[2]:IsActivated()
-    talosProgress:SetVarValue("Randomizer_Moody", moodyVal)  
+    talosProgress:SetVarValue("Randomizer_Moody", moodyVal)
     --[[
       We only want this to trigger on activation, otherwise, if moody is
        already on, scavenger will deactivate it, and trigger this which in
@@ -194,7 +203,7 @@ RunHandled(
       end
     end
   end,
-  
+
   OnEvery(Event(RandomizeAll.Activated)),
   function()
     RandomizeAll:Deactivate()
@@ -207,7 +216,7 @@ RunHandled(
     -- Same as pressing the random button, can't just do that though
     seed = tostring(mthRndRangeL(0, 999999))
     seedDisplay:SetText(seedPtr, seed, true)
-    talosProgress:SetVarValue("Randomizer_Seed", tonumber(seed))    
+    talosProgress:SetVarValue("Randomizer_Seed", tonumber(seed))
     --[[
       Deactivate all currently selected options to try make it fairer
       Otherwise you can get 'stuck' in scavenger preventing signs from
@@ -239,14 +248,14 @@ RunHandled(
       end
     end
   end,
-  
+
   -- For switches where we want to make it clear that they do nothing
   OnEvery(Any(Events(NoFunction.Activated))),
   function(event)
     local index = event.any.signaledIndex
     NoFunction[index]:Deactivate()
   end,
-  
+
   OnEvery(Any(Events(numbers.Used))),
   function(event)
     local index = event.any.signaledIndex
@@ -290,7 +299,7 @@ RunHandled(
       numberLights[index]:Deactivate()
     end)
   end,
-  
+
   -- The rest of these are basically all the same
   OnEvery(Event(backspace.Used)),
   function()
@@ -316,7 +325,7 @@ RunHandled(
       backspaceLight:Deactivate()
     end)
   end,
-  
+
   OnEvery(Event(clear.Used)),
   function ()
     if seed ~= "Random Seed" then
@@ -335,7 +344,7 @@ RunHandled(
       clearLight:Deactivate()
     end)
   end,
-  
+
   OnEvery(Event(random.Used)),
   function()
     seed = tostring(mthRndRangeL(0, 999999))
