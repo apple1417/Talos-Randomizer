@@ -1,0 +1,46 @@
+Wait(CustomEvent("Randomizer_OptionsConstantsLoaded"))
+local Hints = worldGlobals.Randomizer.Hints
+
+-- talosProgress : CTalosProgress
+local talosProgress = nexGetTalosProgress(worldInfo)
+
+local offset = GreenButtons[1]:GetPlacement():GetVect() - GrayButtons[1]:GetPlacement():GetVect()
+offset = offset / 2
+
+for i=1, #GrayButtons do
+  GrayButtons[i]:EnableUsage()
+end
+
+local currentHints = 0
+RunHandled(WaitForever,
+  OnEvery(Any(Events(GrayButtons.Used))),
+  function(event)
+    local index = event.any.signaledIndex
+    
+    worldGlobals.Randomizer.pressButton(
+      GrayButtons[index], GreenButtons[index],
+      offset, false,
+      function()
+        currentHints = currentHints + Hints.AsArray[index].mask
+        talosProgress:SetVarValue(Hints.talosProgress, currentHints)
+      end
+   )
+  end,
+  OnEvery(Any(Events(GreenButtons.Used))),
+  function(event)
+    local index = event.any.signaledIndex
+    
+    worldGlobals.Randomizer.pressButton(
+      GreenButtons[index], GrayButtons[index],
+      offset, false,
+      function()
+        currentHints = currentHints - Hints.AsArray[index].mask
+        if currentHints == 0 then
+          talosProgress:ClearVar(Hints.talosProgress)
+        else
+          talosProgress:SetVarValue(Hints.talosProgress, currentHints)
+        end
+      end
+   )    
+  end
+)
