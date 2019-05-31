@@ -20,7 +20,7 @@ end
 local talosProgress = nexGetTalosProgress(thisScript)
 local randomSeed = talosProgress:GetCodeValue("PaintItemSeed")
 
-local worldName = string.match(worldGlobals.currentWorld, "([^/]+)%.wld$")
+local worldName = string.match(worldGlobals.Randomizer.currentWorld, "([^/]+)%.wld$")
 if randomSeed < 0 then
   randomSeed = -randomSeed
 end

@@ -12,11 +12,12 @@ for i=1, #GrayButtons do
 end
 
 local currentHints = 0
+talosProgress:SetVarValue(Hints.talosProgress, 0)
 RunHandled(WaitForever,
   OnEvery(Any(Events(GrayButtons.Used))),
   function(event)
     local index = event.any.signaledIndex
-    
+
     worldGlobals.Randomizer.pressButton(
       GrayButtons[index], GreenButtons[index],
       offset, false,
@@ -29,18 +30,14 @@ RunHandled(WaitForever,
   OnEvery(Any(Events(GreenButtons.Used))),
   function(event)
     local index = event.any.signaledIndex
-    
+
     worldGlobals.Randomizer.pressButton(
       GreenButtons[index], GrayButtons[index],
       offset, false,
       function()
         currentHints = currentHints - Hints.AsArray[index].mask
-        if currentHints == 0 then
-          talosProgress:ClearVar(Hints.talosProgress)
-        else
-          talosProgress:SetVarValue(Hints.talosProgress, currentHints)
-        end
+        talosProgress:SetVarValue(Hints.talosProgress, currentHints)
       end
-   )    
+   )
   end
 )

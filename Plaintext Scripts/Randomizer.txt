@@ -6,85 +6,60 @@
    that looks weird
 ]]--
 
---[[
-  The normal print function doesn't output to console in game,
-   only in the editor
-  The con__F() functions don't print a newline, and only accept
-   one argument, so these are just some nice wrappers
-]]--
-local function print(...)
-  local out = ""
-  for i=1,arg.n do
-    out = out .. tostring(arg[i]) .. " "
-  end
-  out = string.sub(out, 1, -2) .. "\n"
-  conInfoF(out)
-end
+Wait(CustomEvent("Randomizer_ConstantsLoaded"))
 
-local function printWarning(...)
-  local out = ""
-  for i=1,arg.n do
-    out = out .. tostring(arg[i]) .. " "
-  end
-  out = string.sub(out, 1, -2) .. "\n"
-  conWarningF(out)
-end
+-- Grab some stuff from worldGlobals
+local Randomizer = worldGlobals.Randomizer
+local print = Randomizer.print
+local printWarning = Randomizer.printWarning
+local printError = Randomizer.printError
 
-local function printError(...)
-  local out = ""
-  for i=1,arg.n do
-    out = out .. tostring(arg[i]) .. " "
-  end
-  out = string.sub(out, 1, -2) .. "\n"
-  conErrorF(out)
-end
-
--- Make them accessable to other scripts
-worldGlobals.print = print
-worldGlobals.printWarning = printWarning
-worldGlobals.printError = printError
-
-print("Loaded Randomizer v12.2.2")
+print("Loaded Randomizer " .. Randomizer.version)
 
 -- talosProgress : CTalosProgress
 local talosProgress = nexGetTalosProgress(worldInfo)
 local PROB_BOTH_HUBS = 25
+local PROB_RAND_ARRANGER = 50
 
 --[[
   Debug mode is kind of hidden, you need to use a command to activate it,
    but everything tends to work now so it doesn't need a switch
 ]]--
-local DEBUG = talosProgress:IsVarSet("Randomizer_Debug")
+local DEBUG = talosProgress:IsVarSet(Randomizer.MiscFlags.debug)
 
 -- Where the magic happens
-if not talosProgress:IsVarSet("Randomizer_Generated") then
+if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
   print("Randomizing...")
 
   --[[
     First make sure that all variables are set to their defaults, so this
      all works properly from a clearTalosProgress()
   ]]--
-  if not talosProgress:IsVarSet("Randomizer_Loop") then
-    talosProgress:SetVarValue("Randomizer_Loop", 0)
+  if not talosProgress:IsVarSet(Randomizer.Mobius.talosProgress) then
+    talosProgress:SetVarValue(Randomizer.Mobius.talosProgress, 0)
   end
-  if not talosProgress:IsVarSet("Randomizer_Moody") then
-    talosProgress:SetVarValue("Randomizer_Moody", 0)
+  if not talosProgress:IsVarSet(Randomizer.Moody.talosProgress) then
+    talosProgress:SetVarValue(Randomizer.Moody.talosProgress, 0)
+  end
+  if not talosProgress:IsVarSet(Randomizer.Scavenger.talosProgress) then
+    talosProgress:SetVarValue(Randomizer.Scavenger.talosProgress, 0)
+  end
+  if not talosProgress:IsVarSet(Randomizer.Hints.talosProgress) then
+    talosProgress:SetVarValue(Randomizer.Hints.talosProgress, 0)
   end
 
-  -- We have to store this as a number, so converted it for readability
-  local randomization_mode = talosProgress:GetCodeValue("Randomizer_Mode")
-  if randomization_mode == -1 then
-    randomization_mode = 1
-    talosProgress:SetVarValue("Randomizer_Mode", 1)
+  local RandomizationMode = talosProgress:GetCodeValue(Randomizer.Modes.talosProgress)
+  if RandomizationMode == -1 then
+    RandomizationMode = Randomizer.Modes.Values.Default.id
+    talosProgress:SetVarValue(Randomizer.Modes.talosProgress, Randomizer.Modes.Values.Default.id)
   end
-  local modes = {"None", "Default", "60fps", "Fully Random", "Intended", "Hardmode", "60FPS Hardmode"}
-  randomization_mode = modes[randomization_mode + 1]
-  print("Using randomization mode: ".. randomization_mode)
+  RandomizationMode = Randomizer.Modes.AsArray[RandomizationMode + 1]
+  print("Using randomization mode: ".. RandomizationMode.name)
 
-  local seed = talosProgress:GetCodeValue("Randomizer_Seed")
+  local seed = talosProgress:GetCodeValue(Randomizer.Seed.talosProgress)
   if seed == -1 then
     seed = mthRndRangeL(0, 2147483647)
-    talosProgress:SetCode("Randomizer_Seed", seed)
+    talosProgress:SetCode(Randomizer.Seed.talosProgress, seed)
   end
   print("Using Seed", seed)
 
@@ -114,7 +89,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   end
   talosProgress:SetVarValue("Code_Floor6", codeF6)
 
-  -- Again we can only save numbers, so this is how tetros are ordered
+  -- We can only save numbers, so this is how tetros are ordered
   local tetroIndexes = {
     ["**1"] =  1, ["**2"] =  2, ["**3"] =  3, ["**4"] =  4, ["**5"] =  5,
     ["**6"] =  6, ["**7"] =  7, ["**8"] =  8, ["**9"] =  9, ["**10"]= 10,
@@ -145,133 +120,50 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   }
 
   --[[
-    More readable names than just the marker names we save them as
-    The sigil names are the same as in MarkerNames.txt, with the
-     world name as a prefix
-    "[World] Star" it has been changed to "[World]-Star"
-    "CM-Star", "F0-Star", and "F3-Star" are the only other exceptions
-  ]]--
-  local translate = {
-    ["A1-PaSL"] = "005_SPM_000_PM_009", ["A1-Beaten Path"] = "107_SPM_000_PM_007", ["A1-Outnumbered"] = "006_SPM_000_PM_003", ["A1-OtToU"] = "011_SPM_000_PM_009", ["A1-ASooR"] = "007_SPM_000_PM_006", ["A1-Trio"] = "012_SPM_000_PM_004", ["A1-Peephole"] = "001_SPM_000_PM_005", ["A1-Star"] = "Cloud_1_02_SRT_SPM_000_PM_016",
-    ["A2-Guards"] = "008_SPM_000_PM_016", ["A2-Hall of Windows"] = "001a_SPM_000_PM_008", ["A2-Suicide Mission"] = "013_SPM_000_PM_006", ["A2-Star"] = "Cloud_1_02_SRT_SPM_001_PM_003",
-    ["A3-Stashed for Later"] = "108_SPM_000_PM_012", ["A3-ABTU"] = "015_SRT_SPM_000_PM_018", ["A3-ABTU Star"] = "015_SRT_SPM_000_PM_017", ["A3-Swallowed the Key"] = "020_SPM_000_PM_014", ["A3-AEP"] = "017_SPM_000_PM_023", ["A3-Clock Star"] = "Cloud_1_03_SRT_SPM_000_PM_005",
-    ["A4-Branch it Out"] = "202c_SPM_000_PM_003", ["A4-Above All That"] = "202f_SPM_000_PM_003", ["A4-Push it Further"] = "202b_SPM_000_PM_004", ["A4-Star"] = "Cloud_1_04_SRT_SPM_000_PM_007", ["A4-DCtS"] = "202d_SPM_000_PM_002",
-    ["A5-Two Boxes"] = "201_SPM_000_PM_013", ["A5-Two Boxes Star"] = "201_SRT_SPM_000_PM_004", ["A5-YKYMCTS"] = "204_SPM_000_PM_004", ["A5-Over the Fence"] = "202e_SPM_000_PM_004", ["A5-OLB"] = "207_SPM_000_PM_005", ["A5-FC"] = "244_SPM_000_PM_008", ["A5-FC Star"] = "244_SRT_SPM_000_PM_006",
-    ["A6-Mobile Mindfield"] = "111_SPM_000_PM_012", ["A6-Deception"] = "210_SPM_000_PM_015", ["A6-Door too Far"] = "218_SPM_000_PM_016", ["A6-Bichromatic"] = "303_SPM_000_PM_010", ["A6-Star"] = "Cloud_1_06_SRT_SPM_000_PM_007",
-    ["A7-LFI"] = "212_SPM_000_PM_017", ["A7-Trapped Inside"] = "305_SPM_000_PM_004", ["A7-Two Buzzers"] = "209_SPM_000_PM_012", ["A7-Star"] = "Cloud_1_07_SRT_SPM_000_PM_021", ["A7-WiaL"] = "220_SPM_000_PM_032", ["A7-Pinhole"] = "211_SPM_000_PM_008",
-    ["A*-JfW"] = "119_SRT_SPM_000_PM_033", ["A*-Nervewrecker"] = "117_SRT_SPM_000_PM_028", ["A*-DDM"] = "115_SRT_TAM_004_PM_016",
-    ["B1-WtaD"] = "203_SPM_000_PM_011", ["B1-Third Wheel"] = "302_SPM_000_PM_008", ["B1-Over the Fence"] = "316_SPM_000_PM_014", ["B1-RoD"] = "319_SPM_000_PM_008", ["B1-SaaS"] = "205_SPM_000_PM_003", ["B1-Star"] = "Cloud_2_01_SRT_SPM_000_PM_004",
-    ["B2-Tomb"] = "213_SPM_000_PM_010", ["B2-Star"] = "Cloud_2_02_SRT_SPM_000_PM_039", ["B2-MotM"] = "221_SPM_002_PM_001", ["B2-Moonshot"] = "223_SPM_000_PM_009", ["B2-Higher Ground"] = "120_SPM_000_PM_029",
-    ["B3-Blown Away"] = "300a_SPM_000_PM_007", ["B3-Star"] = "Cloud_2_03_SRT_SPM_002_PM_013", ["B3-Sunshot"] = "222_SPM_004_PM_001", ["B3-Eagle's Nest"] = "401_SPM_004_PM_008", ["B3-Woosh"] = "409_SPM_000_PM_024",
-    ["B4-Self Help"] = "322_SPM_000_PM_008", ["B4-Double-Plate"] = "321_SPM_000_PM_005", ["B4-TRA"] = "215_SPM_000_PM_013", ["B4-TRA Star"] = "Cloud_2_04_SRT_SPM_000_PM_017", ["B4-RPS"] = "407_SPM_000_PM_018", ["B4-ABUH"] = "310_SPM_000_PM_024", ["B4-WAtC"] = "414_SPM_000_PM_007", ["B4-Sphinx Star"] = "Cloud_2_04_SRT_SPM_002_PM_002",
-    ["B5-SES"] = "314_SPM_000_PM_012", ["B5-Plates"] = "238_SPM_000_PM_018", ["B5-Two Jammers"] = "239_SPM_000_PM_018", ["B5-Iron Curtain"] = "311_SPM_000_PM_041", ["B5-Chambers"] = "315_TAM_002_PM_001", ["B5-Obelisk Star"] = "Cloud_2_05_SRT_TAM_003_PM_003",
-    ["B6-Crisscross"] = "208_SPM_000_PM_014", ["B6-JDaW"] = "206_SPM_000_PM_021", ["B6-Egyptian Arcade"] = "113_SPM_000_PM_036",
-    ["B7-AFaF"] = "224_SRT_SPM_000_PM_071", ["B7-WLJ"] = "118_SPM_000_PM_062", ["B7-BSbS"] = "301_SPM_000_PM_010", ["B7-BSbS Star"] = "224_SRT_SPM_000_PM_091", ["B7-BLoM"] = "402_SPM_000_PM_020", ["B7-Star"] = "Cloud_2_07_SRT_TAM_001_PM_004",
-    ["B*-Merry Go Round"] = "214_SRT_SPM_000_PM_025", ["B*-Cat's Cradle"] = "306_SRT_SPM_000_PM_016", ["B*-Peekaboo"] = "411_SRT_SPM_000_PM_014",
-    ["C1-Conservatory"] = "219_SPM_000_PM_008", ["C1-MIA"] = "416_SPM_000_PM_026", ["C1-Labyrinth"] = "114_SPM_000_PM_032", ["C1-Blowback"] = "312_SPM_000_PM_032", ["C1-Star"] = "Cloud_3_01_SRT_SPM_000_PM_017",
-    ["C2-ADaaF"] = "403_SPM_000_PM_015", ["C2-Star"] = "Cloud_3_02_SRT_TAM_001", ["C2-Rapunzel"] = "417_SPM_000_PM_029", ["C2-Cemetery"] = "217_SPM_000_PM_040", ["C2-Short Wall"] = "418_SPM_000_PM_014",
-    ["C3-Three Connectors"] = "225_SPM_000_PM_044", ["C3-Jammer Quarantine"] = "317_SPM_000_PM_024", ["C3-BSLS"] = "229_SPM_000_PM_070", ["C3-Weathertop"] = "318_SPM_000_PM_026", ["C3-Star"] = "Cloud_3_03_SRT_SPM_000_PM_069",
-    ["C4-Armory"] = "313_SPM_000_PM_016", ["C4-Oubliette"] = "405_SRT_SPM_000_PM_050", ["C4-Oubliette Star"] = "405_SRT_SPM_000_PM_047", ["C4-Stables"] = "216_SPM_000_PM_015", ["C4-Throne Room"] = "408_SPM_000_PM_033", ["C4-Throne Room Star"] = "408_SRT_SPM_000_PM_034",
-    ["C5-Time Flies"] = "328_SPM_000_PM_016", ["C5-Time Flies Star"] = "Cloud_3_05_SRT_SPM_003_PM_012", ["C5-Time Crawls"] = "232_SPM_000_PM_012", ["C5-Dumbwaiter"] = "309_SPM_000_PM_018", ["C5-Dumbwaiter Star"] = "Cloud_3_05_SRT_SPM_002_PM_016", ["C5-UCaJ"] = "404_SPM_000_PM_022", ["C5-UCAJ Star"] = "Cloud_3_05_SRT_SPM_000_PM_035",
-    ["C6-Seven Doors"] = "234_SPM_000_PM_015", ["C6-Star"] = "Cloud_3_06_SRT_SPM_000_PM_008", ["C6-Circumlocution"] = "226_SPM_000_PM_039", ["C6-Two Way Street"] = "112_SPM_000_PM_034",
-    ["C7-Carrier Pigeons"] = "230_SPM_000_PM_019", ["C7-DMS"] = "308_SPM_000_PM_017", ["C7-Star"] = "Cloud_3_07_SRT_SPM_000_PM_021", ["C7-Prison Break"] = "227_SPM_002_PM_033", ["C7-Crisscross"] = "233_SPM_000_PM_015",
-    ["C*-Unreachable Garden"] = "235_SRT_SPM_000_PM_037", ["C*-Nexus"] = "320_SRT_SPM_000_PM_046", ["C*-Cobweb"] = "504_SRT_SPM_000_PM_021",
-    ["CM-Star"] = "Islands_01_SRT_SPM_000_PM_003", ["F0-Star"] = "Secret_28_SRT_SPM_000_PM_004", ["F3-Star"] = "LeapOfFaith_PM_010"
-  }
-
-  --[[
-    The sigils are ordered here according to the numbering of sigil
-     from earlier and the levels those sigils are normally in
-    The first item in this list corosponds with the sigil with id 1,
-     "**1" or ABTU Star
-  ]]--
-  local markers = {
-    "A3-ABTU Star", "A2-Star", "A3-Clock Star", "A4-Star", "A1-Star",
-    "A5-FC Star", "A5-Two Boxes Star", "A6-Star", "A7-Star", "B1-Star",
-    "B2-Star", "B3-Star", "B4-TRA Star", "B5-Obelisk Star", "B7-Star",
-    "B7-BSbS Star", "C1-Star", "C2-Star", "C3-Star", "C4-Oubliette Star",
-    "C4-Throne Room Star", "C5-Dumbwaiter Star", "C5-Time Flies Star", "B4-Sphinx Star", "F3-Star",
-    "CM-Star", "C5-UCAJ Star", "F0-Star", "C6-Star", "C7-Star",
-    "A1-PaSL", "A5-Two Boxes", "A1-Beaten Path", "A1-Outnumbered", "A1-OtToU",
-    "B4-Self Help", "B5-SES", "A2-Guards", "A5-YKYMCTS", "A7-LFI",
-    "A5-Over the Fence", "A5-OLB", "A7-Trapped Inside", "B4-Double-Plate", "A1-ASooR",
-    "A2-Hall of Windows", "A3-Stashed for Later", "A6-Mobile Mindfield", "A*-JfW", "B*-Merry Go Round",
-    "B*-Peekaboo", "C*-Unreachable Garden", "C*-Nexus", "A*-Nervewrecker", "B*-Cat's Cradle",
-    "A*-DDM", "C*-Cobweb", "B7-BSbS", "B3-Blown Away", "A1-Trio",
-    "A2-Suicide Mission", "B1-WtaD", "B6-Crisscross", "B7-BLoM", "B1-Third Wheel",
-    "B2-Tomb", "A1-Peephole", "A3-ABTU", "A3-Swallowed the Key", "A4-Branch it Out",
-    "A4-Above All That", "B1-Over the Fence", "B1-RoD", "B2-MotM", "B3-Sunshot",
-    "B6-JDaW", "A4-Push it Further", "A4-DCtS", "B1-SaaS", "B2-Moonshot",
-    "B5-Plates", "B6-Egyptian Arcade", "B7-AFaF", "C1-Conservatory", "C4-Armory",
-    "C5-Time Flies", "B7-WLJ", "C1-MIA", "C3-Jammer Quarantine", "C6-Circumlocution",
-    "A3-AEP", "A6-Deception", "A6-Door too Far", "A7-Two Buzzers", "B2-Higher Ground",
-    "B3-Eagle's Nest", "B4-ABUH", "B4-WAtC", "B5-Two Jammers", "C7-DMS",
-    "A7-WiaL", "C2-ADaaF", "C3-Three Connectors", "C5-Time Crawls", "C5-Dumbwaiter",
-    "C6-Seven Doors", "C7-Carrier Pigeons", "B5-Iron Curtain", "C2-Rapunzel", "C4-Oubliette",
-    "C6-Two Way Street", "A7-Pinhole", "B3-Woosh", "B4-TRA", "B4-RPS",
-    "C1-Labyrinth", "C2-Cemetery", "C3-BSLS", "C4-Stables", "C4-Throne Room",
-    "C5-UCaJ", "C7-Prison Break", "C7-Crisscross", "A5-FC", "A6-Bichromatic",
-    "B5-Chambers", "C1-Blowback", "C2-Short Wall", "C3-Weathertop"
-  }
-
-  --[[
     This list has two purposes:
      1. Hold the sigils for each arranger
      2. Let the marker unlocking that happens later check what's unlocked
-    #2 is the reason for the weird name
+    #2 is the reason for the "weird" name
   ]]--
-  local locked = {
-    ["A1 Gate"] = {}, -- All the greens get set later, as we need to
-    ["A Gate"] = {}, --   lock parts of them to make sure you can't
-    ["B Gate"] = {}, --   enter the wrong hub and softlock, but which
-    ["C Gate"] = {}, --   parts depends on the starting hub
-    ["A Star"] = {"**1", "**2", "**3", "**4", "**5", "**6", "**7", "**8", "**9", "**10"},
-    ["B Star"] = {"**11", "**12", "**13", "**14", "**15", "**16", "**17", "**18", "**19", "**20"},
-    ["C Star"] = {"**21", "**22", "**23", "**24", "**25", "**26", "**27", "**28", "**29", "**30"},
-    ["Connector"] = {"ML1", "MT1", "MT2"},
-    ["Cube"] = {"ML2", "MT3", "MT4", "MZ1"},
-    ["Fan"] = {"ML3", "MS1", "MT5", "MT6", "MZ2"},
-    ["Recorder"] = {"MJ1", "MS2", "MT7", "MT8", "MZ3"},
-    ["Platform"] = {"MI1", "ML4", "MO1", "MT9", "MT10", "MZ4"},
-    ["F1"] = {"NL1", "NL2", "NZ1", "NZ2"},
-    ["F2"] = {"NL3", "NL4", "NL5", "NL6", "NO1", "NT1", "NT2", "NT3", "NT4"},
-    ["F3"] = {"NI1", "NI2", "NI3", "NI4", "NJ1", "NJ2", "NL7", "NL8", "NS1", "NZ3"},
-    ["F4"] = {"NJ3", "NL9", "NO2", "NO3", "NS2", "NS3", "NT5", "NT6", "NT7", "NT8", "NZ4", "NZ5"},
-    ["F5"] = {"NI5", "NI6", "NJ4", "NL10", "NO4", "NO5", "NO6", "NO7", "NS4", "NT9", "NT10", "NT11", "NT12", "NZ6"},
-    ["F6"] = {"EL1", "EL2", "EL3", "EL4", "EO1", "ES1", "ES2", "ES3", "ES4"}
-  }
+  local locked = {}
+  for key, Arranger in pairs(Randomizer.Arrangers) do
+    locked[key] = Arranger.Sigils
+  end
+  --[[
+    All the greens get set later, as we need to lock parts of them to make sure you can't
+     enter the wrong hub and softlock, but which parts depends on the starting hub
+  ]]--
+  locked.A1Gate = {}
+  locked.AGate = {}
+  locked.BGate = {}
+  locked.CGate = {}
 
   -- If scavenger hunt mode is on decide what ending we're doing
-  local scavenger = talosProgress:GetCodeValue("Randomizer_Scavenger")
-  local scavengerEnding = ""
-  local sLengths = {"Off", "Short", "Full"}
-  local sEndings = {"Connector Clip", "F2 Clip", "F3 Clip"}
-  if scavenger == -1 then
-    scavenger = 0
-    talosProgress:SetVarValue("Randomizer_Scavenger", 0)
-  end
-  scavenger = sLengths[scavenger + 1]
-  if scavenger ~= "Off" then
+  local Scavenger = talosProgress:GetCodeValue(Randomizer.Scavenger.talosProgress)
+  Scavenger = Randomizer.Scavenger.AsArray[Scavenger + 1]
+  local ScavengerEnding = nil
+  if Scavenger ~= Randomizer.Scavenger.Values.Off then
     --[[
-      This one's no fun in short, you either need to hope for multiple
+      F6 is no fun in short, you either need to hope for multiple
        star worlds in first hub or spend forever guessing the code
     ]]--
-    if scavenger == "Full" then
-      table.insert(sEndings, "F1+F6")
+    local maxEnding = 3
+    if Scavenger == Randomizer.Scavenger.Values.Full then
+      maxEnding = 4
     end
-    scavengerEnding = rand(1, #sEndings)
-    talosProgress:SetVarValue("Randomizer_ScavengerMode", scavengerEnding)
-    scavengerEnding = sEndings[scavengerEnding]
+    ScavengerEnding = rand(1, maxEnding)
+    talosProgress:SetVarValue(Randomizer.Scavenger.Endings.talosProgress, ScavengerEnding)
+    ScavengerEnding = Randomizer.Scavenger.Endings.AsArray[ScavengerEnding]
 
     -- The only one you can actually do intended
-    if randomization_mode == "Intended" then
-      scavengerEnding = "F1+F6"
-      talosProgress:SetVarValue("Randomizer_ScavengerMode", 4)
+    if RandomizationMode == Randomizer.Modes.Values.Intended then
+      ScavengerEnding = Randomizer.Scavenger.Endings.Values.F6
+      talosProgress:SetVarValue(Randomizer.Scavenger.Endings.talosProgress, ScavengerEnding.id)
     end
 
     if DEBUG then
-      print("Using scavenger hunt mode: " .. scavenger)
-      print("Using scavenger hunt ending: " .. scavengerEnding)
+      print("Using scavenger hunt mode: " .. Scavenger.name)
+      print("Using scavenger hunt ending: " .. ScavengerEnding.name)
     end
   end
 
@@ -282,20 +174,27 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
      markers properly
   ]]--
   local portalOrder = {
-    "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "ADevIsland",
-    "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
-    "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "CMessenger"
+    Randomizer.Puzzles.A1, Randomizer.Puzzles.A2, Randomizer.Puzzles.A3,
+    Randomizer.Puzzles.A4, Randomizer.Puzzles.A5, Randomizer.Puzzles.A6,
+    Randomizer.Puzzles.A7, Randomizer.Puzzles.AStar, Randomizer.Puzzles.ADev,
+    Randomizer.Puzzles.B1, Randomizer.Puzzles.B2, Randomizer.Puzzles.B3,
+    Randomizer.Puzzles.B4, Randomizer.Puzzles.B5, Randomizer.Puzzles.B6,
+    Randomizer.Puzzles.B7, Randomizer.Puzzles.BStar, Randomizer.Puzzles.C1,
+    Randomizer.Puzzles.C2, Randomizer.Puzzles.C3, Randomizer.Puzzles.C4,
+    Randomizer.Puzzles.C5, Randomizer.Puzzles.C6, Randomizer.Puzzles.C7,
+    Randomizer.Puzzles.CStar, Randomizer.Puzzles.CMessenger
   }
-  -- We need a copy of this list in the right order, hard-coding it is quicker
-  local portalIndexes = {
-    "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "ADevIsland",
-    "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
-    "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "CMessenger"
-  }
-  local startHub = "A"
-  local loop = talosProgress:GetCodeValue("Randomizer_Loop")
-  local portals = talosProgress:IsVarSet("Randomizer_Portals")
-  if loop ~= 0 then
+  local portalIndexes = {}
+  -- We need two lists so that we can compare the randomized one to the intial order
+  for i = 1, #portalOrder do
+      table.insert(portalIndexes, portalOrder[i])
+  end
+
+  local startHub = Randomizer.Hub.A
+  local Mobius = talosProgress:GetCodeValue(Randomizer.Mobius.talosProgress)
+  Mobius = Randomizer.getAllBits(Mobius, Randomizer.Mobius)
+  local portals = talosProgress:IsVarSet(Randomizer.MiscOptions.Values.Portals.talosProgress)
+  if #Mobius ~= 0 then
     if DEBUG then
       print("Möbius mode is on")
     end
@@ -305,8 +204,9 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         portalOrder[index], portalOrder[otherIndex] = portalOrder[otherIndex], portalOrder[index]
       end
     else
+      -- Move C Messenger to the start of the list
       table.remove(portalOrder)
-      table.insert(portalOrder, 1, "CMessenger")
+      table.insert(portalOrder, 1, Randomizer.Puzzles.CMessenger)
     end
   elseif portals then
     if DEBUG then
@@ -329,23 +229,24 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       Short scavenger limits you to one hub so it just kind of
        sucks making you walk to another to get items
     ]]--
-    if randomization_mode == "Intended" or scavenger == "Short" then
+    if RandomizationMode == Randomizer.Modes.Values.Intended
+        or Scavenger == Randomizer.Scavenger.Values.Short then
       index = rand(1, 8)
     end
     if index < 8 then
-      startHub = "A"
+      startHub = Randomizer.Hub.A
     elseif index == 8 then
       index = 9
-      startHub = "A"
+      startHub = Randomizer.Hub.A
     elseif 9 <= index and index < 16 then
       index = index + 1
-      startHub = "B"
+      startHub = Randomizer.Hub.B
     elseif 16 <= index then
       index = index + 2
-      startHub = "C"
+      startHub = Randomizer.Hub.V
     end
     if DEBUG then
-      print("Starting in " .. startHub)
+      print("Starting in " .. startHub.name)
     end
     portalOrder[1], portalOrder[index] = portalOrder[index], portalOrder[1]
   end
@@ -359,23 +260,23 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
   local WorldBNames = {}
   local WorldCNames = {}
   for index=1, #portalOrder do
-    local name = portalOrder[index]
+    local name = portalOrder[index].talosProgress
     if DEBUG and portals then
-      if loop ~= 0 then
-        printWarning(string.format("Portal leaving %s is %s", name, portalIndexes[index]))
-      else
-        printWarning(string.format("Portal marker %s is %s", portalIndexes[index], name))
+      if #Mobius == 0 then
+        printWarning(string.format("Portal marker %s is %s", portalIndexes[index].talosProgress, string.sub(name, 1, 2)))
+       else
+        printWarning(string.format("Portal leaving %s is %s", string.sub(name, 1, 2), portalIndexes[index].talosProgress))
       end
     end
     talosProgress:SetVarValue(name, index)
     -- These lists help us avoid instantly clogging the marker list
-    local placedName = portalIndexes[index]
+    local placedName = portalIndexes[index].talosProgress
     if string.sub(placedName, 1, 1) == "A" then
-      WorldANames[name] = true
+      WorldANames[portalOrder[index]] = true
     elseif string.sub(placedName, 1, 1) == "B" then
-      WorldBNames[name] = true
+      WorldBNames[portalOrder[index]] = true
     elseif string.sub(placedName, 1, 1) == "C" then
-      WorldCNames[name] = true
+      WorldCNames[portalOrder[index]] = true
     end
   end
 
@@ -384,17 +285,22 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     This does not necessarily  mean a set of markers will unlock
   ]]--
   local function isWorldOpen(world)
-    if world == "A1" then return true end
+    if world == Randomizer.Puzzles.A1 then return true end
     -- An empty list still evaluates to true
-    if randomization_mode == "Intended" and locked["A1 Gate"] then return false end
+    if RandomizationMode == Randomizer.Modes.Values.Intended
+        and locked.A1Gate then
+      return false
+    end
     -- Full Scavenger and Mobius force all worlds open
-    if scavenger == "Full" or loop ~= 0 then return true end
+    if Scavenger == Randomizer.Scavenger.Values.Full or #Mobius ~= 0 then
+      return true
+    end
 
     local starOverride = true
-    local num = talosProgress:GetCodeValue(world)
+    local num = talosProgress:GetCodeValue(world.talosProgress)
     -- Is this a star world?
     if num == 8 or num == 17 or num == 25 then
-      starOverride = not (locked["A Star"] or locked["B Star"] or locked["C Star"])
+      starOverride = not (locked.AStar or locked.BStar or locked.CStar)
     end
 
     return starOverride and open[world]
@@ -410,745 +316,1107 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
      always be checked, otherwise we can save some iterations and
      add it later, when it's actually unlocked
   ]]--
-  if randomization_mode == "Default" then
+  local markers = Randomizer.Puzzles.AsArray
+  if RandomizationMode == Randomizer.Modes.Values.Default then
     markers = {
-      {function() return isWorldOpen("A1") end, {
-        "A1-Peephole", "A1-PaSL", "A1-Outnumbered", "A1-ASooR",
-        "A1-OtToU", "A1-Trio", "A1-Beaten Path", "A1-Star"
+      {function() return true end, {
+        Randomizer.Puzzles.A1.PaSL,
+        Randomizer.Puzzles.A1.StBP,
+        Randomizer.Puzzles.A1.Outnumbered,
+        Randomizer.Puzzles.A1.OtToU,
+        Randomizer.Puzzles.A1.ASOoR,
+        Randomizer.Puzzles.A1.Trio,
+        Randomizer.Puzzles.A1.Peephole,
+        Randomizer.Puzzles.A1.Star
       }},
-      {function() return isWorldOpen("A2") end, {
-        "A2-Hall of Windows", "A2-Guards", "A2-Suicide Mission", "A2-Star"
-      }, "A2"},
-      {function() return isWorldOpen("A3") end, {
-        "A3-ABTU Star", "A3-ABTU", "A3-AEP", "A3-Swallowed the Key",
-        "A3-Stashed for Later", "A3-Clock Star"
-      }, "A3"},
-      {function() return isWorldOpen("A4") end, {
-        "A4-Push it Further", "A4-Branch it Out", "A4-Above All That", "A4-Star"
-      }, "A4"},
-      {function() return isWorldOpen("A4") and not locked["Connector"] end, {
-        "A4-DCtS"
-      }, "A4"},
-      {function() return isWorldOpen("A5") end, {
-        "A5-Two Boxes", "A5-Two Boxes Star", "A5-Over the Fence", "A5-YKYMCTS",
-        "A5-OLB", "A5-FC", "A5-FC Star",
-      }, "A5"},
-      {function() return isWorldOpen("A6") end, {
-        "A6-Mobile Mindfield", "A6-Deception", "A6-Door too Far", "A6-Bichromatic",
-        "A6-Star"
-      }, "A6"},
-      {function() return isWorldOpen("A7") end, {
-        "A7-Two Buzzers", "A7-Pinhole", "A7-LFI", "A7-WiaL",
-        "A7-Trapped Inside", "A7-Star"
-      }, "A7"},
-      {function() return isWorldOpen("A8") end, {
-        "A*-DDM", "A*-Nervewrecker", "A*-JfW"
-      }, "A8"},
-      {function() return isWorldOpen("B1") end, {
-        "B1-SaaS", "B1-WtaD", "B1-Third Wheel", "B1-Over the Fence",
-        "B1-RoD", "B1-Star"
-      }, "B1"},
-      {function() return isWorldOpen("B2") end, {
-        "B2-Higher Ground", "B2-Tomb", "B2-MotM", "B2-Moonshot",
-        "B2-Star"
-      }, "B2"},
-      {function() return isWorldOpen("B3") end, {
-        "B3-Sunshot", "B3-Blown Away", "B3-Eagle's Nest", "B3-Woosh",
-        "B3-Star"
-      }, "B3"},
-      {function() return isWorldOpen("B4") end, {
-        "B4-TRA", "B4-ABUH", "B4-Double-Plate", "B4-Self Help",
-        "B4-RPS", "B4-WAtC", "B4-TRA Star"
-      }, "B4"},
-      {function() return isWorldOpen("B4") and not locked["Connector"] end, {
-        "B4-Sphinx Star"
-      }, "B4"},
-      {function() return isWorldOpen("B5") end, {
-        "B5-Plates", "B5-Two Jammers", "B5-Iron Curtain", "B5-SES",
-        "B5-Chambers"
-      }, "B5"},
-      {function() return isWorldOpen("B5") and ((not locked["Connector"] and not locked["Fan"]) or not locked["Cube"]) end, {
-        "B5-Obelisk Star"
-      }, "B5"},
-      {function() return isWorldOpen("B6") end, {
-        "B6-Egyptian Arcade", "B6-JDaW", "B6-Crisscross"
-      }, "B6"},
-      {function() return isWorldOpen("B7") end, {
-        "B7-WLJ", "B7-AFaF", "B7-BSbS Star", "B7-BSbS",
-        "B7-BLoM"
-      }, "B7"},
-      {function() return isWorldOpen("B7") and not locked["Fan"] end, {
-        "B7-Star"
-      }, "B7"},
-      {function() return isWorldOpen("B8") end, {
-        "B*-Merry Go Round", "B*-Cat's Cradle", "B*-Peekaboo"
-      }, "B8"},
-      {function() return isWorldOpen("C1") end, {
-        "C1-Labyrinth", "C1-Conservatory", "C1-Blowback", "C1-Star"
-      }, "C1"},
-      {function() return isWorldOpen("C1") and not locked["Cube"] end, {
-        "C1-MIA"
-      }, "C1"},
-      {function() return isWorldOpen("C2") end, {
-        "C2-Cemetery", "C2-ADaaF", "C2-Rapunzel", "C2-Short Wall",
-        "C2-Star"
-      }, "C2"},
-      {function() return isWorldOpen("C3") end, {
-        "C3-Three Connectors", "C3-BSLS", "C3-Jammer Quarantine", "C3-Weathertop",
-        "C3-Star"
-      }, "C3"},
-      {function() return isWorldOpen("C4") end, {
-        "C4-Stables", "C4-Armory", "C4-Oubliette Star", "C4-Oubliette",
-        "C4-Throne Room Star"
-      }, "C4"},
-      {function() return isWorldOpen("C4") and not locked["Cube"] end, {
-        "C4-Throne Room"
-      }, "C4"},
-      {function() return isWorldOpen("C5") end, {
-        "C5-Time Crawls", "C5-Dumbwaiter", "C5-Time Flies", "C5-UCaJ",
-        "C5-Time Flies Star"
-      }, "C5"},
-      {function() return isWorldOpen("C5") and not locked["Cube"] end, {
-        "C5-UCAJ Star", "C5-Dumbwaiter Star"
-      }, "C5"},
-      {function() return isWorldOpen("C6") end, {
-        "C6-Two Way Street", "C6-Circumlocution", "C6-Seven Doors", "C6-Star"
-      }, "C6"},
-      {function() return isWorldOpen("C7") end, {
-        "C7-Prison Break", "C7-Carrier Pigeons", "C7-Crisscross", "C7-DMS",
-        "C7-Star"
-      }, "C7"},
-      {function() return isWorldOpen("C8") end, {
-        "C*-Nexus"
-      }, "C8"},
-      {function() return isWorldOpen("C8") and (not locked["Connector"] or not locked["Cube"]) end, {
-        "C*-Cobweb", "C*-Unreachable Garden"
-      }, "C8"},
-      {function() return isWorldOpen("CMessenger") end, {
-        "CM-Star"
-      }, "CMessenger"},
-      {function() return not locked["F1"] and (not locked["Connector"] or not locked["F3"]) end, {
-        "F0-Star"
+      {function() return isWorldOpen(Randomizer.Puzzles.A2) end, {
+        Randomizer.Puzzles.A2.Guards,
+        Randomizer.Puzzles.A2.HoW,
+        Randomizer.Puzzles.A2.SM,
+        Randomizer.Puzzles.A2.Star
+      }, Randomizer.Puzzles.A2},
+      {function() return isWorldOpen(Randomizer.Puzzles.A3) end, {
+        Randomizer.Puzzles.A3.ABTUStar,
+        Randomizer.Puzzles.A3.ABTU,
+        Randomizer.Puzzles.A3.AEP,
+        Randomizer.Puzzles.A3.LMUStK,
+        Randomizer.Puzzles.A3.SfL,
+        Randomizer.Puzzles.A3.Clock
+      }, Randomizer.Puzzles.A3},
+      {function() return isWorldOpen(Randomizer.Puzzles.A4) end, {
+        Randomizer.Puzzles.A4.PiF,
+        Randomizer.Puzzles.A4.BiO,
+        Randomizer.Puzzles.A4.AAT,
+        Randomizer.Puzzles.A4.Star
+      }, Randomizer.Puzzles.A4},
+      {function() return isWorldOpen(Randomizer.Puzzles.A4) and not locked.Connector end, {
+        Randomizer.Puzzles.A4.DCtS
+      }, Randomizer.Puzzles.A4},
+      {function() return isWorldOpen(Randomizer.Puzzles.A5) end, {
+        Randomizer.Puzzles.A5.TwoBoxes,
+        Randomizer.Puzzles.A5.TwoBoxesStar,
+        Randomizer.Puzzles.A5.GOtF,
+        Randomizer.Puzzles.A5.YKYMCtS,
+        Randomizer.Puzzles.A5.OLB,
+        Randomizer.Puzzles.A5.FC,
+        Randomizer.Puzzles.A5.FCStar
+      }, Randomizer.Puzzles.A5},
+      {function() return isWorldOpen(Randomizer.Puzzles.A6) end, {
+        Randomizer.Puzzles.A6.Mindfield,
+        Randomizer.Puzzles.A6.Deception,
+        Randomizer.Puzzles.A6.ADTF,
+        Randomizer.Puzzles.A6.Bichromatic,
+        Randomizer.Puzzles.A6.Star
+      }, Randomizer.Puzzles.A6},
+      {function() return isWorldOpen(Randomizer.Puzzles.A7) end, {
+        Randomizer.Puzzles.A7.TPLB,
+        Randomizer.Puzzles.A7.PW,
+        Randomizer.Puzzles.A7.LfI,
+        Randomizer.Puzzles.A7.WiaL,
+        Randomizer.Puzzles.A7.TI,
+        Randomizer.Puzzles.A7.Star
+      }, Randomizer.Puzzles.A7},
+      {function() return isWorldOpen(Randomizer.Puzzles.AStar) end, {
+        Randomizer.Puzzles.AStar.DDM,
+        Randomizer.Puzzles.AStar.NW,
+        Randomizer.Puzzles.AStar.JfW
+      }, Randomizer.Puzzles.AStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.B1) end, {
+        Randomizer.Puzzles.B1.SaaS,
+        Randomizer.Puzzles.B1.WtaD,
+        Randomizer.Puzzles.B1.TW,
+        Randomizer.Puzzles.B1.OtF,
+        Randomizer.Puzzles.B1.RoD,
+        Randomizer.Puzzles.B1.Star
+      }, Randomizer.Puzzles.B1},
+      {function() return isWorldOpen(Randomizer.Puzzles.B2) end, {
+        Randomizer.Puzzles.B2.HG,
+        Randomizer.Puzzles.B2.Tomb,
+        Randomizer.Puzzles.B2.MoTM,
+        Randomizer.Puzzles.B2.Moonshot,
+        Randomizer.Puzzles.B2.Star
+      }, Randomizer.Puzzles.B2},
+      {function() return isWorldOpen(Randomizer.Puzzles.B3) end, {
+        Randomizer.Puzzles.B3.Sunshot,
+        Randomizer.Puzzles.B3.BA,
+        Randomizer.Puzzles.B3.EN,
+        Randomizer.Puzzles.B3.Whoosh,
+        Randomizer.Puzzles.B3.Star
+      }, Randomizer.Puzzles.B3},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) end, {
+        Randomizer.Puzzles.B4.TRA,
+        Randomizer.Puzzles.B4.ABUH,
+        Randomizer.Puzzles.B4.DP,
+        Randomizer.Puzzles.B4.SHT,
+        Randomizer.Puzzles.B4.RPS,
+        Randomizer.Puzzles.B4.WAtC,
+        Randomizer.Puzzles.B4.TRAStar
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and not locked.Connector end, {
+        Randomizer.Puzzles.B4.Sphinx
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B5) end, {
+        Randomizer.Puzzles.B5.Plates,
+        Randomizer.Puzzles.B5.MMaOTJ,
+        Randomizer.Puzzles.B5.BtIC,
+        Randomizer.Puzzles.B5.SES,
+        Randomizer.Puzzles.B5.Chambers
+      }, Randomizer.Puzzles.B5},
+      {function() return isWorldOpen(Randomizer.Puzzles.B5) and ((not locked.Connector and not locked.Fan) or not locked.Cube) end, {
+        Randomizer.Puzzles.B5.Obelisk
+      }, Randomizer.Puzzles.B5},
+      {function() return isWorldOpen(Randomizer.Puzzles.B6) end, {
+        Randomizer.Puzzles.B6.EA,
+        Randomizer.Puzzles.B6.JDaW,
+        Randomizer.Puzzles.B6.Crisscross
+      }, Randomizer.Puzzles.B6},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) end, {
+        Randomizer.Puzzles.B7.WLJ,
+        Randomizer.Puzzles.B7.AFaF,
+        Randomizer.Puzzles.B7.BSbSStar,
+        Randomizer.Puzzles.B7.BSbS,
+        Randomizer.Puzzles.B7.BLoM
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) and not locked.Fan end, {
+        Randomizer.Puzzles.B7.Pyramid
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.BStar) end, {
+        Randomizer.Puzzles.BStar.MGR,
+        Randomizer.Puzzles.BStar.CC,
+        Randomizer.Puzzles.BStar.Peekaboo
+      }, Randomizer.Puzzles.BStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.C1) end, {
+        Randomizer.Puzzles.C1.Labyrinth,
+        Randomizer.Puzzles.C1.Conservatory,
+        Randomizer.Puzzles.C1.Blowback,
+        Randomizer.Puzzles.C1.Star
+      }, Randomizer.Puzzles.C1},
+      {function() return isWorldOpen(Randomizer.Puzzles.C1) and not locked.Cube end, {
+        Randomizer.Puzzles.C1.MIA
+      }, Randomizer.Puzzles.C1},
+      {function() return isWorldOpen(Randomizer.Puzzles.C2) end, {
+        Randomizer.Puzzles.C2.Cemetery,
+        Randomizer.Puzzles.C2.ADaaF,
+        Randomizer.Puzzles.C2.Rapunzel,
+        Randomizer.Puzzles.C2.TSW,
+        Randomizer.Puzzles.C2.Star
+      }, Randomizer.Puzzles.C2},
+      {function() return isWorldOpen(Randomizer.Puzzles.C3) end, {
+        Randomizer.Puzzles.C3.TLCaaF,
+        Randomizer.Puzzles.C3.BSLS,
+        Randomizer.Puzzles.C3.JQ,
+        Randomizer.Puzzles.C3.Weathertop,
+        Randomizer.Puzzles.C3.Star
+      }, Randomizer.Puzzles.C3},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) end, {
+        Randomizer.Puzzles.C4.Stables,
+        Randomizer.Puzzles.C4.Armory,
+        Randomizer.Puzzles.C4.OublietteStar,
+        Randomizer.Puzzles.C4.Oubliette,
+        Randomizer.Puzzles.C4.ThroneRoomStar
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) and not locked.Cube end, {
+        Randomizer.Puzzles.C4.ThroneRoom
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C5) end, {
+        Randomizer.Puzzles.C5.TimeCrawls,
+        Randomizer.Puzzles.C5.Dumbwaiter,
+        Randomizer.Puzzles.C5.TimeFlies,
+        Randomizer.Puzzles.C5.UCaJ,
+        Randomizer.Puzzles.C5.TFStar
+      }, Randomizer.Puzzles.C5},
+      {function() return isWorldOpen(Randomizer.Puzzles.C5) and not locked.Cube end, {
+        Randomizer.Puzzles.C5.UCaJStar,
+        Randomizer.Puzzles.C5.DumbwaiterStar
+      }, Randomizer.Puzzles.C5},
+      {function() return isWorldOpen(Randomizer.Puzzles.C6) end, {
+        Randomizer.Puzzles.C6.TWS,
+        Randomizer.Puzzles.C6.Circumlocution,
+        Randomizer.Puzzles.C6.TSDoR,
+        Randomizer.Puzzles.C6.Star
+      }, Randomizer.Puzzles.C6},
+      {function() return isWorldOpen(Randomizer.Puzzles.C7) end, {
+        Randomizer.Puzzles.C7.PB,
+        Randomizer.Puzzles.C7.CP,
+        Randomizer.Puzzles.C7.CCA,
+        Randomizer.Puzzles.C7.DMS,
+        Randomizer.Puzzles.C7.Star
+      }, Randomizer.Puzzles.C7},
+      {function() return isWorldOpen(Randomizer.Puzzles.CStar) end, {
+        Randomizer.Puzzles.CStar.Nexus
+      }, Randomizer.Puzzles.CStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.CStar) and (not locked.Connector or not locked.Cube) end, {
+        Randomizer.Puzzles.CStar.Cobweb,
+        Randomizer.Puzzles.CStar.UG
+      }, Randomizer.Puzzles.CStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.CMessenger) end, {
+        Randomizer.Puzzles.CMessenger.Star
+      }, Randomizer.Puzzles.CMessenger},
+      {function() return not locked.F1 and (not locked.Connector or not locked.F3) end, {
+        Randomizer.Puzzles.Nexus.F0
       }},
-      {function() return not locked["F1"] and not locked["F3"] end, {
-        "F3-Star"
+      {function() return not locked.F1 and not locked.F3 end, {
+        Randomizer.Puzzles.Nexus.F3
       }}
     }
-  elseif randomization_mode == "60fps" then
+  elseif RandomizationMode == Randomizer.Modes.Values.Sixty then
     markers = {
-      {function() return isWorldOpen("A1") end, {
-        "A1-Peephole", "A1-PaSL", "A1-Outnumbered", "A1-ASooR",
-        "A1-OtToU", "A1-Trio", "A1-Beaten Path", "A1-Star"
+      {function() return isWorldOpen(Randomizer.Puzzles.A1) end, {
+        Randomizer.Puzzles.A1.Peephole,
+        Randomizer.Puzzles.A1.PaSL,
+        Randomizer.Puzzles.A1.Outnumbered,
+        Randomizer.Puzzles.A1.ASOoR,
+        Randomizer.Puzzles.A1.OtToU,
+        Randomizer.Puzzles.A1.Trio,
+        Randomizer.Puzzles.A1.StBP,
+        Randomizer.Puzzles.A1.Star
       }},
-      {function() return isWorldOpen("A2") end, {
-        "A2-Hall of Windows", "A2-Guards", "A2-Suicide Mission", "A2-Star"
-      }, "A2"},
-      {function() return isWorldOpen("A3") end, {
-        "A3-ABTU Star", "A3-ABTU", "A3-AEP", "A3-Swallowed the Key",
-        "A3-Stashed for Later", "A3-Clock Star"
-      }, "A3"},
-      {function() return isWorldOpen("A4") end, {
-        "A4-Push it Further", "A4-Branch it Out", "A4-Above All That", "A4-Star"
-      }, "A4"},
-      {function() return isWorldOpen("A4") and not locked["Connector"] end, {
-        "A4-DCtS"
-      }, "A4"},
-      {function() return isWorldOpen("A5") end, {
-        "A5-Two Boxes", "A5-Two Boxes Star", "A5-Over the Fence", "A5-YKYMCTS",
-        "A5-FC", "A5-FC Star",
-      }, "A5"},
-      {function() return isWorldOpen("A5") and (not locked["Connector"] or not locked["Cube"]) end, {
-        "A5-OLB"
-      }, "A5"},
-      {function() return isWorldOpen("A6") end, {
-        "A6-Mobile Mindfield", "A6-Deception", "A6-Door too Far", "A6-Bichromatic",
-        "A6-Star"
-      }, "A6"},
-      {function() return isWorldOpen("A7") end, {
-        "A7-Two Buzzers", "A7-Pinhole", "A7-LFI", "A7-WiaL",
-        "A7-Trapped Inside", "A7-Star"
-      }, "A7"},
-      {function() return isWorldOpen("A8") end, {
-        "A*-DDM", "A*-Nervewrecker", "A*-JfW"
-      }, "A8"},
-      {function() return isWorldOpen("B1") end, {
-        "B1-RoD"
-      }, "B1"},
-      {function() return isWorldOpen("B1") and not locked["Cube"] end, {
-        "B1-Over the Fence"
-      }, "B1"},
-      {function() return isWorldOpen("B1") and (not locked["Connector"] or not locked["Cube"]) end, {
-        "B1-WtaD", "B1-SaaS", "B1-Third Wheel", "B1-Star"
-      }, "B1"},
-      {function() return isWorldOpen("B2") end, {
-        "B2-Higher Ground", "B2-Tomb", "B2-Moonshot", "B2-Star"
-      }, "B2"},
-      {function() return isWorldOpen("B2") and not locked["Cube"] end, {
-        "B2-MotM"
-      }, "B2"},
-      {function() return isWorldOpen("B3") and not locked["Cube"] end, {
-        "B3-Sunshot", "B3-Blown Away", "B3-Star", "B3-Eagle's Nest",
-        "B3-Woosh"
-      }, "B3"},
-      {function() return isWorldOpen("B4") and (not locked["Cube"] or not locked["Recorder"]) end, {
-        "B4-Self Help"
-      }, "B4"},
-      {function() return isWorldOpen("B4") and not locked["Connector"] end, {
-        "B4-TRA", "B4-WAtC"
-      }, "B4"},
-      {function() return isWorldOpen("B4") and ((not locked["Connector"] and not locked["Cube"]) or not locked["Recorder"]) end, {
-        "B4-Double-Plate", "B4-RPS"
-      }, "B4"},
-      {function() return isWorldOpen("B4") and not locked["Connector"] and not locked["Cube"] end, {
-        "B4-ABUH", "B4-TRA Star"
-      }, "B4"},
-      {function() return isWorldOpen("B4") and not locked["Connector"] and (not locked["Cube"] or not locked["Fan"]) end, {
-        "B4-Sphinx Star"
-      }, "B4"},
-      {function() return isWorldOpen("B5") end, {
-        "B5-Iron Curtain", "B5-Chambers"
-      }, "B5"},
-      {function() return isWorldOpen("B5") and not locked["Cube"] end, {
-        "B5-Plates", "B5-SES", "B5-Obelisk Star"
-      }, "B5"},
-      {function() return isWorldOpen("B5") and (not locked["Cube"] or not locked["Recorder"]) end, {
-        "B5-Two Jammers"
-      }, "B5"},
-      {function() return isWorldOpen("B6") end, {
-        "B6-Egyptian Arcade", "B6-Crisscross"
-      }, "B6"},
-      {function() return isWorldOpen("B6") and not locked["Connector"] end, {
-        "B6-JDaW"
-      }, "B6"},
-      {function() return isWorldOpen("B7") end, {
-        "B7-WLJ", "B7-AFaF"
-      }, "B7"},
-      {function() return isWorldOpen("B7") and (not locked["Connector"] or not locked["Cube"]) end, {
-        "B7-BSbS", "B7-BSbS Star"
-      }, "B7"},
-      {function() return isWorldOpen("B7") and not locked["Cube"] end, {
-        "B7-BLoM"
-      }, "B7"},
-      {function() return isWorldOpen("B7") and not locked["Fan"] end, {
-        "B7-Star"
-      }, "B7"},
-      {function() return isWorldOpen("B8") end, {
-        "B*-Merry Go Round", "B*-Peekaboo"
-      }, "B8"},
-      {function() return isWorldOpen("B8") and not locked["Connector"] and not locked["Cube"] end, {
-        "B*-Cat's Cradle"
-      }, "B8"},
-      {function() return isWorldOpen("C1") end, {
-        "C1-Labyrinth", "C1-Conservatory", "C1-Blowback", "C1-Star"
-      }, "C1"},
-      {function() return isWorldOpen("C1") and not locked["Cube"] end, {
-        "C1-MIA"
-      }, "C1"},
-      {function() return isWorldOpen("C2") end, {
-        "C2-Cemetery", "C2-ADaaF", "C2-Rapunzel", "C2-Short Wall",
-        "C2-Star"
-      }, "C2"},
-      {function() return isWorldOpen("C3") end, {
-        "C3-BSLS", "C3-Jammer Quarantine", "C3-Weathertop", "C3-Star"
-      }, "C3"},
-      {function() return isWorldOpen("C3") and not locked["Cube"] end, {
-        "C3-Three Connectors"
-      }, "C3"},
-      {function() return isWorldOpen("C4") end, {
-        "C4-Stables"
-      }, "C4"},
-      {function() return isWorldOpen("C4") and not locked["Connector"] and (not locked["Cube"] or not locked["Recorder"] or not locked ["Platform"]) end, {
-        "C4-Oubliette"
-      }, "C4"},
-      {function() return isWorldOpen("C4") and not locked["Connector"] end, {
-        "C4-Armory"
-      }, "C4"},
-      {function() return isWorldOpen("C4") and not locked["Cube"] end, {
-        "C4-Throne Room"
-      }, "C4"},
-      {function() return isWorldOpen("C4") and (not locked["Cube"] or not locked["Fan"]) end, {
-        "C4-Throne Room Star"
-      }, "C4"},
-      {function() return isWorldOpen("C4")and ((not locked["Connector"] and not locked["Cube"]) or (not locked["Recorder"] and not locked["Platform"])) end, {
-        "C4-Oubliette Star"
-      }, "C4"},
-      {function() return isWorldOpen("C5") end, {
-        "C5-Time Crawls", "C5-Time Flies", "C5-Time Flies Star"
-      }, "C5"},
-      {function() return isWorldOpen("C5") and not locked["Cube"] end, {
-        "C5-Dumbwaiter", "C5-UCaJ", "C5-UCAJ Star", "C5-Dumbwaiter Star"
-      }, "C5"},
-      {function() return isWorldOpen("C6") end, {
-        "C6-Two Way Street", "C6-Circumlocution", "C6-Seven Doors", "C6-Star"
-      }, "C6"},
-      {function() return isWorldOpen("C7") end, {
-        "C7-Carrier Pigeons"
-      }, "C7"},
-      {function() return isWorldOpen("C7") and not locked["Cube"] end, {
-        "C7-Prison Break", "C7-Crisscross", "C7-DMS", "C7-Star"
-      }, "C7"},
-      {function() return isWorldOpen("C8") end, {
-        "C*-Nexus"
-      }, "C8"},
-      {function() return isWorldOpen("C8") and not locked["Cube"] end, {
-        "C*-Unreachable Garden", "C*-Cobweb"
-      }, "C8"},
-      {function() return isWorldOpen("CMessenger") end, {
-        "CM-Star"
-      }, "CMessenger"},
-      {function() return not locked["F1"] and (not locked["Connector"] or not locked["F3"]) end, {
-        "F0-Star"
+      {function() return isWorldOpen(Randomizer.Puzzles.A2) end, {
+        Randomizer.Puzzles.A2.HoW,
+        Randomizer.Puzzles.A2.Guards,
+        Randomizer.Puzzles.A2.SM,
+        Randomizer.Puzzles.A2.Star
+      }, Randomizer.Puzzles.A2},
+      {function() return isWorldOpen(Randomizer.Puzzles.A3) end, {
+        Randomizer.Puzzles.A3.ABTUStar,
+        Randomizer.Puzzles.A3.ABTU,
+        Randomizer.Puzzles.A3.AEP,
+        Randomizer.Puzzles.A3.LMUStK,
+        Randomizer.Puzzles.A3.SfL,
+        Randomizer.Puzzles.A3.Clock
+      }, Randomizer.Puzzles.A3},
+      {function() return isWorldOpen(Randomizer.Puzzles.A4) end, {
+        Randomizer.Puzzles.A4.PiF,
+        Randomizer.Puzzles.A4.BiO,
+        Randomizer.Puzzles.A4.AAT,
+        Randomizer.Puzzles.A4.Star
+      }, Randomizer.Puzzles.A4},
+      {function() return isWorldOpen(Randomizer.Puzzles.A4) and not locked.Connector end, {
+        Randomizer.Puzzles.A4.DCtS
+      }, Randomizer.Puzzles.A4},
+      {function() return isWorldOpen(Randomizer.Puzzles.A5) end, {
+        Randomizer.Puzzles.A5.TwoBoxes,
+        Randomizer.Puzzles.A5.TwoBoxesStar,
+        Randomizer.Puzzles.A5.GOtF,
+        Randomizer.Puzzles.A5.YKYMCtS,
+        Randomizer.Puzzles.A5.FC,
+        Randomizer.Puzzles.A5.FCStar
+      }, Randomizer.Puzzles.A5},
+      {function() return isWorldOpen(Randomizer.Puzzles.A5) and (not locked.Connector or not locked.Cube) end, {
+        Randomizer.Puzzles.A5.OLB
+      }, Randomizer.Puzzles.A5},
+      {function() return isWorldOpen(Randomizer.Puzzles.A6) end, {
+        Randomizer.Puzzles.A6.Mindfield,
+        Randomizer.Puzzles.A6.Deception,
+        Randomizer.Puzzles.A6.ADTF,
+        Randomizer.Puzzles.A6.Bichromatic,
+        Randomizer.Puzzles.A6.Star
+      }, Randomizer.Puzzles.A6},
+      {function() return isWorldOpen(Randomizer.Puzzles.A7) end, {
+        Randomizer.Puzzles.A7.TPLB,
+        Randomizer.Puzzles.A7.PW,
+        Randomizer.Puzzles.A7.LfI,
+        Randomizer.Puzzles.A7.WiaL,
+        Randomizer.Puzzles.A7.TI,
+        Randomizer.Puzzles.A7.Star
+      }, Randomizer.Puzzles.A7},
+      {function() return isWorldOpen(Randomizer.Puzzles.AStar) end, {
+        Randomizer.Puzzles.AStar.DDM,
+        Randomizer.Puzzles.AStar.NW,
+        Randomizer.Puzzles.AStar.JfW
+      }, Randomizer.Puzzles.AStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.B1) end, {
+        Randomizer.Puzzles.B1.RoD
+      }, Randomizer.Puzzles.B1},
+      {function() return isWorldOpen(Randomizer.Puzzles.B1) and not locked.Cube end, {
+        Randomizer.Puzzles.B1.OtF
+      }, Randomizer.Puzzles.B1},
+      {function() return isWorldOpen(Randomizer.Puzzles.B1) and (not locked.Connector or not locked.Cube) end, {
+        Randomizer.Puzzles.B1.WtaD,
+        Randomizer.Puzzles.B1.SaaS,
+        Randomizer.Puzzles.B1.TW,
+        Randomizer.Puzzles.B1.Star
+      }, Randomizer.Puzzles.B1},
+      {function() return isWorldOpen(Randomizer.Puzzles.B2) end, {
+        Randomizer.Puzzles.B2.HG,
+        Randomizer.Puzzles.B2.Tomb,
+        Randomizer.Puzzles.B2.Moonshot,
+        Randomizer.Puzzles.B2.Star
+      }, Randomizer.Puzzles.B2},
+      {function() return isWorldOpen(Randomizer.Puzzles.B2) and not locked.Cube end, {
+        Randomizer.Puzzles.B2.MoTM
+      }, Randomizer.Puzzles.B2},
+      {function() return isWorldOpen(Randomizer.Puzzles.B3) and not locked.Cube end, {
+        Randomizer.Puzzles.B3.Sunshot,
+        Randomizer.Puzzles.B3.BA,
+        Randomizer.Puzzles.B3.Star,
+        Randomizer.Puzzles.B3.EN,
+        Randomizer.Puzzles.B3.Whoosh
+      }, Randomizer.Puzzles.B3},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and (not locked.Cube or not locked.Recorder) end, {
+        Randomizer.Puzzles.B4.SHT
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and not locked.Connector end, {
+        Randomizer.Puzzles.B4.TRA,
+        Randomizer.Puzzles.B4.WAtC
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and ((not locked.Connector and not locked.Cube) or not locked.Recorder) end, {
+        Randomizer.Puzzles.B4.DP,
+        Randomizer.Puzzles.B4.RPS
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and not locked.Connector and not locked.Cube end, {
+        Randomizer.Puzzles.B4.ABUH,
+        Randomizer.Puzzles.B4.TRAStar
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and not locked.Connector and (not locked.Cube or not locked.Fan) end, {
+        Randomizer.Puzzles.B4.Sphinx
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B5) end, {
+        Randomizer.Puzzles.B5.BtIC,
+        Randomizer.Puzzles.B5.Chambers
+      }, Randomizer.Puzzles.B5},
+      {function() return isWorldOpen(Randomizer.Puzzles.B5) and not locked.Cube end, {
+        Randomizer.Puzzles.B5.Plates,
+        Randomizer.Puzzles.B5.SES,
+        Randomizer.Puzzles.B5.Obelisk
+      }, Randomizer.Puzzles.B5},
+      {function() return isWorldOpen(Randomizer.Puzzles.B5) and (not locked.Cube or not locked.Recorder) end, {
+        Randomizer.Puzzles.B5.MMaOTJ
+      }, Randomizer.Puzzles.B5},
+      {function() return isWorldOpen(Randomizer.Puzzles.B6) end, {
+        Randomizer.Puzzles.B6.EA,
+        Randomizer.Puzzles.B6.Crisscross
+      }, Randomizer.Puzzles.B6},
+      {function() return isWorldOpen(Randomizer.Puzzles.B6) and not locked.Connector end, {
+        Randomizer.Puzzles.B6.JDaW
+      }, Randomizer.Puzzles.B6},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) end, {
+        Randomizer.Puzzles.B7.WLJ,
+        Randomizer.Puzzles.B7.AFaF
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) and (not locked.Connector or not locked.Cube) end, {
+        Randomizer.Puzzles.B7.BSbS,
+        Randomizer.Puzzles.B7.BSbSStar
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) and not locked.Cube end, {
+        Randomizer.Puzzles.B7.BLoM
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) and not locked.Fan end, {
+        Randomizer.Puzzles.B7.Pyramid
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.BStar) end, {
+        Randomizer.Puzzles.BStar.MGR,
+        Randomizer.Puzzles.BStar.Peekaboo
+      }, Randomizer.Puzzles.BStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.BStar) and not locked.Connector and not locked.Cube end, {
+        Randomizer.Puzzles.BStar.CC
+      }, Randomizer.Puzzles.BStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.C1) end, {
+        Randomizer.Puzzles.C1.Labyrinth,
+        Randomizer.Puzzles.C1.Conservatory,
+        Randomizer.Puzzles.C1.Blowback,
+        Randomizer.Puzzles.C1.Star
+      }, Randomizer.Puzzles.C1},
+      {function() return isWorldOpen(Randomizer.Puzzles.C1) and not locked.Cube end, {
+        Randomizer.Puzzles.C1.MIA
+      }, Randomizer.Puzzles.C1},
+      {function() return isWorldOpen(Randomizer.Puzzles.C2) end, {
+        Randomizer.Puzzles.C2.Cemetery,
+        Randomizer.Puzzles.C2.ADaaF,
+        Randomizer.Puzzles.C2.Rapunzel,
+        Randomizer.Puzzles.C2.TSW,
+        Randomizer.Puzzles.C2.Star
+      }, Randomizer.Puzzles.C2},
+      {function() return isWorldOpen(Randomizer.Puzzles.C3) end, {
+        Randomizer.Puzzles.C3.BSLS,
+        Randomizer.Puzzles.C3.JQ,
+        Randomizer.Puzzles.C3.Weathertop,
+        Randomizer.Puzzles.C3.Star
+      }, Randomizer.Puzzles.C3},
+      {function() return isWorldOpen(Randomizer.Puzzles.C3) and not locked.Cube end, {
+        Randomizer.Puzzles.C3.TLCaaF
+      }, Randomizer.Puzzles.C3},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) end, {
+        Randomizer.Puzzles.C4.Stables
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) and not locked.Connector and (not locked.Cube or not locked.Recorder or not locked ["Platform"]) end, {
+        Randomizer.Puzzles.C4.Oubliette
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) and not locked.Connector end, {
+        Randomizer.Puzzles.C4.Armory
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) and not locked.Cube end, {
+        Randomizer.Puzzles.C4.ThroneRoom
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) and (not locked.Cube or not locked.Fan) end, {
+        Randomizer.Puzzles.C4.ThroneRoomStar
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4)and ((not locked.Connector and not locked.Cube) or (not locked.Recorder and not locked.Platform)) end, {
+        Randomizer.Puzzles.C4.OublietteStar
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C5) end, {
+        Randomizer.Puzzles.C5.TimeCrawls,
+        Randomizer.Puzzles.C5.TimeFlies,
+        Randomizer.Puzzles.C5.TFStar
+      }, Randomizer.Puzzles.C5},
+      {function() return isWorldOpen(Randomizer.Puzzles.C5) and not locked.Cube end, {
+        Randomizer.Puzzles.C5.Dumbwaiter,
+        Randomizer.Puzzles.C5.UCaJ,
+        Randomizer.Puzzles.C5.UCaJStar,
+        Randomizer.Puzzles.C5.DumbwaiterStar
+      }, Randomizer.Puzzles.C5},
+      {function() return isWorldOpen(Randomizer.Puzzles.C6) end, {
+        Randomizer.Puzzles.C6.TWS,
+        Randomizer.Puzzles.C6.Circumlocution,
+        Randomizer.Puzzles.C6.TSDoR,
+        Randomizer.Puzzles.C6.Star
+      }, Randomizer.Puzzles.C6},
+      {function() return isWorldOpen(Randomizer.Puzzles.C7) end, {
+        Randomizer.Puzzles.C7.CP
+      }, Randomizer.Puzzles.C7},
+      {function() return isWorldOpen(Randomizer.Puzzles.C7) and not locked.Cube end, {
+        Randomizer.Puzzles.C7.PB,
+        Randomizer.Puzzles.C7.CCA,
+        Randomizer.Puzzles.C7.DMS,
+        Randomizer.Puzzles.C7.Star
+      }, Randomizer.Puzzles.C7},
+      {function() return isWorldOpen(Randomizer.Puzzles.CStar) end, {
+        Randomizer.Puzzles.CStar.Nexus
+      }, Randomizer.Puzzles.CStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.CStar) and not locked.Cube end, {
+        Randomizer.Puzzles.CStar.UG,
+        Randomizer.Puzzles.CStar.Cobweb
+      }, Randomizer.Puzzles.CStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.CMessenger) end, {
+        Randomizer.Puzzles.CMessenger.Star
+      }, Randomizer.Puzzles.CMessenger},
+      {function() return not locked.F1 and (not locked.Connector or not locked.F3) end, {
+        Randomizer.Puzzles.Nexus.F0
       }},
-      {function() return not locked["F1"] and not locked["F2"] and not locked["F3"] and not locked["Cube"] end, {
-        "F3-Star"
+      {function() return not locked.F1 and not locked.F2 and not locked.F3 and not locked.Cube end, {
+        Randomizer.Puzzles.Nexus.F3
       }}
     }
-  elseif randomization_mode == "Intended" then
+  elseif RandomizationMode == Randomizer.Modes.Values.Intended then
     markers = {
-      {function() return isWorldOpen("A1") end, {
-        "A1-Peephole", "A1-Outnumbered", "A1-ASooR", "A1-OtToU",
-        "A1-Beaten Path", "A1-Star"
+      {function() return isWorldOpen(Randomizer.Puzzles.A1) end, {
+        Randomizer.Puzzles.A1.Peephole,
+        Randomizer.Puzzles.A1.Outnumbered,
+        Randomizer.Puzzles.A1.ASOoR,
+        Randomizer.Puzzles.A1.OtToU,
+        Randomizer.Puzzles.A1.StBP,
+        Randomizer.Puzzles.A1.Star
       }},
-      {function() return isWorldOpen("A1") and not locked["A1 Gate"] end, {
-        "A1-PaSL", "A1-Trio"
+      {function() return isWorldOpen(Randomizer.Puzzles.A1) and not locked.A1Gate end, {
+        Randomizer.Puzzles.A1.PaSL,
+        Randomizer.Puzzles.A1.Trio
       }},
-      {function() return isWorldOpen("A2") end, {
-        "A2-Hall of Windows", "A2-Guards", "A2-Suicide Mission", "A2-Star"
-      }, "A2"},
-      {function() return isWorldOpen("A3") end, {
-        "A3-ABTU Star", "A3-ABTU", "A3-AEP", "A3-Swallowed the Key",
-        "A3-Stashed for Later", "A3-Clock Star"
-      }, "A3"},
-      {function() return isWorldOpen("A4") and not locked["Connector"] end, {
-        "A4-Push it Further", "A4-Branch it Out", "A4-Above All That", "A4-Star",
-        "A4-DCtS"
-      }, "A4"},
-      {function() return isWorldOpen("A5") and not locked["Connector"] end, {
-         "A5-Two Boxes Star"
-      }, "A5"},
-      {function() return isWorldOpen("A5") and not locked["Cube"] end, {
-        "A5-Two Boxes", "A5-FC", "A5-FC Star"
-      }, "A5"},
-      {function() return isWorldOpen("A5") and not locked["Connector"] and not locked["Cube"] end, {
-        "A5-OLB", "A5-Over the Fence", "A5-YKYMCTS"
-      }, "A5"},
-      {function() return isWorldOpen("A6") end, {
-        "A6-Mobile Mindfield"
-      }, "A6"},
-      {function() return isWorldOpen("A6") and not locked["Connector"] end, {
-        "A6-Deception", "A6-Bichromatic"
-      }, "A6"},
-      {function() return isWorldOpen("A6") and not locked["Cube"] end, {
-        "A6-Star"
-      }, "A6"},
-      {function() return isWorldOpen("A6") and not locked["Connector"] and not locked["Cube"] end, {
-        "A6-Door too Far"
-      }, "A6"},
-      {function() return isWorldOpen("A7") and not locked["Connector"] end, {
-        "A7-LFI", "A7-Pinhole", "A7-WiaL", "A7-Trapped Inside",
-        "A7-Star"
-      }, "A7"},
-      {function() return isWorldOpen("A7") and not locked["Connector"] and not locked["Cube"] end, {
-        "A7-Two Buzzers"
-      }, "A7"},
-      {function() return isWorldOpen("A8") end, {
-        "A*-Nervewrecker", "A*-JfW"
-      }, "A8"},
-      {function() return isWorldOpen("A8") and not locked["Fan"] end, {
-        "A*-DDM"
-      }, "A8"},
-      {function() return isWorldOpen("B1") and not locked["Connector"] end, {
-        "B1-WtaD", "B1-SaaS", "B1-Third Wheel", "B1-Star"
-      }, "B1"},
-      {function() return isWorldOpen("B1") and not locked["Cube"] end, {
-        "B1-Over the Fence", "B1-RoD"
-      }, "B1"},
-      {function() return isWorldOpen("B2") end, {
-        "B2-Higher Ground"
-      }, "B2"},
-      {function() return isWorldOpen("B2") and not locked["Connector"] end, {
-        "B2-Tomb", "B2-Star"
-      }, "B2"},
-      {function() return isWorldOpen("B2") and not locked["Cube"] and not locked["Fan"] end, {
-        "B2-MotM"
-      }, "B2"},
-      {function() return isWorldOpen("B2") and not locked["Cube"] and not locked["Fan"] end, {
-        "B2-Moonshot"
-      }, "B2"},
-      {function() return isWorldOpen("B3") and not locked["Cube"] and not locked["Fan"] end, {
-        "B3-Sunshot"
-      }, "B3"},
-      {function() return isWorldOpen("B3") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
-        "B3-Blown Away", "B3-Star", "B3-Eagle's Nest", "B3-Woosh"
-      }, "B3"},
-      {function() return isWorldOpen("B4") and not locked["Recorder"] end, {
-        "B4-Self Help", "B4-Double-Plate"
-      }, "B4"},
-      {function() return isWorldOpen("B4") and not locked["Connector"] and not locked["Cube"] end, {
-        "B4-TRA", "B4-TRA Star"
-      }, "B4"},
-      {function() return isWorldOpen("B4") and not locked["Connector"] and not locked["Recorder"] end, {
-        "B4-WAtC"
-      }, "B4"},
-      {function() return isWorldOpen("B4") and not locked["Cube"] and not locked["Recorder"] end, {
-        "B4-RPS"
-      }, "B4"},
-      {function() return isWorldOpen("B4") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
-        "B4-ABUH", "B4-Sphinx Star"
-      }, "B4"},
-      {function() return isWorldOpen("B5") and not locked["Recorder"] end, {
-        "B5-Two Jammers"
-      }, "B5"},
-      {function() return isWorldOpen("B5") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
-        "B5-SES", "B5-Obelisk Star", "B5-Iron Curtain", "B5-Chambers"
-      }, "B5"},
-      {function() return isWorldOpen("B5") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] and not locked["Recorder"] end, {
-        "B5-Plates"
-      }, "B5"},
-      {function() return isWorldOpen("B6") end, {
-        "B6-Egyptian Arcade"
-      }, "B6"},
-      {function() return isWorldOpen("B6") and not locked["Connector"] end, {
-        "B6-JDaW", "B6-Crisscross"
-      }, "B6"},
-      {function() return isWorldOpen("B7") end, {
-        "B7-WLJ",
-      }, "B7"},
-      {function() return isWorldOpen("B7") and not locked["Connector"] end, {
-        "B7-BSbS"
-      }, "B7"},
-      {function() return isWorldOpen("B7") and not locked["Cube"] end, {
-        "B7-BLoM",
-      }, "B7"},
-      {function() return isWorldOpen("B7") and not locked["Cube"] and not locked["Fan"] end, {
-        "B7-Star"
-      }, "B7"},
-      {function() return isWorldOpen("B7") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
-        "B7-AFaF", "B7-BSbS Star"
-      }, "B7"},
-      {function() return isWorldOpen("B8") and not locked["Connector"] end, {
-        "B*-Merry Go Round"
-      }, "B8"},
-      {function() return isWorldOpen("B8") and not locked["Connector"] and not locked["Cube"] end, {
-        "B*-Cat's Cradle"
-      }, "B8"},
-      {function() return isWorldOpen("B8") and not locked["Connector"] and not locked["Recorder"] end, {
-        "B*-Peekaboo"
-      }, "B8"},
-      {function() return isWorldOpen("C1") end, {
-        "C1-Labyrinth",
-      }, "C1"},
-      {function() return isWorldOpen("C1") and not locked["Connector"] end, {
-        "C1-Conservatory", "C1-Star"
-      }, "C1"},
-      {function() return isWorldOpen("C1") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
-        "C1-Blowback", "C1-MIA"
-      }, "C1"},
-      {function() return isWorldOpen("C2") and not locked["Connector"] and not locked["Cube"] end, {
-        "C2-Cemetery"
-      }, "C2"},
-      {function() return isWorldOpen("C2") and not locked["Recorder"] and not locked["Platform"] end, {
-        "C2-Short Wall"
-      }, "C2"},
-      {function() return isWorldOpen("C2") and not locked["Cube"] and not locked["Recorder"] and not locked["Platform"] end, {
-        "C2-Rapunzel", "C2-Star"
-      }, "C2"},
-      {function() return isWorldOpen("C2") and not locked["Connector"] and not locked["Cube"] and not locked["Recorder"] and not locked["Platform"] end, {
-        "C2-ADaaF"
-      }, "C2"},
-      {function() return isWorldOpen("C3") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
-        "C3-BSLS", "C3-Jammer Quarantine", "C3-Weathertop", "C3-Three Connectors",
-        "C3-Star"
-      }, "C3"},
-      {function() return isWorldOpen("C4") and not locked["Connector"] end, {
-        "C4-Stables"
-      }, "C4"},
-      {function() return isWorldOpen("C4") and not locked["Connector"] and not locked["Cube"] end, {
-        "C4-Armory"
-      }, "C4"},
-      {function() return isWorldOpen("C4") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
-        "C4-Throne Room", "C4-Throne Room Star"
-      }, "C4"},
-      {function() return isWorldOpen("C4") and not locked["Connector"] and not locked["Cube"] and not locked["Recorder"] and not locked["Platform"] end, {
-        "C4-Oubliette", "C4-Oubliette Star"
-      }, "C4"},
-      {function() return isWorldOpen("C5") and not locked["Cube"] end, {
-        "C5-UCAJ Star"
-      }, "C5"},
-      {function() return isWorldOpen("C5") and not locked["Connector"] and not locked["Cube"] end, {
-        "C5-UCaJ"
-      }, "C5"},
-      {function() return isWorldOpen("C5") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
-        "C5-Dumbwaiter"
-      }, "C5"},
-      {function() return isWorldOpen("C5") and not locked["Connector"] and not locked["Cube"] and not locked["Recorder"] end, {
-        "C5-Time Crawls"
-      }, "C5"},
-      {function() return isWorldOpen("C5") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] and not locked["Recorder"] end, {
-        "C5-Time Flies", "C5-Time Flies Star", "C5-Dumbwaiter Star"
-      }, "C5"},
-      {function() return isWorldOpen("C6") end, {
-        "C6-Two Way Street"
-      }, "C6"},
-      {function() return isWorldOpen("C6") and not locked["Connector"] and not locked["Cube"] end, {
-        "C6-Circumlocution"
-      }, "C6"},
-      {function() return isWorldOpen("C6") and not locked["Connector"] and not locked["Recorder"] end, {
-        "C6-Seven Doors", "C6-Star"
-      }, "C6"},
-      {function() return isWorldOpen("C7") and not locked["Connector"] and not locked["Recorder"] end, {
-        "C7-Crisscross"
-      }, "C7"},
-      {function() return isWorldOpen("C7") and not locked["Connector"] and not locked["Cube"] and not locked["Fan"] end, {
-        "C7-Prison Break", "C7-Carrier Pigeons", "C7-DMS", "C7-Star"
-      }, "C7"},
-      {function() return isWorldOpen("C8") and not locked["Connector"] and not locked["Cube"] end, {
-        "C*-Nexus", "C*-Cobweb"
-      }, "C8"},
-      {function() return isWorldOpen("C8") and not locked["Connector"] and not locked["Cube"] and not locked["Recorder"] and not locked["Platform"] end, {
-        "C*-Unreachable Garden"
-      }, "C8"},
-      {function() return isWorldOpen("CMessenger") end, {
-        "CM-Star"
-      }, "CMessenger"},
-      {function() return not locked["F1"] and not locked["Connector"] end, {
-        "F0-Star"
+      {function() return isWorldOpen(Randomizer.Puzzles.A2) end, {
+        Randomizer.Puzzles.A2.HoW,
+        Randomizer.Puzzles.A2.Guards,
+        Randomizer.Puzzles.A2.SM,
+        Randomizer.Puzzles.A2.Star
+      }, Randomizer.Puzzles.A2},
+      {function() return isWorldOpen(Randomizer.Puzzles.A3) end, {
+        Randomizer.Puzzles.A3.ABTUStar,
+        Randomizer.Puzzles.A3.ABTU,
+        Randomizer.Puzzles.A3.AEP,
+        Randomizer.Puzzles.A3.LMUStK,
+        Randomizer.Puzzles.A3.SfL,
+        Randomizer.Puzzles.A3.Clock
+      }, Randomizer.Puzzles.A3},
+      {function() return isWorldOpen(Randomizer.Puzzles.A4) and not locked.Connector end, {
+        Randomizer.Puzzles.A4.PiF,
+        Randomizer.Puzzles.A4.BiO,
+        Randomizer.Puzzles.A4.AAT,
+        Randomizer.Puzzles.A4.Star,
+        Randomizer.Puzzles.A4.DCtS
+      }, Randomizer.Puzzles.A4},
+      {function() return isWorldOpen(Randomizer.Puzzles.A5) and not locked.Connector end, {
+         Randomizer.Puzzles.A5.TwoBoxesStar
+      }, Randomizer.Puzzles.A5},
+      {function() return isWorldOpen(Randomizer.Puzzles.A5) and not locked.Cube end, {
+        Randomizer.Puzzles.A5.TwoBoxes,
+        Randomizer.Puzzles.A5.FC,
+        Randomizer.Puzzles.A5.FCStar
+      }, Randomizer.Puzzles.A5},
+      {function() return isWorldOpen(Randomizer.Puzzles.A5) and not locked.Connector and not locked.Cube end, {
+        Randomizer.Puzzles.A5.OLB,
+        Randomizer.Puzzles.A5.GOtF,
+        Randomizer.Puzzles.A5.YKYMCtS
+      }, Randomizer.Puzzles.A5},
+      {function() return isWorldOpen(Randomizer.Puzzles.A6) end, {
+        Randomizer.Puzzles.A6.Mindfield
+      }, Randomizer.Puzzles.A6},
+      {function() return isWorldOpen(Randomizer.Puzzles.A6) and not locked.Connector end, {
+        Randomizer.Puzzles.A6.Deception,
+        Randomizer.Puzzles.A6.Bichromatic
+      }, Randomizer.Puzzles.A6},
+      {function() return isWorldOpen(Randomizer.Puzzles.A6) and not locked.Cube end, {
+        Randomizer.Puzzles.A6.Star
+      }, Randomizer.Puzzles.A6},
+      {function() return isWorldOpen(Randomizer.Puzzles.A6) and not locked.Connector and not locked.Cube end, {
+        Randomizer.Puzzles.A6.ADTF
+      }, Randomizer.Puzzles.A6},
+      {function() return isWorldOpen(Randomizer.Puzzles.A7) and not locked.Connector end, {
+        Randomizer.Puzzles.A7.LfI,
+        Randomizer.Puzzles.A7.PW,
+        Randomizer.Puzzles.A7.WiaL,
+        Randomizer.Puzzles.A7.TI,
+        Randomizer.Puzzles.A7.Star
+      }, Randomizer.Puzzles.A7},
+      {function() return isWorldOpen(Randomizer.Puzzles.A7) and not locked.Connector and not locked.Cube end, {
+        Randomizer.Puzzles.A7.TPLB
+      }, Randomizer.Puzzles.A7},
+      {function() return isWorldOpen(Randomizer.Puzzles.AStar) end, {
+        Randomizer.Puzzles.AStar.NW,
+        Randomizer.Puzzles.AStar.JfW
+      }, Randomizer.Puzzles.AStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.AStar) and not locked.Fan end, {
+        Randomizer.Puzzles.AStar.DDM
+      }, Randomizer.Puzzles.AStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.B1) and not locked.Connector end, {
+        Randomizer.Puzzles.B1.WtaD,
+        Randomizer.Puzzles.B1.SaaS,
+        Randomizer.Puzzles.B1.TW,
+        Randomizer.Puzzles.B1.Star
+      }, Randomizer.Puzzles.B1},
+      {function() return isWorldOpen(Randomizer.Puzzles.B1) and not locked.Cube end, {
+        Randomizer.Puzzles.B1.OtF,
+        Randomizer.Puzzles.B1.RoD
+      }, Randomizer.Puzzles.B1},
+      {function() return isWorldOpen(Randomizer.Puzzles.B2) end, {
+        Randomizer.Puzzles.B2.HG
+      }, Randomizer.Puzzles.B2},
+      {function() return isWorldOpen(Randomizer.Puzzles.B2) and not locked.Connector end, {
+        Randomizer.Puzzles.B2.Tomb,
+        Randomizer.Puzzles.B2.Star
+      }, Randomizer.Puzzles.B2},
+      {function() return isWorldOpen(Randomizer.Puzzles.B2) and not locked.Cube and not locked.Fan end, {
+        Randomizer.Puzzles.B2.MoTM
+      }, Randomizer.Puzzles.B2},
+      {function() return isWorldOpen(Randomizer.Puzzles.B2) and not locked.Cube and not locked.Fan end, {
+        Randomizer.Puzzles.B2.Moonshot
+      }, Randomizer.Puzzles.B2},
+      {function() return isWorldOpen(Randomizer.Puzzles.B3) and not locked.Cube and not locked.Fan end, {
+        Randomizer.Puzzles.B3.Sunshot
+      }, Randomizer.Puzzles.B3},
+      {function() return isWorldOpen(Randomizer.Puzzles.B3) and not locked.Connector and not locked.Cube and not locked.Fan end, {
+        Randomizer.Puzzles.B3.BA,
+        Randomizer.Puzzles.B3.Star,
+        Randomizer.Puzzles.B3.EN,
+        Randomizer.Puzzles.B3.Whoosh
+      }, Randomizer.Puzzles.B3},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and not locked.Recorder end, {
+        Randomizer.Puzzles.B4.SHT,
+        Randomizer.Puzzles.B4.DP
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and not locked.Connector and not locked.Cube end, {
+        Randomizer.Puzzles.B4.TRA,
+        Randomizer.Puzzles.B4.TRAStar
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and not locked.Connector and not locked.Recorder end, {
+        Randomizer.Puzzles.B4.WAtC
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and not locked.Cube and not locked.Recorder end, {
+        Randomizer.Puzzles.B4.RPS
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and not locked.Connector and not locked.Cube and not locked.Fan end, {
+        Randomizer.Puzzles.B4.ABUH,
+        Randomizer.Puzzles.B4.Sphinx
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B5) and not locked.Recorder end, {
+        Randomizer.Puzzles.B5.MMaOTJ
+      }, Randomizer.Puzzles.B5},
+      {function() return isWorldOpen(Randomizer.Puzzles.B5) and not locked.Connector and not locked.Cube and not locked.Fan end, {
+        Randomizer.Puzzles.B5.SES,
+        Randomizer.Puzzles.B5.Obelisk,
+        Randomizer.Puzzles.B5.BtIC,
+        Randomizer.Puzzles.B5.Chambers
+      }, Randomizer.Puzzles.B5},
+      {function() return isWorldOpen(Randomizer.Puzzles.B5) and not locked.Connector and not locked.Cube and not locked.Fan and not locked.Recorder end, {
+        Randomizer.Puzzles.B5.Plates
+      }, Randomizer.Puzzles.B5},
+      {function() return isWorldOpen(Randomizer.Puzzles.B6) end, {
+        Randomizer.Puzzles.B6.EA
+      }, Randomizer.Puzzles.B6},
+      {function() return isWorldOpen(Randomizer.Puzzles.B6) and not locked.Connector end, {
+        Randomizer.Puzzles.B6.JDaW,
+        Randomizer.Puzzles.B6.Crisscross
+      }, Randomizer.Puzzles.B6},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) end, {
+        Randomizer.Puzzles.B7.WLJ,
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) and not locked.Connector end, {
+        Randomizer.Puzzles.B7.BSbS
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) and not locked.Cube end, {
+        Randomizer.Puzzles.B7.BLoM,
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) and not locked.Cube and not locked.Fan end, {
+        Randomizer.Puzzles.B7.Pyramid
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) and not locked.Connector and not locked.Cube and not locked.Fan end, {
+        Randomizer.Puzzles.B7.AFaF,
+        Randomizer.Puzzles.B7.BSbSStar
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.BStar) and not locked.Connector end, {
+        Randomizer.Puzzles.BStar.MGR
+      }, Randomizer.Puzzles.BStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.BStar) and not locked.Connector and not locked.Cube end, {
+        Randomizer.Puzzles.BStar.CC
+      }, Randomizer.Puzzles.BStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.BStar) and not locked.Connector and not locked.Recorder end, {
+        Randomizer.Puzzles.BStar.Peekaboo
+      }, Randomizer.Puzzles.BStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.C1) end, {
+        Randomizer.Puzzles.C1.Labyrinth,
+      }, Randomizer.Puzzles.C1},
+      {function() return isWorldOpen(Randomizer.Puzzles.C1) and not locked.Connector end, {
+        Randomizer.Puzzles.C1.Conservatory,
+        Randomizer.Puzzles.C1.Star
+      }, Randomizer.Puzzles.C1},
+      {function() return isWorldOpen(Randomizer.Puzzles.C1) and not locked.Connector and not locked.Cube and not locked.Fan end, {
+        Randomizer.Puzzles.C1.Blowback,
+        Randomizer.Puzzles.C1.MIA
+      }, Randomizer.Puzzles.C1},
+      {function() return isWorldOpen(Randomizer.Puzzles.C2) and not locked.Connector and not locked.Cube end, {
+        Randomizer.Puzzles.C2.Cemetery
+      }, Randomizer.Puzzles.C2},
+      {function() return isWorldOpen(Randomizer.Puzzles.C2) and not locked.Recorder and not locked.Platform end, {
+        Randomizer.Puzzles.C2.TSW
+      }, Randomizer.Puzzles.C2},
+      {function() return isWorldOpen(Randomizer.Puzzles.C2) and not locked.Cube and not locked.Recorder and not locked.Platform end, {
+        Randomizer.Puzzles.C2.Rapunzel,
+        Randomizer.Puzzles.C2.Star
+      }, Randomizer.Puzzles.C2},
+      {function() return isWorldOpen(Randomizer.Puzzles.C2) and not locked.Connector and not locked.Cube and not locked.Recorder and not locked.Platform end, {
+        Randomizer.Puzzles.C2.ADaaF
+      }, Randomizer.Puzzles.C2},
+      {function() return isWorldOpen(Randomizer.Puzzles.C3) and not locked.Connector and not locked.Cube and not locked.Fan end, {
+        Randomizer.Puzzles.C3.BSLS,
+        Randomizer.Puzzles.C3.JQ,
+        Randomizer.Puzzles.C3.Weathertop,
+        Randomizer.Puzzles.C3.TLCaaF,
+        Randomizer.Puzzles.C3.Star
+      }, Randomizer.Puzzles.C3},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) and not locked.Connector end, {
+        Randomizer.Puzzles.C4.Stables
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) and not locked.Connector and not locked.Cube end, {
+        Randomizer.Puzzles.C4.Armory
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) and not locked.Connector and not locked.Cube and not locked.Fan end, {
+        Randomizer.Puzzles.C4.ThroneRoom,
+        Randomizer.Puzzles.C4.ThroneRoomStar
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) and not locked.Connector and not locked.Cube and not locked.Recorder and not locked.Platform end, {
+        Randomizer.Puzzles.C4.Oubliette,
+        Randomizer.Puzzles.C4.OublietteStar
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C5) and not locked.Cube end, {
+        Randomizer.Puzzles.C5.UCaJStar
+      }, Randomizer.Puzzles.C5},
+      {function() return isWorldOpen(Randomizer.Puzzles.C5) and not locked.Connector and not locked.Cube end, {
+        Randomizer.Puzzles.C5.UCaJ
+      }, Randomizer.Puzzles.C5},
+      {function() return isWorldOpen(Randomizer.Puzzles.C5) and not locked.Connector and not locked.Cube and not locked.Fan end, {
+        Randomizer.Puzzles.C5.Dumbwaiter
+      }, Randomizer.Puzzles.C5},
+      {function() return isWorldOpen(Randomizer.Puzzles.C5) and not locked.Connector and not locked.Cube and not locked.Recorder end, {
+        Randomizer.Puzzles.C5.TimeCrawls
+      }, Randomizer.Puzzles.C5},
+      {function() return isWorldOpen(Randomizer.Puzzles.C5) and not locked.Connector and not locked.Cube and not locked.Fan and not locked.Recorder end, {
+        Randomizer.Puzzles.C5.TimeFlies,
+        Randomizer.Puzzles.C5.TFStar,
+        Randomizer.Puzzles.C5.DumbwaiterStar
+      }, Randomizer.Puzzles.C5},
+      {function() return isWorldOpen(Randomizer.Puzzles.C6) end, {
+        Randomizer.Puzzles.C6.TWS
+      }, Randomizer.Puzzles.C6},
+      {function() return isWorldOpen(Randomizer.Puzzles.C6) and not locked.Connector and not locked.Cube end, {
+        Randomizer.Puzzles.C6.Circumlocution
+      }, Randomizer.Puzzles.C6},
+      {function() return isWorldOpen(Randomizer.Puzzles.C6) and not locked.Connector and not locked.Recorder end, {
+        Randomizer.Puzzles.C6.TSDoR,
+        Randomizer.Puzzles.C6.Star
+      }, Randomizer.Puzzles.C6},
+      {function() return isWorldOpen(Randomizer.Puzzles.C7) and not locked.Connector and not locked.Recorder end, {
+        Randomizer.Puzzles.C7.CCA
+      }, Randomizer.Puzzles.C7},
+      {function() return isWorldOpen(Randomizer.Puzzles.C7) and not locked.Connector and not locked.Cube and not locked.Fan end, {
+        Randomizer.Puzzles.C7.PB,
+        Randomizer.Puzzles.C7.CP,
+        Randomizer.Puzzles.C7.DMS,
+        Randomizer.Puzzles.C7.Star
+      }, Randomizer.Puzzles.C7},
+      {function() return isWorldOpen(Randomizer.Puzzles.CStar) and not locked.Connector and not locked.Cube end, {
+        Randomizer.Puzzles.CStar.Nexus,
+        Randomizer.Puzzles.CStar.Cobweb
+      }, Randomizer.Puzzles.CStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.CStar) and not locked.Connector and not locked.Cube and not locked.Recorder and not locked.Platform end, {
+        Randomizer.Puzzles.CStar.UG
+      }, Randomizer.Puzzles.CStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.CMessenger) end, {
+        Randomizer.Puzzles.CMessenger.Star
+      }, Randomizer.Puzzles.CMessenger},
+      {function() return not locked.F1 and not locked.Connector end, {
+        Randomizer.Puzzles.Nexus.F0
       }}
       -- Yes F3 star is missing, it's explained further down
     }
-  elseif randomization_mode == "Hardmode" then
+  elseif RandomizationMode == Randomizer.Modes.Values.Hardmode then
     markers = {
-      {function() return isWorldOpen("A1") end, {
-        "A1-Peephole", "A1-PaSL", "A1-Outnumbered", "A1-ASooR",
-        "A1-OtToU", "A1-Trio", "A1-Beaten Path", "A1-Star"
+      {function() return isWorldOpen(Randomizer.Puzzles.A1) end, {
+        Randomizer.Puzzles.A1.Peephole,
+        Randomizer.Puzzles.A1.PaSL,
+        Randomizer.Puzzles.A1.Outnumbered,
+        Randomizer.Puzzles.A1.ASOoR,
+        Randomizer.Puzzles.A1.OtToU,
+        Randomizer.Puzzles.A1.Trio,
+        Randomizer.Puzzles.A1.StBP,
+        Randomizer.Puzzles.A1.Star
       }},
-      {function() return isWorldOpen("A2") end, {
-        "A2-Hall of Windows", "A2-Guards", "A2-Suicide Mission", "A2-Star"
-      }, "A2"},
-      {function() return isWorldOpen("A3") end, {
-        "A3-ABTU Star", "A3-ABTU", "A3-AEP", "A3-Swallowed the Key",
-        "A3-Stashed for Later", "A3-Clock Star"
-      }, "A3"},
-      {function() return isWorldOpen("A4") end, {
-        "A4-Push it Further", "A4-Branch it Out", "A4-Above All That", "A4-Star",
-        "A4-DCtS"
-      }, "A4"},
-      {function() return isWorldOpen("A5") end, {
-        "A5-Two Boxes", "A5-Two Boxes Star", "A5-Over the Fence", "A5-YKYMCTS",
-        "A5-OLB", "A5-FC", "A5-FC Star",
-      }, "A5"},
-      {function() return isWorldOpen("A6") end, {
-        "A6-Mobile Mindfield", "A6-Deception", "A6-Door too Far", "A6-Bichromatic",
-        "A6-Star"
-      }, "A6"},
-      {function() return isWorldOpen("A7") end, {
-        "A7-Two Buzzers", "A7-Pinhole", "A7-LFI", "A7-WiaL",
-        "A7-Trapped Inside", "A7-Star"
-      }, "A7"},
-      {function() return isWorldOpen("A8") end, {
-        "A*-DDM", "A*-Nervewrecker", "A*-JfW"
-      }, "A8"},
-      {function() return isWorldOpen("B1") end, {
-        "B1-SaaS", "B1-WtaD", "B1-Third Wheel", "B1-Over the Fence",
-        "B1-RoD", "B1-Star"
-      }, "B1"},
-      {function() return isWorldOpen("B2") end, {
-        "B2-Higher Ground", "B2-Tomb", "B2-MotM", "B2-Moonshot",
-        "B2-Star"
-      }, "B2"},
-      {function() return isWorldOpen("B3") end, {
-        "B3-Sunshot", "B3-Blown Away", "B3-Eagle's Nest", "B3-Woosh",
-        "B3-Star"
-      }, "B3"},
-      {function() return isWorldOpen("B4") end, {
-        "B4-TRA", "B4-ABUH", "B4-Double-Plate", "B4-Self Help",
-        "B4-RPS", "B4-WAtC", "B4-TRA Star"
-      }, "B4"},
-      {function() return isWorldOpen("B4") and (not locked["Connector"] or not locked["Cube"]) end, {
-        "B4-Sphinx Star"
-      }, "B4"},
-      {function() return isWorldOpen("B5") end, {
-        "B5-Plates", "B5-Two Jammers", "B5-Iron Curtain", "B5-SES",
-        "B5-Chambers"
-      }, "B5"},
-      {function() return isWorldOpen("B5") and ((not locked["Connector"] and not locked["Fan"]) or not locked["Cube"]) end, {
-        "B5-Obelisk Star"
-      }, "B5"},
-      {function() return isWorldOpen("B6") end, {
-        "B6-Egyptian Arcade", "B6-JDaW", "B6-Crisscross"
-      }, "B6"},
-      {function() return isWorldOpen("B7") end, {
-        "B7-WLJ", "B7-AFaF", "B7-BSbS Star", "B7-BSbS",
-        "B7-BLoM"
-      }, "B7"},
-      {function() return isWorldOpen("B7") and (not locked["Cube"] or not locked["Fan"]) end, {
-        "B7-Star"
-      }, "B7"},
-      {function() return isWorldOpen("B8") end, {
-        "B*-Merry Go Round", "B*-Cat's Cradle", "B*-Peekaboo"
-      }, "B8"},
-      {function() return isWorldOpen("C1") end, {
-        "C1-Labyrinth", "C1-Conservatory", "C1-Blowback", "C1-MIA",
-        "C1-Star"
-      }, "C1"},
-      {function() return isWorldOpen("C2") end, {
-        "C2-Cemetery", "C2-ADaaF", "C2-Rapunzel", "C2-Short Wall",
-        "C2-Star"
-      }, "C2"},
-      {function() return isWorldOpen("C3") end, {
-        "C3-Three Connectors", "C3-BSLS", "C3-Jammer Quarantine", "C3-Weathertop",
-        "C3-Star"
-      }, "C3"},
-      {function() return isWorldOpen("C4") end, {
-        "C4-Stables", "C4-Armory", "C4-Oubliette Star", "C4-Oubliette",
-        "C4-Throne Room", "C4-Throne Room Star"
-      }, "C4"},
-      {function() return isWorldOpen("C5") end, {
-        "C5-Time Crawls", "C5-Dumbwaiter", "C5-Time Flies", "C5-UCaJ",
-        "C5-Time Flies Star", "C5-UCAJ Star", "C5-Dumbwaiter Star"
-      }, "C5"},
-      {function() return isWorldOpen("C6") end, {
-        "C6-Two Way Street", "C6-Circumlocution", "C6-Seven Doors", "C6-Star"
-      }, "C6"},
-      {function() return isWorldOpen("C7") end, {
-        "C7-Prison Break", "C7-Carrier Pigeons", "C7-Crisscross", "C7-DMS",
-        "C7-Star"
-      }, "C7"},
-      {function() return isWorldOpen("C8") end, {
-        "C*-Nexus", "C*-Cobweb", "C*-Unreachable Garden"
-      }, "C8"},
-      {function() return isWorldOpen("CMessenger") end, {
-        "CM-Star"
-      }, "CMessenger"},
-      {function() return not locked["F1"] and (not locked["Connector"] or not locked["F3"]) end, {
-        "F0-Star"
+      {function() return isWorldOpen(Randomizer.Puzzles.A2) end, {
+        Randomizer.Puzzles.A2.HoW,
+        Randomizer.Puzzles.A2.Guards,
+        Randomizer.Puzzles.A2.SM,
+        Randomizer.Puzzles.A2.Star
+      }, Randomizer.Puzzles.A2},
+      {function() return isWorldOpen(Randomizer.Puzzles.A3) end, {
+        Randomizer.Puzzles.A3.ABTUStar,
+        Randomizer.Puzzles.A3.ABTU,
+        Randomizer.Puzzles.A3.AEP,
+        Randomizer.Puzzles.A3.LMUStK,
+        Randomizer.Puzzles.A3.SfL,
+        Randomizer.Puzzles.A3.Clock
+      }, Randomizer.Puzzles.A3},
+      {function() return isWorldOpen(Randomizer.Puzzles.A4) end, {
+        Randomizer.Puzzles.A4.PiF,
+        Randomizer.Puzzles.A4.BiO,
+        Randomizer.Puzzles.A4.AAT,
+        Randomizer.Puzzles.A4.Star,
+        Randomizer.Puzzles.A4.DCtS
+      }, Randomizer.Puzzles.A4},
+      {function() return isWorldOpen(Randomizer.Puzzles.A5) end, {
+        Randomizer.Puzzles.A5.TwoBoxes,
+        Randomizer.Puzzles.A5.TwoBoxesStar,
+        Randomizer.Puzzles.A5.GOtF,
+        Randomizer.Puzzles.A5.YKYMCtS,
+        Randomizer.Puzzles.A5.OLB,
+        Randomizer.Puzzles.A5.FC,
+        Randomizer.Puzzles.A5.FCStar
+      }, Randomizer.Puzzles.A5},
+      {function() return isWorldOpen(Randomizer.Puzzles.A6) end, {
+        Randomizer.Puzzles.A6.Mindfield,
+        Randomizer.Puzzles.A6.Deception,
+        Randomizer.Puzzles.A6.ADTF,
+        Randomizer.Puzzles.A6.Bichromatic,
+        Randomizer.Puzzles.A6.Star
+      }, Randomizer.Puzzles.A6},
+      {function() return isWorldOpen(Randomizer.Puzzles.A7) end, {
+        Randomizer.Puzzles.A7.TPLB,
+        Randomizer.Puzzles.A7.PW,
+        Randomizer.Puzzles.A7.LfI,
+        Randomizer.Puzzles.A7.WiaL,
+        Randomizer.Puzzles.A7.TI,
+        Randomizer.Puzzles.A7.Star
+      }, Randomizer.Puzzles.A7},
+      {function() return isWorldOpen(Randomizer.Puzzles.AStar) end, {
+        Randomizer.Puzzles.AStar.DDM,
+        Randomizer.Puzzles.AStar.NW,
+        Randomizer.Puzzles.AStar.JfW
+      }, Randomizer.Puzzles.AStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.B1) end, {
+        Randomizer.Puzzles.B1.SaaS,
+        Randomizer.Puzzles.B1.WtaD,
+        Randomizer.Puzzles.B1.TW,
+        Randomizer.Puzzles.B1.OtF,
+        Randomizer.Puzzles.B1.RoD,
+        Randomizer.Puzzles.B1.Star
+      }, Randomizer.Puzzles.B1},
+      {function() return isWorldOpen(Randomizer.Puzzles.B2) end, {
+        Randomizer.Puzzles.B2.HG,
+        Randomizer.Puzzles.B2.Tomb,
+        Randomizer.Puzzles.B2.MoTM,
+        Randomizer.Puzzles.B2.Moonshot,
+        Randomizer.Puzzles.B2.Star
+      }, Randomizer.Puzzles.B2},
+      {function() return isWorldOpen(Randomizer.Puzzles.B3) end, {
+        Randomizer.Puzzles.B3.Sunshot,
+        Randomizer.Puzzles.B3.BA,
+        Randomizer.Puzzles.B3.EN,
+        Randomizer.Puzzles.B3.Whoosh,
+        Randomizer.Puzzles.B3.Star
+      }, Randomizer.Puzzles.B3},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) end, {
+        Randomizer.Puzzles.B4.TRA,
+        Randomizer.Puzzles.B4.ABUH,
+        Randomizer.Puzzles.B4.DP,
+        Randomizer.Puzzles.B4.SHT,
+        Randomizer.Puzzles.B4.RPS,
+        Randomizer.Puzzles.B4.WAtC,
+        Randomizer.Puzzles.B4.TRAStar
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and (not locked.Connector or not locked.Cube) end, {
+        Randomizer.Puzzles.B4.Sphinx
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B5) end, {
+        Randomizer.Puzzles.B5.Plates,
+        Randomizer.Puzzles.B5.MMaOTJ,
+        Randomizer.Puzzles.B5.BtIC,
+        Randomizer.Puzzles.B5.SES,
+        Randomizer.Puzzles.B5.Chambers
+      }, Randomizer.Puzzles.B5},
+      {function() return isWorldOpen(Randomizer.Puzzles.B5) and ((not locked.Connector and not locked.Fan) or not locked.Cube) end, {
+        Randomizer.Puzzles.B5.Obelisk
+      }, Randomizer.Puzzles.B5},
+      {function() return isWorldOpen(Randomizer.Puzzles.B6) end, {
+        Randomizer.Puzzles.B6.EA,
+        Randomizer.Puzzles.B6.JDaW,
+        Randomizer.Puzzles.B6.Crisscross
+      }, Randomizer.Puzzles.B6},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) end, {
+        Randomizer.Puzzles.B7.WLJ,
+        Randomizer.Puzzles.B7.AFaF,
+        Randomizer.Puzzles.B7.BSbSStar,
+        Randomizer.Puzzles.B7.BSbS,
+        Randomizer.Puzzles.B7.BLoM
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) and (not locked.Cube or not locked.Fan) end, {
+        Randomizer.Puzzles.B7.Pyramid
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.BStar) end, {
+        Randomizer.Puzzles.BStar.MGR,
+        Randomizer.Puzzles.BStar.CC,
+        Randomizer.Puzzles.BStar.Peekaboo
+      }, Randomizer.Puzzles.BStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.C1) end, {
+        Randomizer.Puzzles.C1.Labyrinth,
+        Randomizer.Puzzles.C1.Conservatory,
+        Randomizer.Puzzles.C1.Blowback,
+        Randomizer.Puzzles.C1.MIA,
+        Randomizer.Puzzles.C1.Star
+      }, Randomizer.Puzzles.C1},
+      {function() return isWorldOpen(Randomizer.Puzzles.C2) end, {
+        Randomizer.Puzzles.C2.Cemetery,
+        Randomizer.Puzzles.C2.ADaaF,
+        Randomizer.Puzzles.C2.Rapunzel,
+        Randomizer.Puzzles.C2.TSW,
+        Randomizer.Puzzles.C2.Star
+      }, Randomizer.Puzzles.C2},
+      {function() return isWorldOpen(Randomizer.Puzzles.C3) end, {
+        Randomizer.Puzzles.C3.TLCaaF,
+        Randomizer.Puzzles.C3.BSLS,
+        Randomizer.Puzzles.C3.JQ,
+        Randomizer.Puzzles.C3.Weathertop,
+        Randomizer.Puzzles.C3.Star
+      }, Randomizer.Puzzles.C3},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) end, {
+        Randomizer.Puzzles.C4.Stables,
+        Randomizer.Puzzles.C4.Armory,
+        Randomizer.Puzzles.C4.OublietteStar,
+        Randomizer.Puzzles.C4.Oubliette,
+        Randomizer.Puzzles.C4.ThroneRoom,
+        Randomizer.Puzzles.C4.ThroneRoomStar
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C5) end, {
+        Randomizer.Puzzles.C5.TimeCrawls,
+        Randomizer.Puzzles.C5.Dumbwaiter,
+        Randomizer.Puzzles.C5.TimeFlies,
+        Randomizer.Puzzles.C5.UCaJ,
+        Randomizer.Puzzles.C5.TFStar,
+        Randomizer.Puzzles.C5.UCaJStar,
+        Randomizer.Puzzles.C5.DumbwaiterStar
+      }, Randomizer.Puzzles.C5},
+      {function() return isWorldOpen(Randomizer.Puzzles.C6) end, {
+        Randomizer.Puzzles.C6.TWS,
+        Randomizer.Puzzles.C6.Circumlocution,
+        Randomizer.Puzzles.C6.TSDoR,
+        Randomizer.Puzzles.C6.Star
+      }, Randomizer.Puzzles.C6},
+      {function() return isWorldOpen(Randomizer.Puzzles.C7) end, {
+        Randomizer.Puzzles.C7.PB,
+        Randomizer.Puzzles.C7.CP,
+        Randomizer.Puzzles.C7.CCA,
+        Randomizer.Puzzles.C7.DMS,
+        Randomizer.Puzzles.C7.Star
+      }, Randomizer.Puzzles.C7},
+      {function() return isWorldOpen(Randomizer.Puzzles.CStar) end, {
+        Randomizer.Puzzles.CStar.Nexus,
+        Randomizer.Puzzles.CStar.Cobweb,
+        Randomizer.Puzzles.CStar.UG
+      }, Randomizer.Puzzles.CStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.CMessenger) end, {
+        Randomizer.Puzzles.CMessenger.Star
+      }, Randomizer.Puzzles.CMessenger},
+      {function() return not locked.F1 and (not locked.Connector or not locked.F3) end, {
+        Randomizer.Puzzles.Nexus.F0
       }},
-      {function() return not locked["F1"] and not locked["F3"] end, {
-        "F3-Star"
+      {function() return not locked.F1 and not locked.F3 end, {
+        Randomizer.Puzzles.Nexus.F3
       }}
     }
-  elseif randomization_mode == "60FPS Hardmode" then
+  elseif RandomizationMode == Randomizer.Modes.Values.SixtyHardmode then
     markers = {
-      {function() return isWorldOpen("A1") end, {
-        "A1-Peephole", "A1-PaSL", "A1-Outnumbered", "A1-ASooR",
-        "A1-OtToU", "A1-Trio", "A1-Beaten Path", "A1-Star"
+      {function() return isWorldOpen(Randomizer.Puzzles.A1) end, {
+        Randomizer.Puzzles.A1.Peephole,
+        Randomizer.Puzzles.A1.PaSL,
+        Randomizer.Puzzles.A1.Outnumbered,
+        Randomizer.Puzzles.A1.ASOoR,
+        Randomizer.Puzzles.A1.OtToU,
+        Randomizer.Puzzles.A1.Trio,
+        Randomizer.Puzzles.A1.StBP,
+        Randomizer.Puzzles.A1.Star
       }},
-      {function() return isWorldOpen("A2") end, {
-        "A2-Hall of Windows", "A2-Guards", "A2-Suicide Mission", "A2-Star"
-      }, "A2"},
-      {function() return isWorldOpen("A3") end, {
-        "A3-ABTU Star", "A3-ABTU", "A3-AEP", "A3-Swallowed the Key",
-        "A3-Stashed for Later", "A3-Clock Star"
-      }, "A3"},
-      {function() return isWorldOpen("A4") end, {
-        "A4-Push it Further", "A4-Branch it Out", "A4-Above All That", "A4-Star",
-        "A4-DCtS"
-      }, "A4"},
-      {function() return isWorldOpen("A5") end, {
-        "A5-Two Boxes", "A5-Two Boxes Star", "A5-Over the Fence", "A5-YKYMCTS",
-        "A5-OLB", "A5-FC", "A5-FC Star",
-      }, "A5"},
-      {function() return isWorldOpen("A6") end, {
-        "A6-Mobile Mindfield", "A6-Deception", "A6-Door too Far", "A6-Bichromatic",
-        "A6-Star"
-      }, "A6"},
-      {function() return isWorldOpen("A7") end, {
-        "A7-Two Buzzers", "A7-Pinhole", "A7-LFI", "A7-WiaL",
-        "A7-Trapped Inside", "A7-Star"
-      }, "A7"},
-      {function() return isWorldOpen("A8") end, {
-        "A*-DDM", "A*-Nervewrecker", "A*-JfW"
-      }, "A8"},
-      {function() return isWorldOpen("B1") end, {
-        "B1-SaaS", "B1-WtaD", "B1-Third Wheel", "B1-Over the Fence",
-        "B1-RoD", "B1-Star"
-      }, "B1"},
-      {function() return isWorldOpen("B2") end, {
-        "B2-Higher Ground", "B2-Tomb", "B2-MotM", "B2-Moonshot",
-        "B2-Star"
-      }, "B2"},
-      {function() return isWorldOpen("B3") and not locked["Cube"] end, {
-        "B3-Sunshot", "B3-Blown Away", "B3-Eagle's Nest", "B3-Woosh",
-        "B3-Star"
-      }, "B3"},
-      {function() return isWorldOpen("B4") end, {
-        "B4-Self Help", "B4-WAtC"
-      }, "B4"},
-      {function() return isWorldOpen("B4") and not locked["Connector"] end, {
-        "B4-TRA", "B4-TRA Star", "B4-Sphinx Star"
-      }, "B4"},
-      {function() return isWorldOpen("B4") and not locked["Connector"] and (not locked["Cube"] or not locked["Fan"]) end, {
-        "B4-ABUH"
-      }, "B4"},
-      {function() return isWorldOpen("B4") and ((not locked["Connector"] and not locked["Cube"]) or not locked["Recorder"]) end, {
-        "B4-Double-Plate", "B4-RPS"
-      }, "B4"},
-      {function() return isWorldOpen("B5") end, {
-        "B5-Plates", "B5-Two Jammers", "B5-Iron Curtain", "B5-SES",
-        "B5-Chambers"
-      }, "B5"},
-      {function() return isWorldOpen("B5") and ((not locked["Connector"] and not locked["Fan"]) or not locked["Cube"]) end, {
-        "B5-Obelisk Star"
-      }, "B5"},
-      {function() return isWorldOpen("B6") end, {
-        "B6-Egyptian Arcade", "B6-JDaW", "B6-Crisscross"
-      }, "B6"},
-      {function() return isWorldOpen("B7") end, {
-        "B7-WLJ", "B7-AFaF", "B7-BSbS Star", "B7-BSbS",
-        "B7-BLoM"
-      }, "B7"},
-      {function() return isWorldOpen("B7") and (not locked["Cube"] or not locked["Fan"]) end, {
-        "B7-Star"
-      }, "B7"},
-      {function() return isWorldOpen("B8") end, {
-        "B*-Merry Go Round", "B*-Cat's Cradle", "B*-Peekaboo"
-      }, "B8"},
-      {function() return isWorldOpen("C1") end, {
-        "C1-Labyrinth", "C1-Conservatory", "C1-Blowback", "C1-MIA",
-        "C1-Star"
-      }, "C1"},
-      {function() return isWorldOpen("C2") end, {
-        "C2-Cemetery", "C2-ADaaF", "C2-Rapunzel", "C2-Short Wall",
-        "C2-Star"
-      }, "C2"},
-      {function() return isWorldOpen("C3") end, {
-        "C3-Three Connectors", "C3-BSLS", "C3-Jammer Quarantine", "C3-Weathertop",
-        "C3-Star"
-      }, "C3"},
-      {function() return isWorldOpen("C4") end, {
-        "C4-Stables", "C4-Armory", "C4-Throne Room", "C4-Throne Room Star"
-      }, "C4"},
-      {function() return isWorldOpen("C4") and not locked["Cube"] end, {
-        "C4-Oubliette Star"
-      }, "C4"},
-      {function() return isWorldOpen("C4") and (not locked["Connector"] or not locked["Cube"] or not locked["Recorder"] or not locked["Platform"]) end, {
-        "C4-Oubliette"
-      }, "C4"},
-      {function() return isWorldOpen("C5") end, {
-        "C5-Time Crawls", "C5-Dumbwaiter", "C5-Time Flies", "C5-UCaJ",
-        "C5-Time Flies Star", "C5-UCAJ Star", "C5-Dumbwaiter Star"
-      }, "C5"},
-      {function() return isWorldOpen("C6") end, {
-        "C6-Two Way Street", "C6-Circumlocution", "C6-Seven Doors", "C6-Star"
-      }, "C6"},
-      {function() return isWorldOpen("C7") end, {
-        "C7-Prison Break", "C7-Carrier Pigeons", "C7-Crisscross", "C7-DMS",
-        "C7-Star"
-      }, "C7"},
-      {function() return isWorldOpen("C8") end, {
-        "C*-Nexus", "C*-Unreachable Garden"
-      }, "C8"},
-      {function() return isWorldOpen("C8") and not locked["Cube"] end, {
-        "C*-Cobweb"
-      }, "C8"},
-      {function() return isWorldOpen("CMessenger") end, {
-        "CM-Star"
-      }, "CMessenger"},
-      {function() return not locked["F1"] and (not locked["Connector"] or not locked["F3"]) end, {
-        "F0-Star"
+      {function() return isWorldOpen(Randomizer.Puzzles.A2) end, {
+        Randomizer.Puzzles.A2.HoW,
+        Randomizer.Puzzles.A2.Guards,
+        Randomizer.Puzzles.A2.SM,
+        Randomizer.Puzzles.A2.Star
+      }, Randomizer.Puzzles.A2},
+      {function() return isWorldOpen(Randomizer.Puzzles.A3) end, {
+        Randomizer.Puzzles.A3.ABTUStar,
+        Randomizer.Puzzles.A3.ABTU,
+        Randomizer.Puzzles.A3.AEP,
+        Randomizer.Puzzles.A3.LMUStK,
+        Randomizer.Puzzles.A3.SfL,
+        Randomizer.Puzzles.A3.Clock
+      }, Randomizer.Puzzles.A3},
+      {function() return isWorldOpen(Randomizer.Puzzles.A4) end, {
+        Randomizer.Puzzles.A4.PiF,
+        Randomizer.Puzzles.A4.BiO,
+        Randomizer.Puzzles.A4.AAT,
+        Randomizer.Puzzles.A4.Star,
+        Randomizer.Puzzles.A4.DCtS
+      }, Randomizer.Puzzles.A4},
+      {function() return isWorldOpen(Randomizer.Puzzles.A5) end, {
+        Randomizer.Puzzles.A5.TwoBoxes,
+        Randomizer.Puzzles.A5.TwoBoxesStar,
+        Randomizer.Puzzles.A5.GOtF,
+        Randomizer.Puzzles.A5.YKYMCtS,
+        Randomizer.Puzzles.A5.OLB,
+        Randomizer.Puzzles.A5.FC,
+        Randomizer.Puzzles.A5.FCStar
+      }, Randomizer.Puzzles.A5},
+      {function() return isWorldOpen(Randomizer.Puzzles.A6) end, {
+        Randomizer.Puzzles.A6.Mindfield,
+        Randomizer.Puzzles.A6.Deception,
+        Randomizer.Puzzles.A6.ADTF,
+        Randomizer.Puzzles.A6.Bichromatic,
+        Randomizer.Puzzles.A6.Star
+      }, Randomizer.Puzzles.A6},
+      {function() return isWorldOpen(Randomizer.Puzzles.A7) end, {
+        Randomizer.Puzzles.A7.TPLB,
+        Randomizer.Puzzles.A7.PW,
+        Randomizer.Puzzles.A7.LfI,
+        Randomizer.Puzzles.A7.WiaL,
+        Randomizer.Puzzles.A7.TI,
+        Randomizer.Puzzles.A7.Star
+      }, Randomizer.Puzzles.A7},
+      {function() return isWorldOpen(Randomizer.Puzzles.AStar) end, {
+        Randomizer.Puzzles.AStar.DDM,
+        Randomizer.Puzzles.AStar.NW,
+        Randomizer.Puzzles.AStar.JfW
+      }, Randomizer.Puzzles.AStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.B1) end, {
+        Randomizer.Puzzles.B1.SaaS,
+        Randomizer.Puzzles.B1.WtaD,
+        Randomizer.Puzzles.B1.TW,
+        Randomizer.Puzzles.B1.OtF,
+        Randomizer.Puzzles.B1.RoD,
+        Randomizer.Puzzles.B1.Star
+      }, Randomizer.Puzzles.B1},
+      {function() return isWorldOpen(Randomizer.Puzzles.B2) end, {
+        Randomizer.Puzzles.B2.HG,
+        Randomizer.Puzzles.B2.Tomb,
+        Randomizer.Puzzles.B2.MoTM,
+        Randomizer.Puzzles.B2.Moonshot,
+        Randomizer.Puzzles.B2.Star
+      }, Randomizer.Puzzles.B2},
+      {function() return isWorldOpen(Randomizer.Puzzles.B3) and not locked.Cube end, {
+        Randomizer.Puzzles.B3.Sunshot,
+        Randomizer.Puzzles.B3.BA,
+        Randomizer.Puzzles.B3.EN,
+        Randomizer.Puzzles.B3.Whoosh,
+        Randomizer.Puzzles.B3.Star
+      }, Randomizer.Puzzles.B3},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) end, {
+        Randomizer.Puzzles.B4.SHT,
+        Randomizer.Puzzles.B4.WAtC
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and not locked.Connector end, {
+        Randomizer.Puzzles.B4.TRA,
+        Randomizer.Puzzles.B4.TRAStar,
+        Randomizer.Puzzles.B4.Sphinx
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and not locked.Connector and (not locked.Cube or not locked.Fan) end, {
+        Randomizer.Puzzles.B4.ABUH
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and ((not locked.Connector and not locked.Cube) or not locked.Recorder) end, {
+        Randomizer.Puzzles.B4.DP,
+        Randomizer.Puzzles.B4.RPS
+      }, Randomizer.Puzzles.B4},
+      {function() return isWorldOpen(Randomizer.Puzzles.B5) end, {
+        Randomizer.Puzzles.B5.Plates,
+        Randomizer.Puzzles.B5.MMaOTJ,
+        Randomizer.Puzzles.B5.BtIC,
+        Randomizer.Puzzles.B5.SES,
+        Randomizer.Puzzles.B5.Chambers
+      }, Randomizer.Puzzles.B5},
+      {function() return isWorldOpen(Randomizer.Puzzles.B5) and ((not locked.Connector and not locked.Fan) or not locked.Cube) end, {
+        Randomizer.Puzzles.B5.Obelisk
+      }, Randomizer.Puzzles.B5},
+      {function() return isWorldOpen(Randomizer.Puzzles.B6) end, {
+        Randomizer.Puzzles.B6.EA,
+        Randomizer.Puzzles.B6.JDaW,
+        Randomizer.Puzzles.B6.Crisscross
+      }, Randomizer.Puzzles.B6},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) end, {
+        Randomizer.Puzzles.B7.WLJ,
+        Randomizer.Puzzles.B7.AFaF,
+        Randomizer.Puzzles.B7.BSbSStar,
+        Randomizer.Puzzles.B7.BSbS,
+        Randomizer.Puzzles.B7.BLoM
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) and (not locked.Cube or not locked.Fan) end, {
+        Randomizer.Puzzles.B7.Pyramid
+      }, Randomizer.Puzzles.B7},
+      {function() return isWorldOpen(Randomizer.Puzzles.BStar) end, {
+        Randomizer.Puzzles.BStar.MGR,
+        Randomizer.Puzzles.BStar.CC,
+        Randomizer.Puzzles.BStar.Peekaboo
+      }, Randomizer.Puzzles.BStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.C1) end, {
+        Randomizer.Puzzles.C1.Labyrinth,
+        Randomizer.Puzzles.C1.Conservatory,
+        Randomizer.Puzzles.C1.Blowback,
+        Randomizer.Puzzles.C1.MIA,
+        Randomizer.Puzzles.C1.Star
+      }, Randomizer.Puzzles.C1},
+      {function() return isWorldOpen(Randomizer.Puzzles.C2) end, {
+        Randomizer.Puzzles.C2.Cemetery,
+        Randomizer.Puzzles.C2.ADaaF,
+        Randomizer.Puzzles.C2.Rapunzel,
+        Randomizer.Puzzles.C2.TSW,
+        Randomizer.Puzzles.C2.Star
+      }, Randomizer.Puzzles.C2},
+      {function() return isWorldOpen(Randomizer.Puzzles.C3) end, {
+        Randomizer.Puzzles.C3.TLCaaF,
+        Randomizer.Puzzles.C3.BSLS,
+        Randomizer.Puzzles.C3.JQ,
+        Randomizer.Puzzles.C3.Weathertop,
+        Randomizer.Puzzles.C3.Star
+      }, Randomizer.Puzzles.C3},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) end, {
+        Randomizer.Puzzles.C4.Stables,
+        Randomizer.Puzzles.C4.Armory,
+        Randomizer.Puzzles.C4.ThroneRoom,
+        Randomizer.Puzzles.C4.ThroneRoomStar
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) and not locked.Cube end, {
+        Randomizer.Puzzles.C4.OublietteStar
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) and (not locked.Connector or not locked.Cube or not locked.Recorder or not locked.Platform) end, {
+        Randomizer.Puzzles.C4.Oubliette
+      }, Randomizer.Puzzles.C4},
+      {function() return isWorldOpen(Randomizer.Puzzles.C5) end, {
+        Randomizer.Puzzles.C5.TimeCrawls,
+        Randomizer.Puzzles.C5.Dumbwaiter,
+        Randomizer.Puzzles.C5.TimeFlies,
+        Randomizer.Puzzles.C5.UCaJ,
+        Randomizer.Puzzles.C5.TFStar,
+        Randomizer.Puzzles.C5.UCaJStar,
+        Randomizer.Puzzles.C5.DumbwaiterStar
+      }, Randomizer.Puzzles.C5},
+      {function() return isWorldOpen(Randomizer.Puzzles.C6) end, {
+        Randomizer.Puzzles.C6.TWS,
+        Randomizer.Puzzles.C6.Circumlocution,
+        Randomizer.Puzzles.C6.TSDoR,
+        Randomizer.Puzzles.C6.Star
+      }, Randomizer.Puzzles.C6},
+      {function() return isWorldOpen(Randomizer.Puzzles.C7) end, {
+        Randomizer.Puzzles.C7.PB,
+        Randomizer.Puzzles.C7.CP,
+        Randomizer.Puzzles.C7.CCA,
+        Randomizer.Puzzles.C7.DMS,
+        Randomizer.Puzzles.C7.Star
+      }, Randomizer.Puzzles.C7},
+      {function() return isWorldOpen(Randomizer.Puzzles.CStar) end, {
+        Randomizer.Puzzles.CStar.Nexus,
+        Randomizer.Puzzles.CStar.UG
+      }, Randomizer.Puzzles.CStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.CStar) and not locked.Cube end, {
+        Randomizer.Puzzles.CStar.Cobweb
+      }, Randomizer.Puzzles.CStar},
+      {function() return isWorldOpen(Randomizer.Puzzles.CMessenger) end, {
+        Randomizer.Puzzles.CMessenger.Star
+      }, Randomizer.Puzzles.CMessenger},
+      {function() return not locked.F1 and (not locked.Connector or not locked.F3) end, {
+        Randomizer.Puzzles.Nexus.F0
       }},
-      {function() return not locked["F1"] and not locked["F3"] end, {
-        "F3-Star"
+      {function() return not locked.F1 and not locked.F3 end, {
+        Randomizer.Puzzles.Nexus.F3
       }}
     }
   end
@@ -1157,24 +1425,26 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     Based on the marker lists randomize the sigils
     This will work with any mode you define in the lists
   ]]--
-  if randomization_mode == "Default" or randomization_mode == "60fps"
-     or randomization_mode == "Intended" or randomization_mode == "Hardmode"
-     or randomization_mode == "60FPS Hardmode" then
+  if RandomizationMode == Randomizer.Modes.Values.Default
+      or RandomizationMode == Randomizer.Modes.Values.Sixty
+      or RandomizationMode == Randomizer.Modes.Values.Intended
+      or RandomizationMode == Randomizer.Modes.Values.Hardmode
+      or RandomizationMode == Randomizer.Modes.Values.SixtyHardmode then
     local checkGates = true
     local arrangerStage = 0
     local availableMarkers = 0
     local openMarkers = {}
 
     --[[
-      In scavenger hunt or loop mode you don't have to deal with
+      In scavenger hunt or mobius mode you don't have to deal with
        doors, so we can disable that softlock protection
     ]]--
-    if scavenger ~= "Off" or loop ~= 0 then
+    if Scavenger ~= Randomizer.Scavenger.Values.Off or #Mobius ~= 0 then
       checkGates = false
-      locked["A1 Gate"] = {"DJ1", "DJ2", "DZ1"}
-      locked["A Gate"]  = {"DI1", "DJ3", "DL1", "DZ2"}
-      locked["B Gate"]  = {"DI2", "DL2", "DT1", "DT2", "DZ3"}
-      locked["C Gate"]  = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
+      locked.A1Gate = Randomizer.Arrangers.A1Gate.Sigils
+      locked.AGate  = Randomizer.Arrangers.AGate.Sigils
+      locked.BGate  = Randomizer.Arrangers.BGate.Sigils
+      locked.CGate  = Randomizer.Arrangers.CGate.Sigils
     end
 
     --[[
@@ -1206,30 +1476,39 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       end
     end
 
-    local arranger = ""
+    local Arranger = nil
     local accessableArrangers = {}
     local lastHubs = {}
-    if startHub == "A" then
-      accessableArrangers = {"A Gate"}
-      locked["A Gate"] = {"DI1", "DJ3", "DL1", "DZ2"}
+    if startHub == Randomizer.Hub.A then
+      accessableArrangers = {Randomizer.Arrangers.AGate}
+      locked.AGate = Randomizer.Arrangers.AGate.Sigils
       WorldA = addWorldMarkers(WorldA)
-      lastHubs = {"B Gate", "C Gate"}
-    elseif startHub == "B" then
-      accessableArrangers = {"B Gate"}
-      locked["B Gate"] = {"DI2", "DL2", "DT1", "DT2", "DZ3"}
+      lastHubs = {
+        Randomizer.Arrangers.BGate,
+        Randomizer.Arrangers.CGate
+      }
+    elseif startHub == Randomizer.Hub.B then
+      accessableArrangers = {Randomizer.Arrangers.BGate}
+      locked.BGate = Randomizer.Arrangers.BGate.Sigils
       WorldB = addWorldMarkers(WorldB)
-      lastHubs = {"A Gate", "C Gate"}
-    elseif startHub == "C" then
-      accessableArrangers = {"C Gate"}
-      locked["C Gate"] = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
+      lastHubs = {
+        Randomizer.Arrangers.AGate,
+        Randomizer.Arrangers.CGate
+      }
+    elseif Randomizer.Hub.C then
+      accessableArrangers = {Randomizer.Arrangers.CGate}
+      locked.CGate = Randomizer.Arrangers.CGate.Sigils
       WorldC = addWorldMarkers(WorldC)
-      lastHubs = {"A Gate", "B Gate"}
+      lastHubs = {
+        Randomizer.Arrangers.AGate,
+        Randomizer.Arrangers.BGate
+      }
     end
     -- For scavenger hunt we have all worlds open
-    if scavenger ~= "Off" then
+    if Scavenger ~= Randomizer.Scavenger.Values.Off then
       accessableArrangers = {}
     end
-    if loop ~= 0 or scavenger == "Full" then
+    if scavenger == Randomizer.Scavenger.Values.Full or #Mobius ~= 0  then
       WorldA = addWorldMarkers(WorldA)
       WorldB = addWorldMarkers(WorldB)
       WorldC = addWorldMarkers(WorldC)
@@ -1244,14 +1523,14 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
             index = index - #markers[openMarkers[j]][2]
           else
             local randMarker = table.remove(markers[openMarkers[j]][2], index)
-            talosProgress:SetCode(translate[randMarker], tetroIndexes[sigils[i]])
+            talosProgress:SetCode(randMarker.talosProgress, tetroIndexes[sigils[i]])
             tetroIndexes[sigils[i]] = nil
             availableMarkers = availableMarkers - 1
             if #markers[openMarkers[j]][2] == 0 then
               table.remove(openMarkers, j)
             end
             if DEBUG then
-              printWarning(string.format("Placed %s at marker %s", sigils[i], randMarker))
+              printWarning(string.format("Placed %s in %s", sigils[i], randMarker.full))
             end
             break
           end
@@ -1267,25 +1546,26 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
        can only be F1+F6, and if this locks a grey it's uncompletable
       We fix the missing marker later
     ]]--
-    if randomization_mode == "Intended" and scavenger == "Off" then
+    if RandomizationMode == Randomizer.Modes.Values.Intended
+        and Scavenger == Randomizer.Scavenger.Values.Off then
       local sigil = ""
-      local marker = "F3-Star"
+      local marker = Randomizer.Puzzles.Neuxs.F3.talosProgress
       -- Weighted based on the amount of sigils of each type
       local sigilIndex = rand(1, 39)
       if sigilIndex <= 9 then
         -- Place a grey sigil (9/39)
-        sigil = table.remove(locked["F6"], sigilIndex)
+        sigil = table.remove(locked.F6, sigilIndex)
       else
         -- Place a star (30/39)
-        sigil = table.remove(locked["A Star"], 1)
+        sigil = table.remove(locked.AStar, 1)
       end
-      talosProgress:SetCode(translate[marker], tetroIndexes[sigil])
+      talosProgress:SetCode(marker, tetroIndexes[sigil])
       tetroIndexes[sigil] = nil
       if DEBUG then
-        printWarning(string.format("Placed %s at marker %s", sigil, marker))
+        printWarning(string.format("Placed %s in %s", sigil, marker.full))
       end
       -- Also while we're here fix A1 gate
-      locked["A1 Gate"] = {"DJ1", "DJ2", "DZ1"}
+      locked.A1Gate = Randomizer.Arrangers.A1.Sigils
     end
 
     --[[
@@ -1308,7 +1588,6 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       local toRemove = {}
       for i=1, #closedMarkers do
         local index = closedMarkers[i]
-        --printError(markers[index][3])
         if markers[index][1]() then
           table.insert(openMarkers, index)
           table.insert(toRemove, i)
@@ -1329,26 +1608,19 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       -- Chose what arrangers can be picked
       if arrangerStage ~= -1 then
         -- In scavenger hunt mode we only want the specific arrangers for each ending
-        if scavenger ~= "Off" then
+        if Scavenger ~= Randomizer.Scavenger.Values.Off then
           --[[
             Intended always needs A1 Gate
             Because the others don't it's kind of awkward using arrangerStage
           ]]--
-          if randomization_mode == "Intended" and locked["A1 Gate"] then
-            accessableArrangers = {"A1 Gate"}
+          if RandomizationMode == Randomizer.Modes.Values.Intended
+              and locked.A1Gate then
+            accessableArrangers = {Randomizer.Arrangers.A1Gate}
           else
-            if scavengerEnding == "Connector Clip" then
-              accessableArrangers = {"Connector", "F1"}
-            elseif scavengerEnding == "F2 Clip" then
-              accessableArrangers = {"Cube", "F1", "F2"}
-            elseif scavengerEnding == "F3 Clip" then
-              accessableArrangers = {"F1", "F3"}
-            elseif scavengerEnding == "F1+F6" then
-              accessableArrangers = {"F1", "F6"}
-            end
+            accessableArrangers = ScavengerEnding.Arrangers
             arrangerStage = -1
           end
-        elseif randomization_mode == "Intended"then
+        elseif RandomizationMode == Randomizer.Modes.Values.Intended then
           --[[
             Because of how restrictive Intended is we need a special unlocking order,
              the default one breaks every time
@@ -1365,40 +1637,48 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
              which is why we set it earlier
           ]]--
           if arrangerStage == 0 then
-            accessableArrangers = {"A1 Gate"}
+            accessableArrangers = {Randomizer.Arrangers.A1Gate}
             arrangerStage = 1
           elseif arrangerStage == 1 then
-            accessableArrangers = {"Connector", "Cube"}
+            accessableArrangers = {
+              Randomizer.Arrangers.Connector,
+              Randomizer.Arrangers.Cube
+            }
             arrangerStage = 2
           elseif arrangerStage == 2 and #accessableArrangers == 0 then
-            accessableArrangers = {startHub .. " Gate"}
+            accessableArrangers = {Randomizer.Arrangers.AGate}
             arrangerStage = 3
           elseif arrangerStage == 3 then
-            if startHub == "A" then
-              accessableArrangers =  {"B Gate", "C Gate"}
-            elseif startHub == "B" then
-              accessableArrangers =  {"A Gate", "C Gate"}
-            elseif startHub == "C" then
-              accessableArrangers =  {"A Gate", "B Gate"}
-            end
+            accessableArrangers = {
+              Randomizer.Arrangers.BGate,
+              Randomizer.Arrangers.CGate
+            }
             arrangerStage = 4
           elseif arrangerStage == 4 and #accessableArrangers == 0 then
-            if startHub == "A" then
-              accessableArrangers = {"Fan", "Recorder", "Platform"}
-            elseif startHub == "B" then
-              accessableArrangers = {"Connector", "Cube", "Platform"}
-            elseif startHub == "C" then
-              accessableArrangers = {"Connector", "Cube", "Fan", "Recorder"}
-            end
+            accessableArrangers = {
+              Randomizer.Arrangers.Fan,
+              Randomizer.Arrangers.Recorder,
+              Randomizer.Arrangers.Cube
+            }
             arrangerStage = 5
           elseif arrangerStage == 5 and #accessableArrangers == 0 then
-              accessableArrangers = {"A Star", "B Star", "C Star"}
-              arrangerStage = 6
+            accessableArrangers = {
+              Randomizer.Arrangers.AStar,
+              Randomizer.Arrangers.BStar,
+              Randomizer.Arrangers.CStar
+            }
+            arrangerStage = 6
           elseif arrangerStage == 6 and #accessableArrangers == 0 then
-            accessableArrangers = {"F1"}
+            accessableArrangers = {Randomizer.Arrangers.F1}
             arrangerStage = 7
           elseif arrangerStage == 7 then
-            accessableArrangers = {"F2", "F3", "F4", "F5", "F6"}
+            accessableArrangers = {
+              Randomizer.Arrangers.F2,
+              Randomizer.Arrangers.F3,
+              Randomizer.Arrangers.F4,
+              Randomizer.Arrangers.F5,
+              Randomizer.Arrangers.F6
+            }
             arrangerStage = -1
           end
         --[[
@@ -1413,56 +1693,64 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
            the old orders that did
         ]]--
         else
-          if arrangerStage == 0 then
-            if arranger == "A Gate" then
-              table.insert(accessableArrangers, "B Gate")
-              table.insert(accessableArrangers, "C Gate")
+          if arrangerStage == 0 and #accessableArrangers == 0 then
+            if startHub == Randomizer.Hub.A then
+              table.insert(accessableArrangers, Randomizer.Arrangers.BGate)
+              table.insert(accessableArrangers, Randomizer.Arrangers.CGate)
               arrangerStage = 1
-            elseif arranger == "B Gate" then
-              table.insert(accessableArrangers, "A Gate")
-              table.insert(accessableArrangers, "C Gate")
+            elseif startHub == Randomizer.Hub.B then
+              table.insert(accessableArrangers, Randomizer.Arrangers.AGate)
+              table.insert(accessableArrangers, Randomizer.Arrangers.CGate)
               arrangerStage = 1
-            elseif arranger == "C Gate" then
-              table.insert(accessableArrangers, "A Gate")
-              table.insert(accessableArrangers, "B Gate")
+            elseif startHub == Randomizer.Hub.C then
+              table.insert(accessableArrangers, Randomizer.Arrangers.AGate)
+              table.insert(accessableArrangers, Randomizer.Arrangers.BGate)
               arrangerStage = 1
             end
           elseif arrangerStage == 1 and #accessableArrangers == 0 then
-            table.insert(accessableArrangers, "Connector")
-            table.insert(accessableArrangers, "Cube")
-            table.insert(accessableArrangers, "Fan")
-            table.insert(accessableArrangers, "Recorder")
-            table.insert(accessableArrangers, "Platform")
+            accessableArrangers = {
+              Randomizer.Arrangers.Connector,
+              Randomizer.Arrangers.Cube,
+              Randomizer.Arrangers.Fan,
+              Randomizer.Arrangers.Recorder,
+              Randomizer.Arrangers.Platform
+            }
             arrangerStage = 2
           elseif arrangerStage == 2 and #accessableArrangers == 0 then
-            table.insert(accessableArrangers, "A Star")
-            table.insert(accessableArrangers, "B Star")
-            table.insert(accessableArrangers, "C Star")
+            accessableArrangers = {
+              Randomizer.Arrangers.AStar,
+              Randomizer.Arrangers.BStar,
+              Randomizer.Arrangers.CStar
+            }
             arrangerStage = 3
           elseif arrangerStage == 3 and #accessableArrangers == 0 then
-            table.insert(accessableArrangers, "F1")
-            table.insert(accessableArrangers, "F2")
-            table.insert(accessableArrangers, "F3")
+            accessableArrangers = {
+              Randomizer.Arrangers.F1,
+              Randomizer.Arrangers.F2,
+              Randomizer.Arrangers.F3
+            }
             arrangerStage = 4
           elseif arrangerStage == 4 and #accessableArrangers == 0 then
-            table.insert(accessableArrangers, "F4")
-            table.insert(accessableArrangers, "F5")
-            table.insert(accessableArrangers, "F6")
-            table.insert(accessableArrangers, "A1 Gate")
+            accessableArrangers = {
+              Randomizer.Arrangers.F4,
+              Randomizer.Arrangers.F5,
+              Randomizer.Arrangers.F6,
+              Randomizer.Arrangers.A1Gate
+            }
             arrangerStage = -1
           end
         end
       end
 
       local index = rand(1, #accessableArrangers)
-      arranger = table.remove(accessableArrangers, index)
-      local sigils = locked[arranger]
-      locked[arranger] = nil
+      Arranger = table.remove(accessableArrangers, index)
+      local sigils = locked[Arranger.name]
+      locked[Arranger.name] = nil
       if DEBUG then
-        print("Selected " .. arranger .. " Arranger")
+        print("Selected " .. Arranger.name .. " Arranger")
       end
       if not sigils then
-        printError(arranger .. " does not have any sigils assigned to it")
+        printError(Arranger.name .. " does not have any sigils assigned to it")
       end
 
       --[[
@@ -1473,42 +1761,43 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
         Don't need to this do both times you unlock a new hub.
       ]]--
       if checkGates then
-        if arranger == lastHubs[1] or arranger == lastHubs[2] then
+        if Arranger == lastHubs[1] or Arranger == lastHubs[2] then
           -- Sometimes we want both hubs to be accessable when you leave A
           if rand(0, 99) < PROB_BOTH_HUBS then
             if DEBUG then
-              print("Both Hubs open after " .. startHub)
+              print("Both Hubs open after " .. startHub.name)
             end
 
             -- If so we're going to manually add the sigils for both
-            if startHub == "A" then
+            if startHub == Randomizer.Hub.A then
               sigils = {"DI2", "DL2", "DT1", "DT2", "DZ3",
                         "DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
-            elseif startHub == "B" then
+            elseif startHub == Randomizer.Hub.B then
               sigils = {"DI1", "DJ3", "DL1", "DZ2",
                         "DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
-            elseif startHub == "C" then
+            elseif startHub == Randomizer.Hub.C then
               sigils = {"DI1", "DJ3", "DL1", "DZ2",
                         "DI2", "DL2", "DT1", "DT2", "DZ3"}
             end
 
             -- For the intended mode we don't want to re-create this list
-            if randomization_mode ~= "Intended" then
-              locked["A1 Gate"] = {"DJ1", "DJ2", "DZ1"}
+            if RandomizationMode ~= Randomizer.Modes.Values.Intended then
+              locked.A1Gate = Randomizer.Arrangers.A1Gate.Sigils
             end
 
             -- Only one of these will be left in the table by this point
             for i=1, #accessableArrangers do
-              -- "**Gate" - > "A Gate", "B Gate" and "C Gate" but not "A1 Gate"
-              if string.sub(accessableArrangers[i], 3, 6) == "Gate" then
+              if accessableArrangers[i] == Randomizer.Arrangers.AGate
+                 or accessableArrangers[i] == Randomizer.Arrangers.BGate
+                 or accessableArrangers[i] == Randomizer.Arrangers.CGate then
                 table.remove(accessableArrangers, i)
                 break
               end
             end
             -- This stuff just does nothing if it's already nil
-            locked["A Gate"] = nil
-            locked["B Gate"] = nil
-            locked["C Gate"] = nil
+            locked.AGate = nil
+            locked.BGate = nil
+            locked.CGate = nil
             WorldA = addWorldMarkers(WorldA)
             WorldB = addWorldMarkers(WorldB)
             WorldC = addWorldMarkers(WorldC)
@@ -1518,7 +1807,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
                can't visit the wrong one
             ]]--
             if DEBUG then
-              print(string.sub(arranger, 1, 1) .. " open after " .. startHub)
+              print(string.sub(Arranger.name, 1, 1) .. " open after " .. startHub.name)
             end
             --[[
               Based on world order, these are the sigils that
@@ -1530,49 +1819,49 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
                the sigils for the other gates
             ]]--
             local uniqueSigils = {}
-            if arranger == "A Gate" then
-              if startHub == "B" then
+            if Arranger == Randomizer.Arrangers.AGate then
+              if startHub == Randomizer.Hub.B then
                 uniqueSigils = {"DT3"}
-                locked["C Gate"] = {"DJ4", "DJ5", "DL3", "DT4", "DZ4"}
-              elseif startHub == "C" then
+                locked.CGate = {"DJ4", "DJ5", "DL3", "DT4", "DZ4"}
+              elseif startHub == Randomizer.Hub.C then
                 uniqueSigils = {"DT1"}
-                locked["B Gate"] = {"DI2", "DL2", "DT2", "DZ3"}
+                locked.BGate = {"DI2", "DL2", "DT2", "DZ3"}
               end
-              locked["A1 Gate"] = {"DJ1", "DJ2", "DZ1"}
-              sigils = {"DI1", "DJ3", "DL1", "DZ2"}
+              locked.A1Gate = Randomizer.Arrangers.A1Gate.Sigils
+              sigils = Randomizer.Arrangers.AGate.Sigils
               WorldA = addWorldMarkers(WorldA)
-            elseif arranger == "B Gate" then
-              if startHub == "A" then
+            elseif Arranger == Randomizer.Arrangers.BGate then
+              if startHub == Randomizer.Hub.A then
                 uniqueSigils = {"DJ1", "DJ4", "DJ5"}
-                locked["A1 Gate"] = {"DJ2", "DZ1"}
-                locked["C Gate"] = {"DL3", "DT3", "DT4", "DZ4"}
+                locked.A1Gate = {"DJ2", "DZ1"}
+                locked.CGate = {"DL3", "DT3", "DT4", "DZ4"}
               elseif startHub == "C" then
                 uniqueSigils = {"DJ1", "DJ2", "DJ3"}
-                locked["A1 Gate"] = {"DZ1"}
-                locked["A Gate"] = {"DI1", "DL1", "DZ2"}
+                locked.A1Gate = {"DZ1"}
+                locked.AGate = {"DI1", "DL1", "DZ2"}
               end
-              sigils = {"DI2", "DL2", "DT1", "DT2", "DZ3"}
+              sigils = Randomizer.Arrangers.BGate.Sigils
               WorldB = addWorldMarkers(WorldB)
-            elseif arranger == "C Gate" then
-              if startHub == "A" then
+            elseif Arranger == Randomizer.Arrangers.CGate then
+              if startHub == Randomizer.Hub.A then
                 uniqueSigils = {"DI2"}
-                locked["B Gate"] = {"DL2", "DT1", "DT2", "DZ3"}
+                locked.BGate = {"DL2", "DT1", "DT2", "DZ3"}
               elseif startHub == "B" then
                 uniqueSigils = {"DI1"}
-                locked["A Gate"] = {"DJ3", "DL1", "DZ2"}
+                locked.AGate = {"DJ3", "DL1", "DZ2"}
               end
-              locked["A1 Gate"] = {"DJ1", "DJ2", "DZ1"}
-              sigils = {"DJ4", "DJ5", "DL3", "DT3", "DT4", "DZ4"}
+              locked.A1Gate = Randomizer.Arrangers.A1Gate.Sigils
+              sigils = Randomizer.Arrangers.CGate.Sigils
               WorldC = addWorldMarkers(WorldC)
             end
 
             --[[
               For the intended mode we've already placed A1 Gate, which means:
-              1. We don't want to re-set locked["A1"]
+              1. We don't want to re-set locked.A1Gate
               2. We don't need to lock the sigils that were already placed
             ]]--
-            if randomization_mode == "Intended" then
-              locked["A1 Gate"] = nil
+            if RandomizationMode == Randomizer.Modes.Values.Intended then
+              locked.A1Gate = nil
               if uniqueSigils[1] == "DJ1" then
                 uniqueSigils = {"DJ4", "DJ5"}
               end
@@ -1600,7 +1889,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
                   index = index - #markers[tempOpenMarkers[j]][2]
                 else
                   local randMarker = table.remove(markers[tempOpenMarkers[j]][2], index)
-                  talosProgress:SetCode(translate[randMarker], tetroIndexes[uniqueSigils[i]])
+                  talosProgress:SetCode(randMarker.talosProgress, tetroIndexes[uniqueSigils[i]])
                   tetroIndexes[uniqueSigils[i]] = nil
                   tempAvailableMarkers = tempAvailableMarkers - 1
                   --[[
@@ -1609,7 +1898,7 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
                      iterate over it just twice more
                   ]]--
                   if DEBUG then
-                    printWarning(string.format("Placed %s at marker %s", uniqueSigils[i], randMarker))
+                    printWarning(string.format("Placed %s in %s", uniqueSigils[i], randMarker.full))
                   end
                   break
                 end
@@ -1622,11 +1911,11 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
           checkGates = false
         end
       elseif not checkGates then
-        if arranger == "A Gate" then
+        if Arranger == Randomizer.Arrangers.AGate then
           WorldA = addWorldMarkers(WorldA)
-        elseif arranger == "B Gate" then
+        elseif Arranger == Randomizer.Arrangers.BGate then
           WorldB = addWorldMarkers(WorldB)
-        elseif arranger == "C Gate" then
+        elseif Arranger == Randomizer.Arrangers.CGate then
           WorldC = addWorldMarkers(WorldC)
         end
       end
@@ -1638,14 +1927,14 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
      the sigils, but for the other modes we need to make sure we
      actually do that too
   ]]--
-  if scavenger ~= "Off" then
+  if Scavenger ~= Randomizer.Scavenger.Values.Off then
     Wait(CustomEvent("OnStep"))
-    local allArrangers = {
-      "A1 Gate", "A Gate", "B Gate", "C Gate",
-      "A Star", "B Star", "C Star",
-      "Connector", "Cube", "Fan", "Recorder", "Platform",
-      "F1", "F2", "F3", "F4", "F5", "F6"
-    }
+    local allArrangers = {}
+    for k, _ in pairs(Randomizer.Arrangers) do
+      table.insert(allArrangers, k)
+    end
+    -- Just to be sure that there's no inconsitencies with pairs()
+    table.sort(allArrangers)
     -- Find all markers that are still available
     local allMarkers = {}
     for i=1, #markers do
@@ -1654,8 +1943,8 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
       end
     end
     -- Intended has no F3 Star marker in the global list
-    if randomization_mode == "Intended" then
-      table.insert(allMarkers, "F3-Star")
+    if RandomizationMode == Randomizer.Modes.Values.Intended then
+      table.insert(allMarkers, Randomizer.Puzzles.Nexus.F3.talosProgress)
     end
     --[[
       Place the remaining sigils at the remaining markers
@@ -1663,12 +1952,12 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
        these sigils anyway
     ]]--
     for i=1, #allArrangers do
-      local arranger = locked[allArrangers[i]]
-      if arranger ~= nil then
-        for j=1, #arranger do
-          local sigil = arranger[j]
-          local marker = table.remove(allMarkers, 1)
-          talosProgress:SetCode(translate[marker], tetroIndexes[sigil])
+      local Arranger = locked[allArrangers[i]]
+      if Arranger ~= nil then
+        for j=1, #Arranger do
+          local sigil = Arranger[j]
+          local marker = table.remove(allMarkers, 1).talosProgress
+          talosProgress:SetCode(marker, tetroIndexes[sigil])
           tetroIndexes[sigil] = nil
         end
       end
@@ -1679,57 +1968,77 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     Fully Random ignores all that logic to do simple knuth randomization
      over everything
   ]]--
-  elseif randomization_mode == "Fully Random" then
+  elseif RandomizationMode == Randomizer.Modes.Values.FullyRandom then
     for i = 1, #markers do
+      local currentMarker = markers[i]
       local otherMarker = markers[rand(1, i)]
       if DEBUG then
-        print(string.format("Swapping %s with %s", markers[i], otherMarker))
+        printWarning(string.format("Swapping %s with %s", currentMarker.full, otherMarker.full))
       end
-      talosProgress:SetCode(translate[markers[i]], talosProgress:GetCodeValue(translate[otherMarker]))
-      talosProgress:SetCode(translate[otherMarker], i)
+      talosProgress:SetCode(
+        markers[i].talosProgress,
+        talosProgress:GetCodeValue(otherMarker.talosProgress)
+      )
+      talosProgress:SetCode(otherMarker.talosProgress, i)
     end
 
   --[[
-    When there is no randomization we'll still have the default marker list,
-     which happens to have all the markers in the order of their sigil
-     numbers, which means we can just use a single for loop to set them all
+    When there is no randomization we can go through the Randomizer.Puzzles table,
+     which has all the default sigils in it
   ]]--
-  elseif randomization_mode == "None" then
-    for i=1, 129 do
-      talosProgress:SetCode(translate[markers[i]], i)
+  elseif RandomizationMode == Randomizer.Modes.Values.None then
+    for _, Level in pairs(Randomizer.Puzzles.WorldsAsArray) do
+      for key, Puzzle in pairs(Level) do
+        if key ~= "talosProgress" then
+          talosProgress:SetCode(Puzzle.talosProgress, tetroIndexes[Puzzle.sigil])
+        end
+      end
     end
   end
 
   -- Mobius Mode is made to work with everything else so we do this last
-  if loop ~= 0 then
-    local F0Pos = rand(1, 50)
-    local F3Pos = rand(1, 49)
-    if F3Pos >= F0Pos then
-      F3Pos = F3Pos + 1
+  if #Mobius ~= 0 then
+    local randArrangers = false
+    for _, Ending in pairs(Mobius) do
+      if Ending == Randomizer.Mobius.Values.RandomArrangers then
+        randArrangers = true
+        break
+      end
     end
-    talosProgress:SetVarValue("Randomizer_LoopF0", F0Pos)
-    talosProgress:SetVarValue("Randomizer_LoopF3", F3Pos)
-
-    -- Random Arrangers
-    if loop >= 32 then
-      --[[
-        Arrangers are each represented by a single bit, so by picking a random 15-bit
-         number every one has a 50% chance, leading to 49.5 sigils required on average
-      ]]--
-      local randArrangers = rand(0, 32767)
+    if randArrangers then
+      local selectedHints = {}
+      for i = 1, #Randomizer.Hints.AsArray do
+        local Hint = Randomizer.Hints.AsArray[i]
+        if rand(0, 99) < PROB_RAND_ARRANGER then
+          table.insert(selectedHints, Hint)
+        end
+      end
+      -- Just incase you got an empty list
+      if #selectedHints == 0 then
+        -- Note that this is not an item arranger
+        selectedHints = {Randomizer.Hints.Values.A1Gate}
+      end
       --[[
         When you unlock items all the yellow arrangers are completed, without using up the
          sigils, so if it selects a yellow arranger you won't be able to tell which one it
          selected, so you won't know what sigils you need to collect
-        To fix this we force the yellow bits to be off (mask with 0x7e0f)
-        Unfortuantly we don't have access to  bitwise operators so this gets kind of messy
+        To fix this we just ignore them if needed
       ]]--
-      if talosProgress:IsVarSet("Randomizer_UnlockItems") then
-        local upperMask = mthFloorF(randArrangers / 512) * 32
-        local mask = (mthFloorF(randArrangers / 16) - upperMask) * 16
-        randArrangers = randArrangers - mask
+      local hintsVal = 0
+      for i = 1, #selectedHints do
+        if talosProgress:IsVarSet(Randomizer.MiscOptions.Values.AllItems.talosProgress)
+            and (seletedHints[i] == Randomizer.Hints.Values.Connector
+            or seletedHints[i] == Randomizer.Hints.Values.Cube
+            or seletedHints[i] == Randomizer.Hints.Values.Fan
+            or seletedHints[i] == Randomizer.Hints.Values.Recorder
+            or seletedHints[i] == Randomizer.Hints.Values.Platform) then
+          -- Do nothing
+        else
+          hintsVal = hintsVal + selectedHints[i].mask
+        end
       end
-      talosProgress:SetVarValue("Randomizer_LoopArrangers", randArrangers)
+      -- If you already selected hints this will overwrite it
+      talosProgress:SetVarValue(Randomizer.Hints.talosProgress, hintsVal)
     end
   end
 
@@ -1737,9 +2046,9 @@ if not talosProgress:IsVarSet("Randomizer_Generated") then
     Some things might want to keep doing random stuff after generation,
      to try make it less predictable they should base it off of this
   ]]--
-  talosProgress:SetVarValue("Randomizer_ExtraSeed", rand(1, 2147483647))
+  talosProgress:SetVarValue(Randomizer.MiscFlags.extraSeed, rand(1, 2147483647))
 
-  talosProgress:SetVar("Randomizer_Generated")
+  talosProgress:SetVar(Randomizer.MiscFlags.generated)
   talBackupAndSaveTalosProgress(worldInfo)
   if DEBUG then
     print("=======================\n Randomization Finished\n=======================")

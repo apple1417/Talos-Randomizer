@@ -1,5 +1,13 @@
 Wait(CustomEvent("Randomizer_ConstantsLoaded"))
 
+versionText:SetText(
+  versionText:GetTextConfig(),
+  worldGlobals.Randomizer.version,
+  true
+)
+
+worldInfo:AddToWorldCache_AsHighPriority("Content/Talos/Levels/Randomizer/Cloud_1_01.wld")
+
 --[[
   If you somehow get vars saved before you load into the map (e.g.) editor
    then signs break, so this bit resets it
@@ -29,7 +37,7 @@ worldInfo:ActivateTimer(10000000)
 -- offset : Vector3f
 local pressing = {}
 local defaultPressTime = 0.2
-worldGlobals.Randomizer.pressButton = function(button, newButton, offset, fail, halfwayFunc)    
+worldGlobals.Randomizer.pressButton = function(button, newButton, offset, fail, halfwayFunc)
     RunAsync(function()
       -- Little bit of simultaneous use protection
       while pressing[button] do
@@ -37,7 +45,7 @@ worldGlobals.Randomizer.pressButton = function(button, newButton, offset, fail, 
       end
       local originalButton = button
       pressing[originalButton] = true
-         
+
       -- If not passed as an argument evaluates to false
       local pressTime = defaultPressTime
       if fail then
@@ -47,11 +55,11 @@ worldGlobals.Randomizer.pressButton = function(button, newButton, offset, fail, 
       else
         SoundUse:PlayOnce()
       end
-        
+
       -- Save original position incase we exit in the wrong spot
       -- originalPos : QuatVect
       local originalPos = button:GetPlacement()
-      
+
       local startTime = worldInfo:GetTimePassedFromTimer()
       -- startVect : Vector3f
       local startVect = button:GetPlacement():GetVect()
@@ -66,15 +74,15 @@ worldGlobals.Randomizer.pressButton = function(button, newButton, offset, fail, 
         button:SetPlacement(pos)
         Wait(CustomEvent("OnStep"))
       end
-      
+
       if (type(halfwayFunc) == "function") then
         halfwayFunc()
       end
-      if newButton then      
+      if newButton then
         worldGlobals.Randomizer.swapPos(button, newButton)
         button = newButton
       end
-      
+
       -- Same as the last waiting block, except the offset is now negative
       startTime = worldInfo:GetTimePassedFromTimer()
       startVect = button:GetPlacement():GetVect()
@@ -90,11 +98,11 @@ worldGlobals.Randomizer.pressButton = function(button, newButton, offset, fail, 
       end
 
       -- Restore to original position
-      button:SetPlacement(originalPos)            
+      button:SetPlacement(originalPos)
       button:EnableUsage()
-      
+
       pressing[originalButton] = nil
-    end)  
+    end)
 end
 
 -- objA : CStaticModelEntity
