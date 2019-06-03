@@ -64,7 +64,7 @@ table.sort(stars, function(a, b)
   return a:GetName() < b:GetName()
 end)
 local colourOrder = {"D", "M", "E", "N"}
-local shapeOrder = {"I", "J", "L", "O", "S", "T", "Z"}
+local shapeOrder = {"I", "J", "L", "O", "S", "Z", "T"}
 local function sortByArrayIndex(a, b, array)
   local indexA = 0
   local indexB = 0
