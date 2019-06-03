@@ -3,7 +3,6 @@ Wait(CustomEvent("Randomizer_OptionsConstantsLoaded"))
 local player = Wait(Event(worldInfo.PlayerBorn)):GetBornPlayer()
 
 local offset = OffsetMarker:GetPlacement():GetVect() - Up3:GetPlacement():GetVect()
-offset = offset / 25
 
 local function waitDetectorLeave(detector)
   while detector:IsPointInArea(player:GetPlacement():GetVect(), 1) do
@@ -31,13 +30,13 @@ local function adjustY(amount, button)
     end
     return
   end
-  
+
   pos.vy = pos.vy + amount
   -- Trim any extra
   if pos.vy < minY then
     pos.vy = minY
   end
-  
+
   if button then
     worldGlobals.Randomizer.pressButton(button, nil, offset, false, function()
       LeftPlat:SetPlacement(pos)
@@ -46,7 +45,7 @@ local function adjustY(amount, button)
   else
   LeftPlat:SetPlacement(pos)
   YText:SetText(YText:GetTextConfig(), string.format("%5.3f", Y()), true)
-  end  
+  end
 end
 local function adjustZ(amount, button)
   local dist = Z()
@@ -54,18 +53,18 @@ local function adjustZ(amount, button)
     if button then
       worldGlobals.Randomizer.pressButton(button, nil, offset, true)
       return
-    end  
+    end
   end
-  
+
   if dist + amount < 0 then
     amount = -dist
   end
-  
+
   local leftPos = LeftPlat:GetPlacement()
   local rightPos = RightPlat:GetPlacement()
   leftPos.vz = leftPos.vz - amount/2
   rightPos.vz = rightPos.vz + amount/2
-  
+
   if button then
     worldGlobals.Randomizer.pressButton(button, nil, offset, false, function()
       LeftPlat:SetPlacement(leftPos)
@@ -116,7 +115,7 @@ RunHandled(WaitForever,
     player:Teleport(RightPlat, false)
     RightPlat:EnableUsage()
   end,
-  
+
   OnEvery(Event(FallDetector.Activated)),
   function()
     RunAsync(function()
@@ -125,14 +124,14 @@ RunHandled(WaitForever,
       FallDetector:Recharge()
     end)
   end,
-  
+
   OnEvery(Event(ResetButton.Used)),
   function()
     adjustY(defaultY - Y())
     adjustZ(defaultZ - Z())
-    worldGlobals.pressButton(ResetButton, nil, offset)
-  end,  
-  
+    worldGlobals.Randomizer.pressButton(ResetButton, nil, offset)
+  end,
+
   OnEvery(Event(Up3.Used)),
   function()
     adjustY(0.1, Up3)
@@ -157,7 +156,7 @@ RunHandled(WaitForever,
   function()
     adjustY(-0.1, Down3)
   end,
-  
+
   OnEvery(Event(Small3.Used)),
   function()
     adjustZ(-0.1, Small3)
@@ -181,5 +180,5 @@ RunHandled(WaitForever,
   OnEvery(Event(Big3.Used)),
   function()
     adjustZ(0.1, Big3)
-  end          
+  end
 )

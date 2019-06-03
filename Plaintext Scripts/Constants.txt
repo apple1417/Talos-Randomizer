@@ -306,7 +306,9 @@ Randomizer.MiscFlags = {
   extraSeed = "Randomizer_ExtraSeed",
   extraSigilsGiven = "Randomizer_ExtraSigilsGiven",
   generated = "Randomizer_Generated",
-  mobiusDone = "Randomizer_MobiusDone"
+  jetpackState = "Randomizer_JetpackState",
+  mobiusDone = "Randomizer_MobiusDone",
+  mobiusInterlude = "Randomizer_MobiusAfterInterlude"
 }
 
 Randomizer.MiscOptions = {
@@ -1263,19 +1265,24 @@ for key1, Level in pairs(Randomizer.Puzzles) do
     for key2, Puzzle in pairs(Level) do
       if key2 ~= "talosProgress" then
         table.insert(AsArray, Puzzle)
-        table.insert(Randomizer.ChecksumMarkers, Puzzle.talosProgress)
       end
     end
     table.insert(WorldsAsArray, Level)
-    if Level ~= Randomizer.Puzzles.Nexus then
-        table.insert(Randomizer.ChecksumMarkers, Level.talosProgress)
-    end
   end
 end
 table.sort(AsArray, function(a, b) return a.talosProgress < b.talosProgress end)
 table.sort(WorldsAsArray, function(a, b) return a.talosProgress < b.talosProgress end)
 Randomizer.Puzzles.AsArray = AsArray
 Randomizer.Puzzles.WorldsAsArray = WorldsAsArray
+
+for i = 1, #AsArray do
+  table.insert(Randomizer.ChecksumMarkers, AsArray[i].talosProgress)
+end
+for i = 1, #WorldsAsArray do
+  if WorldsAsArray[i] ~= Randomizer.Puzzles.Nexus then
+    table.insert(Randomizer.ChecksumMarkers, WorldsAsArray[i].talosProgress)
+  end
+end
 
 worldGlobals.Randomizer = Randomizer
 Wait(CustomEvent("OnStep"))

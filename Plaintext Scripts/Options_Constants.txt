@@ -24,11 +24,17 @@ local options = {
   worldGlobals.Randomizer.Scavenger,
   worldGlobals.Randomizer.Moody,
   worldGlobals.Randomizer.Uno,
-  worldGlobals.Randomizer.Mobius
+  worldGlobals.Randomizer.Mobius,
+  worldGlobals.Randomizer.Hints
 }
 for i = 1, #options do
   talosProgress:ClearVar(options[i].talosProgress)
 end
+--[[
+  Clearing the other flags means we'll get checksum issues if I visit another world,
+   so best also clear this to make the main script fix it
+]]--
+talosProgress:ClearVar(worldGlobals.Randomizer.MiscFlags.generated)
 
 worldInfo:ActivateTimer(10000000)
 

@@ -1,12 +1,74 @@
-Wait(CustomEvent("Randomizer_Generated"))
-
 --[[
   This script deals with setting up the world after randomization
   This is stuff like moving sigils and portals into position, as
    well as dealing with mobius endings and moody sigil locking
 ]]--
 
+--[[
+  Portals are SUPER time sensitive, if we take more than 2 ticks from world load to
+   swap them out then you'll go through it as soon as you load in
+  Because of this we start them straight away, ignoring all the nice constants just to
+   save that extra tick, and we don't even wait for randomization to finish, just for
+   our var to be set
+
+  Nexus already has all the portals so we use another script for that
+  Moving portals leaves the base behind, so we have useless ones as our
+   markers, which we then get rid of so that animations don't overlap
+]]--
+-- portal : CPhaseInPortalEntity
+-- talosProgress : CTalosProgress
+local portal = nil
 local talosProgress = nexGetTalosProgress(worldInfo)
+RunAsync(function()
+  if worldInfo:GetWorldFileName() ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
+    local allPortals = {
+      A1, A2, A3, A4, A5, A6, A7, A8, AD,
+      B1, B2, B3, B4, B5, B6, B7, B8,
+      C1, C2, C3, C4, C5, C6, C7, C8, CM,
+      A1_I, A2_I, A3_I, A4_I, A5_I, A6_I, A7_I, A8_I, AD_I,
+      B1_I, B2_I, B3_I, B4_I, B5_I, B6_I, B7_I, B8_I,
+      C1_I, C2_I, C3_I, C4_I, C5_I, C6_I, C7_I, C8_I, CM_I
+    }
+
+    local portalNum = talosProgress:GetCodeValue(emptyPortal:GetName())
+    local iter = 0
+    while portalNum == -1 do
+      iter = iter + 1
+      if iter == 2 then
+        conErrorF("'" .. emptyPortal:GetName() .. "' did not have a portal assigned to it quickly enough!\n")
+      elseif iter >= 10 then
+        conErrorF("At least 10 ticks late, assuming '" .. emptyPortal:GetName() .. "' does not have a portal assigned to it!\n")
+        return
+      end
+      Wait(CustomEvent("OnStep"))
+      portalNum = talosProgress:GetCodeValue(emptyPortal:GetName())
+    end
+    if iter >= 2 then
+      conErrorF("Portal was eventually assigned " .. iter - 1 .. " ticks late \n")
+    end
+    -- Assigned before portals so we should be safe to use the current value
+    if talosProgress:GetCodeValue("Randomizer_Mobius") ~= 0 then
+      portalNum = portalNum + 26
+    end
+    portal = allPortals[portalNum]
+
+    local emptyPos = emptyPortal:GetPlacement()
+    local portalPos = portal:GetPlacement()
+    emptyPortal:SetPlacement(portalPos)
+    portal:SetPlacement(emptyPos)
+    if talosProgress:IsVarSet("Randomizer_Debug") then
+      conWarningF(string.format("Placing %s at %s\n", portal:GetName(),  emptyPortal:GetName()))
+    end
+
+    while worldGlobals.Randomizer == nil do
+      Wait(CustomEvent("OnStep"))
+    end
+    worldGlobals.Randomizer.portal = portal
+    SignalEvent("Randomizer_PortalFound")
+  end
+end)
+
+Wait(CustomEvent("Randomizer_Generated"))
 local Randomizer = worldGlobals.Randomizer
 local print = Randomizer.print
 local printWarning = Randomizer.printWarning
@@ -109,14 +171,32 @@ end)
 
 -- Jetpack
 RunAsync(function()
-   -- player : CPlayerPuppetEntity
-  local player = Wait(Event(worldInfo.PlayerBorn)):GetBornPlayer()
-  if currentWorld ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
-    -- This will probably be expanded
-    local jetpack = talosProgress:GetCodeValue(Randomizer.MiscOptions.Values.Jetpack.talosProgress)
-    if jetpack == 1 then
+  if talosProgress:IsVarSet(Randomizer.MiscOptions.Values.Jetpack.talosProgress) then
+    -- player : CPlayerPuppetEntity
+    local player = Wait(Event(worldInfo.PlayerBorn)):GetBornPlayer()
+
+    local hasJetpack = talosProgress:IsVarSet(Randomizer.MiscFlags.jetpackState)
+    local canUseJetpack =  not (currentWorld == "Content/Talos/Levels/Randomizer/Nexus.wld"
+                                or currentWorld == "Content/Talos/Levels/Randomizer/Interlude.wld")
+    if hasJetpack and canUseJetpack then
       player:AddJetpack()
     end
+    RunHandled(WaitForever,
+      OnEvery(CustomEvent("TetrominoAwarded")),
+      function()
+        hasJetpack = not hasJetpack
+        if hasJetpack then
+          talosProgress:SetVar(Randomizer.MiscFlags.jetpackState)
+          if canUseJetpack then
+            player:AddJetpack()
+          end
+        else
+          talosProgress:ClearVar(Randomizer.MiscFlags.jetpackState)
+          player:RemoveJetpack()
+        end
+        talBackupAndSaveTalosProgress(worldInfo)
+      end
+    )
   end
 end)
 
@@ -162,52 +242,6 @@ RunAsync(function()
           end
         end
       end
-    end
-  end
-end)
-
-
-
---[[
-  Move portals to the correct positions
-  Nexus can cheat a little so we use another script for that
-  Moving portals leaves the base behind, so we have useless ones as our
-   markers, which we then get rid of so that animations don't overlap
-]]--
--- portal : CPhaseInPortalEntity
-local portal = nil
-RunAsync(function()
-  if currentWorld ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
-    local allPortals = {
-      A1, A2, A3, A4, A5, A6, A7, A8, AD,
-      B1, B2, B3, B4, B5, B6, B7, B8,
-      C1, C2, C3, C4, C5, C6, C7, C8, CM,
-      A1_I, A2_I, A3_I, A4_I, A5_I, A6_I, A7_I, A8_I, AD_I,
-      B1_I, B2_I, B3_I, B4_I, B5_I, B6_I, B7_I, B8_I,
-      C1_I, C2_I, C3_I, C4_I, C5_I, C6_I, C7_I, C8_I, CM_I,
-      mobiusInterlude
-    }
-
-    local portalNum = talosProgress:GetCodeValue(emptyPortal:GetName())
-    if (portalNum == -1) then
-      printError("'" .. emptyPortal:GetName() .. "' does not have a portal assigned to it!")
-    end
-    if talosProgress:GetCodeValue(Randomizer.Mobius.talosProgress) ~= 0 then
-      portalNum = portalNum + 26
-    end
-    portal = allPortals[portalNum]
-
-    if portal == mobiusInterlude then
-      -- TODO: ??
-    end
-
-    local emptyPos = emptyPortal:GetPlacement()
-    local portalPos = portal:GetPlacement()
-    emptyPortal:SetPlacement(portalPos)
-    portal:SetPlacement(emptyPos)
-
-    if DEBUG then
-      printWarning(string.format("Placing %s at %s", portal:GetName(),  emptyPortal:GetName()))
     end
   end
 end)
@@ -327,21 +361,21 @@ if talosProgress:GetCodeValue(Randomizer.Mobius.talosProgress) ~= 0 and currentW
         for j = i + 1, #floors do
           -- Get the union of the two tables
           local combo = {}
-          for k, v in pairs(floorCount[i]) do
+          for k, v in pairs(floors[i].SigilCounts) do
             if combo[k] then
               combo[k] = combo[k] + v
             else
               combo[k] = v
             end
           end
-          for k, v in pairs(floorCount[j]) do
+          for k, v in pairs(floors[j].SigilCounts) do
             if combo[k] then
               combo[k] = combo[k] + v
             else
               combo[k] = v
             end
           end
-          tables.insert(floorCombos, combo)
+          table.insert(floorCombos, combo)
         end
       end
     end
@@ -353,7 +387,7 @@ if talosProgress:GetCodeValue(Randomizer.Mobius.talosProgress) ~= 0 and currentW
         Randomizer.Hints
       )
       for i = 1, #Arrangers do
-        for k, v in pairs(Arrangers[i]) do
+        for k, v in pairs(Arrangers[i].SigilCounts) do
           if randArrangerSigils[k] ~= nil then
             randArrangerSigils[k] = randArrangerSigils[k] + v
           else
@@ -362,6 +396,10 @@ if talosProgress:GetCodeValue(Randomizer.Mobius.talosProgress) ~= 0 and currentW
         end
       end
     end
+
+    -- Save the next world incase we go to the interlude
+    local portalNum = talosProgress:GetCodeValue(emptyPortal:GetName())
+    talosProgress:SetVarValue(worldGlobals.Randomizer.MiscFlags.mobiusInterlude, portalNum)
 
     RunHandled(WaitForever,
       OnEvery(CustomEvent("TetrominoAwarded")),

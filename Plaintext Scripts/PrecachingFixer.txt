@@ -14,7 +14,7 @@ local printWarning = worldGlobals.Randomizer.printWarning
   Caching causes a bunch of log lines, which spam the console and are kind
    of annoying, so if debug mode or we're in the editor then just don't do it
 ]]
-if talosProgress:IsVarSet("Randomizer_Debug") or corIsAppEditor() then
+if talosProgress:IsVarSet(worldGlobals.Randomizer.MiscFlags.debug) or corIsAppEditor() then
   printWarning("Disabling Precaching")
 else
   local function cache(world, high)
@@ -55,7 +55,7 @@ else
      it's going to take long enough to get between the other worlds that
      Nexus can deal with it
   ]]--
-  if talosProgress:GetCodeValue("Randomizer_Loop") == 0 then
+  if talosProgress:GetCodeValue(worldGlobals.Randomizer.Mobius.talosProgress) == 0 then
     cache("Nexus", true)
     local portalPos = talosProgress:GetCodeValue(fileToShort[currentWorld])
     local minIndex = 0
