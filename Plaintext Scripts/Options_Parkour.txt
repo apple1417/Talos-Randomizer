@@ -1,6 +1,7 @@
-Wait(CustomEvent("Randomizer_OptionsConstantsLoaded"))
+local event = Wait(All(Event(worldInfo.PlayerBorn),
+                       CustomEvent("Randomizer_OptionsConstantsLoaded")))
 -- player : CPlayerPuppetEntity
-local player = Wait(Event(worldInfo.PlayerBorn)):GetBornPlayer()
+local player = event.all[1]:GetBornPlayer()
 
 local offset = OffsetMarker:GetPlacement():GetVect() - Up3:GetPlacement():GetVect()
 

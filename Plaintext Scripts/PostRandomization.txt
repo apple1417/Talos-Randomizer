@@ -68,7 +68,13 @@ RunAsync(function()
   end
 end)
 
-Wait(CustomEvent("Randomizer_Generated"))
+-- Wait for generation script, and also get the player
+local event = Wait(All(Event(worldInfo.PlayerBorn),
+                       CustomEvent("Randomizer_Generated")))
+
+-- player : CPlayerPuppetEntity
+local player = event.all[1]:GetBornPlayer()
+
 local Randomizer = worldGlobals.Randomizer
 local print = Randomizer.print
 local printWarning = Randomizer.printWarning
@@ -172,9 +178,6 @@ end)
 -- Jetpack
 RunAsync(function()
   if talosProgress:IsVarSet(Randomizer.MiscOptions.Values.Jetpack.talosProgress) then
-    -- player : CPlayerPuppetEntity
-    local player = Wait(Event(worldInfo.PlayerBorn)):GetBornPlayer()
-
     local hasJetpack = talosProgress:IsVarSet(Randomizer.MiscFlags.jetpackState)
     local canUseJetpack =  not (currentWorld == "Content/Talos/Levels/Randomizer/Nexus.wld"
                                 or currentWorld == "Content/Talos/Levels/Randomizer/Interlude.wld")
