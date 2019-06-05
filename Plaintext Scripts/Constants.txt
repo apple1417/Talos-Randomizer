@@ -1016,12 +1016,12 @@ Randomizer.Puzzles = {
     ThroneRoom = {
       full = "Throne Room",
       sigil = "NT9",
-      talosProgress = "C4-ThroneRoom"
+      talosProgress = "C4-TR"
     },
     ThroneRoomStar = {
       full = "Throne Room Star",
       sigil = "**21",
-      talosProgress = "C4-ThroneRoomStar"
+      talosProgress = "C4-TRStar"
     }
   },
   C5 = {
@@ -1029,7 +1029,7 @@ Randomizer.Puzzles = {
     TimeFlies = {
       full = "Time Flies",
       sigil = "NI6",
-      talosProgress = "C5-TimeFlies"
+      talosProgress = "C5-TF"
     },
     TFStar = {
       full = "Time Flies Star",
@@ -1039,7 +1039,7 @@ Randomizer.Puzzles = {
     TimeCrawls = {
       full = "Time Crawls",
       sigil = "NO4",
-      talosProgress = "C5-TimeCrawls"
+      talosProgress = "C5-TC"
     },
     Dumbwaiter = {
       full = "Dumbwaiter",

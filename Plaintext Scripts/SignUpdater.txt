@@ -24,9 +24,9 @@ local icons = {
 
 local colours = {
   D = textDoor,
-  E = textSecret,
   M = textMechanical,
   N = textNexus,
+  E = textSecret,
   ["*"] = textStar
 }
 
