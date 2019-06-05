@@ -1835,7 +1835,7 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
                 uniqueSigils = {"DJ1", "DJ4", "DJ5"}
                 locked.A1Gate = {"DJ2", "DZ1"}
                 locked.CGate = {"DL3", "DT3", "DT4", "DZ4"}
-              elseif startHub == "C" then
+              elseif startHub == Randomizer.Hub.C then
                 uniqueSigils = {"DJ1", "DJ2", "DJ3"}
                 locked.A1Gate = {"DZ1"}
                 locked.AGate = {"DI1", "DL1", "DZ2"}
@@ -1846,7 +1846,7 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
               if startHub == Randomizer.Hub.A then
                 uniqueSigils = {"DI2"}
                 locked.BGate = {"DL2", "DT1", "DT2", "DZ3"}
-              elseif startHub == "B" then
+              elseif startHub == Randomizer.Hub.B then
                 uniqueSigils = {"DI1"}
                 locked.AGate = {"DJ3", "DL1", "DZ2"}
               end
