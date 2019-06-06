@@ -1,7 +1,7 @@
 --[[
   Normally this is part of the portal numbering script
   It doesn't really fit, the script even says they should be
-   seperated, so when I rewrote it I did just that
+   separated, so when I rewrote it I did just that
 
 ]]--
 
@@ -12,7 +12,7 @@ OpenedHeavenDoorGlow:Disappear()
 ClosedHeavenDoorGlow:Appear()
 HeavenGatesLight:Deactivate()
 
-local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
+local talosProgress = nexGetTalosProgress(worldInfo)
 if not talosProgress:IsVarSet("GatesOfEternityOpened") then
   Wait(CustomEvent("GatesOfEternityOpened"))
 end

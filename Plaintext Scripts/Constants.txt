@@ -1234,6 +1234,21 @@ Randomizer.ChecksumMarkers = {
     Randomizer.Hints.talosProgress
 }
 
+Randomizer.EternalizeSave = {
+  Randomizer.Hints.talosProgress,
+  Randomizer.MiscFlags.debug,
+  Randomizer.MiscOptions.Values.OpenWorlds.talosProgress,
+  Randomizer.MiscOptions.Values.AllItems.talosProgress,
+  Randomizer.MiscOptions.Values.Portals.talosProgress,
+  Randomizer.MiscOptions.Values.Jetpack.talosProgress,
+  Randomizer.MiscOptions.Values.ExtraSigils.talosProgress,
+  Randomizer.Mobius.talosProgress,
+  Randomizer.Modes.talosProgress,
+  Randomizer.Moody.talosProgress,
+  Randomizer.Scavenger.talosProgress,
+  Randomizer.Uno.talosProgress
+}
+
 -- Parse over a table, filling in the AsArray table if needed
 local function parseTable(sub)
   -- Could add more safeguards but this should be enough for me

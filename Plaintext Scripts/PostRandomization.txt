@@ -44,7 +44,7 @@ RunAsync(function()
       portalNum = talosProgress:GetCodeValue(emptyPortal:GetName())
     end
     if iter >= 2 then
-      conWarningF("Portal was eventually assigned " .. iter - 1 .. " ticks late \n")
+      conWarningF("Portal was eventually assigned " .. iter - 1 .. " ticks late\n")
     end
     -- Assigned before portals so we should be safe to use the current value
     if talosProgress:GetCodeValue("Randomizer_Mobius") ~= 0 then

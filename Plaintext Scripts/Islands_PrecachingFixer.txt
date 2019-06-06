@@ -12,7 +12,7 @@ local talosProgress = nexGetTalosProgress(worldInfo)
 local printWarning = worldGlobals.Randomizer.printWarning
 --[[
   Caching causes a bunch of log lines, which spam the console and are kind
-   of annoying, so if debug mode is on don't do anything
+   of annoying, so if debug mode or we're in the editor then just don't do it
 ]]
 if talosProgress:IsVarSet(worldGlobals.Randomizer.MiscFlags.debug) or corIsAppEditor() then
   printWarning("Disabling Precaching")

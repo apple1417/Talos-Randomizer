@@ -1,73 +1,84 @@
+-- There are a bunch of small things we need to do to properly setup Nexus
+
 --[[
-  Like "Cloud_1_01_ExtraOptions" there are just a bunch of small
-   things we need to do to properly setup this world, all put
-   into this script
+  Deal with portals
+  We already have all the portals in their default positions in this case so if Random
+   Portals is off we won't need to do anything
+  Random Portals is set before the world loads so we can safely straight away
+  If it is set then just like in the normal script we need to make sure the individual
+   vars are actually set before we can move them
 ]]--
-
 -- talosProgress : CTalosProgress
-local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
-local print = worldGlobals.print
-local printWarning = worldGlobals.printWarning
-local printError = worldGlobals.printError
+local talosProgress = nexGetTalosProgress(worldInfo)
+RunAsync(function()
+  if talosProgress:IsVarSet("Randomizer_Portals") then
+    --[[
+      Arbitraritly use C Messenger portal to check if values have been set
+      Technically this is one of the last ones set which makes it safer, but
+       everything should be set in a single tick anyway
+    ]]--
+    local portalNum = talosProgress:GetCodeValue("CM-Portal")
+    local iter = 0
+    while portalNum == -1 do
+      iter = iter + 1
+      if iter == 2 then
+        conWarningF("'CM-Portal' did not have a portal assigned to it quickly enough!\n")
+      elseif iter >= 10 then
+        conErrorF("At least 10 ticks late, assuming 'CM-Portal' does not have a portal assigned to it!\n")
+        return
+      end
+      Wait(CustomEvent("OnStep"))
+      portalNum = talosProgress:GetCodeValue("CM-Portal")
+    end
+    if iter >= 2 then
+      conWarningF("Portal was eventually assigned " .. iter - 1 .. " ticks late\n")
+    end
 
--- It's easier to open all gates, even the ones that'll dissapear later
-if talosProgress:IsVarSet("Randomizer_NoGates") then
-  Gates:AssureOpened()
-end
+    local allPortals = {
+      A1, A2, A3, A4, A5, A6, A7, AStar, ADevIsland,
+      B1, B2, B3, B4, B5, B6, B7, BStar,
+      C1, C2, C3, C4, C5, C6, C7, CStar, CMessenger
+    }
 
-Wait(CustomEvent("Randomizer_Finished"))
--- Want the seeds to show up on signs by each ending
-eternalizeText:SetText(eternalizeText:GetTextConfig(), "Seed: " .. talosProgress:GetCodeValue("Randomizer_Seed"), true)
-trancendenceText:SetText(trancendenceText:GetTextConfig(), "Seed: " .. talosProgress:GetCodeValue("Randomizer_Seed"), true)
+    local portalLocations = {}
+    for i = 1, #allPortals do
+      portalLocations[i] = allPortals[i]:GetPlacement()
+    end
+    local OOB = thisScript:GetPlacement()
 
--- Because Nexus already has all the portals we can just shuffle them around
-if talosProgress:IsVarSet("Randomizer_Portals") then
-  --[[
-    Because people had trouble remembering dev island was a thing we give
-     it a normal portal outline when random portals are on
-  ]]--
-  DevIslandCover:Disappear()
-  
-  local portalNames = {
-    "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "ADevIsland",
-    "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
-    "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "CMessenger"
-  }
-  local portalList = {
-    A1, A2, A3, A4, A5, A6, A7, A8, ADevIsland,
-    B1, B2, B3, B4, B5, B6, B7, B8,
-    C1, C2, C3, C4, C5, C6, C7, C8, CMessenger
-  }
-  
-  local portalLocations = {}
-  for i=1, #portalList do
-    portalLocations[i] = portalList[i]:GetPlacement()
-  end
-  local OOB = thisScript:GetPlacement()
-  
-  for i=1, #portalNames do
-    local locationNum = talosProgress:GetCodeValue(portalNames[i])
-    if locationNum < 0 then
-      printError("Portal " .. portalNames[i] .. " does not have a location assigned to it!\n")
-      -- To make sure you notice, incase you're not looking at console
-      portalList[i]:SetPlacement(OOB)
-    else
-      portalList[i]:SetPlacement(portalLocations[locationNum])
-      if talosProgress:IsVarSet("Randomizer_Debug") then
-        printWarning(string.format("Placing %s at %s\n", portalList[i]:GetName(),  portalNames[locationNum]))
+    for i = 1, #allPortals do
+      local locationNum = talosProgress:GetCodeValue(allPortals[i]:GetName())
+      if locationNum < 0 then
+        conErrorF("Portal '" .. allPortals[i]:GetName() .. "' does not have a location assigned to it!\n")
+        -- To make sure you notice, incase you're not looking at console
+        allPortals[i]:SetPlacement(OOB)
+      else
+        allPortals[i]:SetPlacement(portalLocations[locationNum])
+        if talosProgress:IsVarSet("Randomizer_Debug") then
+          conWarningF(string.format("Placing %s at %s\n", allPortals[i]:GetName(),  allPortals[locationNum]:GetName()))
+        end
       end
     end
   end
-else
-  -- When random portals are off we want to keep dev island hidden
-  DevIslandNumber:Disappear()
+end)
+
+Wait(CustomEvent("Randomizer_Finished"))
+
+-- It's easier to open all gates, even the ones that'll dissapear later
+if talosProgress:IsVarSet(worldGlobals.Randomizer.MiscOptions.Values.OpenWorlds.talosProgress) then
+  AllGates:AssureOpened()
 end
+
+-- Want the seeds to show up on signs by each ending
+local seedStr = "Seed: " .. talosProgress:GetCodeValue(worldGlobals.Randomizer.Seed.talosProgress)
+eternalizeText:SetText(eternalizeText:GetTextConfig(), seedStr, true)
+trancendenceText:SetText(trancendenceText:GetTextConfig(), seedStr, true)
 
 --[[
   Because you can't solve arrangers from behind we need to have
    extra gates incase random portals puts you outside of A
 ]]--
-local A1Location = talosProgress:GetCodeValue("A1")
+local A1Location = talosProgress:GetCodeValue("A1-Portal")
 -- Start in A
 if A1Location <= 9 then
   AUpperGate:Disappear()
@@ -92,7 +103,7 @@ elseif 10 <= A1Location and A1Location <= 17 then
   BUpperLight:Deactivate()
   CLowerGate:Disappear()
   CLowerArranger:Disappear()
-  CLowerLight:Deactivate()  
+  CLowerLight:Deactivate()
   -- We get rid of the bump wall once you're through the gate
   if BLowerArranger:IsSolved() then
     BLowerBumpWall:Disable()
@@ -119,7 +130,7 @@ elseif 18 <= A1Location then
   BLowerArranger:Disappear()
   BLowerWalls:Disappear()
   BLowerBumpWall:Disable()
-  BLowerBumpDetector:Deactivate()  
+  BLowerBumpDetector:Deactivate()
   BLowerLight:Deactivate()
   CUpperGate:Disappear()
   CUpperArranger:Disappear()

@@ -32,14 +32,14 @@ local colours = {
 
 -- Make sure all text effects are empty
 for _, v in pairs(colours) do
-  v:ClearText(v)
+  v:ClearText(v:GetTextConfig())
 end
 -- These two tables *should* be the same, but just in case...
 for _, v in pairs(tetroTexts) do
-  v:ClearText(v)
+  v:ClearText(v:GetTextConfig())
 end
 for _, v in pairs(starTexts) do
-  v:ClearText(v)
+  v:ClearText(v:GetTextConfig())
 end
 
 
