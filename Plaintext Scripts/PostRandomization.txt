@@ -21,6 +21,21 @@ local portal = nil
 local talosProgress = nexGetTalosProgress(worldInfo)
 RunAsync(function()
   if worldInfo:GetWorldFileName() ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
+    --[[
+      If this is already assigned then we don't need to do any processing, we know
+       the portal we want
+      It's already dealt with properly upon assignment, we just need to deal with
+       it on load
+    ]]--
+    if talosProgress:IsVarSet("Randomizer_MobiusDone") then
+      portal = messengerPortal
+      local pos = emptyPortal:GetPlacement()
+      emptyPortal:SetPlacement(portal:GetPlacement())
+      portal:SetPlacement(pos)
+      return
+    end
+
+
     local allPortals = {
       A1, A2, A3, A4, A5, A6, A7, A8, AD,
       B1, B2, B3, B4, B5, B6, B7, B8,
@@ -325,25 +340,21 @@ end
 -- Deal with the mobius mode endings
 if talosProgress:GetCodeValue(Randomizer.Mobius.talosProgress) ~= 0 and currentWorld ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
   local function finished(str)
+    worldInfo:ShowMessageToAll("Goal Achived:\n" .. str)
     if not talosProgress:IsVarSet(Randomizer.MiscFlags.mobiusDone) then
-      worldInfo:ShowMessageToAll("Goal Achived:\n" .. str)
       talosProgress:SetVar(Randomizer.MiscFlags.mobiusDone)
       talBackupAndSaveTalosProgress(worldInfo)
-    end
-    local messengerPos = messengerPortal:GetPlacement()
-    local portalPos = portal:GetPlacement()
-    messengerPortal:SetPlacement(portalPos)
-    portal:SetPlacement(messengerPos)
-    if DEBUG then
-      print("Goal achieved, replacing portal '" .. portal:GetName() .. "' with '" .. messengerPortal:GetName() .. "'")
+      local messengerPos = messengerPortal:GetPlacement()
+      local portalPos = portal:GetPlacement()
+      messengerPortal:SetPlacement(portalPos)
+      portal:SetPlacement(messengerPos)
+      if DEBUG then
+        print("Goal achieved, replacing portal '" .. portal:GetName() .. "' with '" .. messengerPortal:GetName() .. "'")
+      end
     end
   end
 
   RunAsync(function()
-    if talosProgress:IsVarSet(Randomizer.MiscFlags.mobiusDone) then
-      finished()
-    end
-
     local mobius = talosProgress:GetCodeValue(Randomizer.Mobius.talosProgress)
 
     --[[
