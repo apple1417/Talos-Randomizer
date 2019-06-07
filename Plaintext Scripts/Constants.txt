@@ -1230,8 +1230,7 @@ Randomizer.ChecksumMarkers = {
     Randomizer.Scavenger.talosProgress,
     Randomizer.Mobius.talosProgress,
     Randomizer.Moody.talosProgress,
-    Randomizer.MiscFlags.extraSeed,
-    Randomizer.Hints.talosProgress
+    Randomizer.MiscFlags.extraSeed
 }
 
 Randomizer.EternalizeSave = {

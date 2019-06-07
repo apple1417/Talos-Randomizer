@@ -103,7 +103,7 @@ globals.Randomizer.AutoStart.add = function(tal, val)
 
   prj_strCustomOccasion = string.gsub(
     prj_strCustomOccasion,
-    "(Randomizer_AutoStartO?f?f)={.-};",
+    "(Randomizer_AutoStartO?f?f?)={.-};",
     "%1={" .. m .. "};",
     1
   )

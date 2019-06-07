@@ -412,7 +412,7 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
         Randomizer.Puzzles.B4.WAtC,
         Randomizer.Puzzles.B4.TRAStar
       }, Randomizer.Puzzles.B4},
-      {function() return isWorldOpen(Randomizer.Puzzles.B4) and not locked.Connector end, {
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and (not locked.Connector or not locked.Cube) end, {
         Randomizer.Puzzles.B4.Sphinx
       }, Randomizer.Puzzles.B4},
       {function() return isWorldOpen(Randomizer.Puzzles.B5) end, {
@@ -437,7 +437,7 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
         Randomizer.Puzzles.B7.BSbS,
         Randomizer.Puzzles.B7.BLoM
       }, Randomizer.Puzzles.B7},
-      {function() return isWorldOpen(Randomizer.Puzzles.B7) and not locked.Fan end, {
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) and (not locked.Cube or not locked.Fan) end, {
         Randomizer.Puzzles.B7.Pyramid
       }, Randomizer.Puzzles.B7},
       {function() return isWorldOpen(Randomizer.Puzzles.BStar) end, {
@@ -628,7 +628,7 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
         Randomizer.Puzzles.B4.ABUH,
         Randomizer.Puzzles.B4.TRAStar
       }, Randomizer.Puzzles.B4},
-      {function() return isWorldOpen(Randomizer.Puzzles.B4) and not locked.Connector and (not locked.Cube or not locked.Fan) end, {
+      {function() return isWorldOpen(Randomizer.Puzzles.B4) and ((not locked.Connector and not locked.Cube) or (not locked.Connector and not locked.Fan) or (not locked.Cube and not locked.Recorder)) end, {
         Randomizer.Puzzles.B4.Sphinx
       }, Randomizer.Puzzles.B4},
       {function() return isWorldOpen(Randomizer.Puzzles.B5) end, {
@@ -661,7 +661,7 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
       {function() return isWorldOpen(Randomizer.Puzzles.B7) and not locked.Cube end, {
         Randomizer.Puzzles.B7.BLoM
       }, Randomizer.Puzzles.B7},
-      {function() return isWorldOpen(Randomizer.Puzzles.B7) and not locked.Fan end, {
+      {function() return isWorldOpen(Randomizer.Puzzles.B7) and (not locked.Cube or not locked.Fan) end, {
         Randomizer.Puzzles.B7.Pyramid
       }, Randomizer.Puzzles.B7},
       {function() return isWorldOpen(Randomizer.Puzzles.BStar) end, {
@@ -699,7 +699,7 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
       {function() return isWorldOpen(Randomizer.Puzzles.C4) end, {
         Randomizer.Puzzles.C4.Stables
       }, Randomizer.Puzzles.C4},
-      {function() return isWorldOpen(Randomizer.Puzzles.C4) and not locked.Connector and (not locked.Cube or not locked.Recorder or not locked ["Platform"]) end, {
+      {function() return isWorldOpen(Randomizer.Puzzles.C4) and ((not locked.Connector and (not locked.Cube or not locked.Recorder or not locked.Platform)) or (not locked.Cube and not locked.Recorder and not locked.Platform)) end, {
         Randomizer.Puzzles.C4.Oubliette
       }, Randomizer.Puzzles.C4},
       {function() return isWorldOpen(Randomizer.Puzzles.C4) and not locked.Connector end, {
@@ -711,7 +711,7 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
       {function() return isWorldOpen(Randomizer.Puzzles.C4) and (not locked.Cube or not locked.Fan) end, {
         Randomizer.Puzzles.C4.ThroneRoomStar
       }, Randomizer.Puzzles.C4},
-      {function() return isWorldOpen(Randomizer.Puzzles.C4)and ((not locked.Connector and not locked.Cube) or (not locked.Recorder and not locked.Platform)) end, {
+      {function() return isWorldOpen(Randomizer.Puzzles.C4)and ((not locked.Connector and not locked.Cube) or (not locked.Connector and not locked.Recorder and not locked.Platform) or (not locked.Cube and not locked.Recorder and not locked.Platform)) end, {
         Randomizer.Puzzles.C4.OublietteStar
       }, Randomizer.Puzzles.C4},
       {function() return isWorldOpen(Randomizer.Puzzles.C5) end, {
@@ -1372,13 +1372,9 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
         Randomizer.Puzzles.C4.Stables,
         Randomizer.Puzzles.C4.Armory,
         Randomizer.Puzzles.C4.ThroneRoom,
-        Randomizer.Puzzles.C4.ThroneRoomStar
-      }, Randomizer.Puzzles.C4},
-      {function() return isWorldOpen(Randomizer.Puzzles.C4) and not locked.Cube end, {
+        Randomizer.Puzzles.C4.ThroneRoomStar,
+        Randomizer.Puzzles.C4.Oubliette,
         Randomizer.Puzzles.C4.OublietteStar
-      }, Randomizer.Puzzles.C4},
-      {function() return isWorldOpen(Randomizer.Puzzles.C4) and (not locked.Connector or not locked.Cube or not locked.Recorder or not locked.Platform) end, {
-        Randomizer.Puzzles.C4.Oubliette
       }, Randomizer.Puzzles.C4},
       {function() return isWorldOpen(Randomizer.Puzzles.C5) end, {
         Randomizer.Puzzles.C5.TimeCrawls,
@@ -1549,7 +1545,7 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
     if RandomizationMode == Randomizer.Modes.Values.Intended
         and Scavenger == Randomizer.Scavenger.Values.Off then
       local sigil = ""
-      local marker = Randomizer.Puzzles.Neuxs.F3.talosProgress
+      local marker = Randomizer.Puzzles.Nexus.F3.talosProgress
       -- Weighted based on the amount of sigils of each type
       local sigilIndex = rand(1, 39)
       if sigilIndex <= 9 then
