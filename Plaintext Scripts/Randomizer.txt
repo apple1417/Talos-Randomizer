@@ -243,7 +243,7 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
       startHub = Randomizer.Hub.B
     elseif 16 <= index then
       index = index + 2
-      startHub = Randomizer.Hub.V
+      startHub = Randomizer.Hub.C
     end
     if DEBUG then
       print("Starting in " .. startHub.name)

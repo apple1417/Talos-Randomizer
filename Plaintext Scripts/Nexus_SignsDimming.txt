@@ -63,12 +63,10 @@ local allWorlds = {{
   tetros = tetroOrderA7
 }, {
   world = Randomizer.Puzzles.AStar,
-  portal = portalAnimatorAStar,
   stars = starsOrderAStar,
   tetros = tetroOrderAStar
 }, {
-  world = Randomizer.Puzzles.ADev,
-  portal = portalAnimatorDevIsland
+  world = Randomizer.Puzzles.ADev
 }, {
   world = Randomizer.Puzzles.B1,
   portal = portalAnimatorB1,
@@ -76,7 +74,7 @@ local allWorlds = {{
   tetros = tetroOrderB1
 }, {
   world = Randomizer.Puzzles.B2,
-  portal = portalAnimatorA2,
+  portal = portalAnimatorB2,
   stars = starsOrderB2,
   tetros = tetroOrderB2
 }, {
@@ -86,7 +84,7 @@ local allWorlds = {{
   tetros = tetroOrderB3
 }, {
   world = Randomizer.Puzzles.B4,
-  portal = portalAnimatorA4,
+  portal = portalAnimatorB4,
   stars = starsOrderB4,
   tetros = tetroOrderB4
 }, {
@@ -96,7 +94,7 @@ local allWorlds = {{
   tetros = tetroOrderB5
 }, {
   world = Randomizer.Puzzles.B6,
-  portal = portalAnimatorA6,
+  portal = portalAnimatorB6,
   stars = starsOrderB6,
   tetros = tetroOrderB6
 }, {
@@ -106,7 +104,6 @@ local allWorlds = {{
   tetros = tetroOrderB7
 }, {
   world = Randomizer.Puzzles.BStar,
-  portal = portalAnimatorBStar,
   stars = starsOrderBStar,
   tetros = tetroOrderBStar
 }, {
@@ -146,12 +143,10 @@ local allWorlds = {{
   tetros = tetroOrderC7
 }, {
   world = Randomizer.Puzzles.CStar,
-  portal = portalAnimatorCStar,
   stars = starsOrderCStar,
   tetros = tetroOrderCStar
 }, {
-  world = Randomizer.Puzzles.CMessenger,
-  portal = portalAnimatorCStar
+  world = Randomizer.Puzzles.CMessenger
 }}
 
 -- Deal with random portals
@@ -171,6 +166,9 @@ end
 local portals = talosProgress:IsVarSet(Randomizer.MiscOptions.Values.Portals.talosProgress)
 local scavenger = talosProgress:GetCodeValue(Randomizer.Scavenger.talosProgress)
 for _, world in pairs(orderedWorlds) do
+  -- This script actually barely manages to time out otherwise
+  Wait(CustomEvent("OnStep"))
+
   local allCollected = true
   local stars = {}
   local tetros = {}
@@ -192,10 +190,12 @@ for _, world in pairs(orderedWorlds) do
     allCollected = talosProgress:IsVarSet(Randomizer.MiscFlags.devIslandVisited)
   end
   -- Dim the portal if needed
-  if allCollected then
-    world.portal:StartAnimation("Off")
-  else
-    world.portal:StartAnimation("On")
+  if world.portal ~= nil then
+    if allCollected then
+      world.portal:StartAnimation("Off")
+    else
+      world.portal:StartAnimation("On")
+    end
   end
 
   if world.stars ~= nil and world.tetros ~= nil then
@@ -207,7 +207,7 @@ for _, world in pairs(orderedWorlds) do
     -- Not going to support random portals
     if portals then
       for _, v in pairs(world.tetros) do
-        text:SetText(textDefault:GetTextConfig(), "?", true)
+        v:SetText(textDefault:GetTextConfig(), "?", true)
       end
     else
       -- Sort the sigil lists
