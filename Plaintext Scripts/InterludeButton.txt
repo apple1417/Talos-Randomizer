@@ -19,6 +19,7 @@ else
 
   -- This is basically the function is Options_Constants.lua, just simplified for this situation
   GrayButton:EnableUsage()
+  local isOn = false
   RunHandled(WaitForever,
     OnEvery(Any(Event(GrayButton.Used), Event(GreenButton.Used))),
     function(event)
@@ -55,6 +56,13 @@ else
         pos = portal:GetPlacement()
         portal:SetPlacement(interludePortal:GetPlacement())
         interludePortal:SetPlacement(pos)
+
+        isOn = not isOn
+        if isOn then
+          worldGlobals.Randomizer.portal = interludePortal
+        else
+          worldGlobals.Randomizer.portal = portal
+        end
 
         startTime = worldInfo:GetTimePassedFromTimer()
         startVect = newButton:GetPlacement():GetVect()

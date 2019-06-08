@@ -17,7 +17,6 @@
 ]]--
 -- portal : CPhaseInPortalEntity
 -- talosProgress : CTalosProgress
-local portal = nil
 local talosProgress = nexGetTalosProgress(worldInfo)
 RunAsync(function()
   if worldInfo:GetWorldFileName() ~= "Content/Talos/Levels/Randomizer/Nexus.wld" then
@@ -28,10 +27,15 @@ RunAsync(function()
        it on load
     ]]--
     if talosProgress:IsVarSet("Randomizer_MobiusDone") then
-      portal = messengerPortal
       local pos = emptyPortal:GetPlacement()
-      emptyPortal:SetPlacement(portal:GetPlacement())
-      portal:SetPlacement(pos)
+      emptyPortal:SetPlacement(messengerPortal:GetPlacement())
+      messengerPortal:SetPlacement(pos)
+
+      while worldGlobals.Randomizer == nil do
+        Wait(CustomEvent("OnStep"))
+      end
+      worldGlobals.Randomizer.portal = messengerPortal
+      SignalEvent("Randomizer_PortalFound")
       return
     end
 
@@ -65,7 +69,7 @@ RunAsync(function()
     if talosProgress:GetCodeValue("Randomizer_Mobius") ~= 0 then
       portalNum = portalNum + 26
     end
-    portal = allPortals[portalNum]
+    local portal = allPortals[portalNum]
 
     local emptyPos = emptyPortal:GetPlacement()
     local portalPos = portal:GetPlacement()
@@ -344,10 +348,12 @@ if talosProgress:GetCodeValue(Randomizer.Mobius.talosProgress) ~= 0 and currentW
     if not talosProgress:IsVarSet(Randomizer.MiscFlags.mobiusDone) then
       talosProgress:SetVar(Randomizer.MiscFlags.mobiusDone)
       talBackupAndSaveTalosProgress(worldInfo)
-      local messengerPos = messengerPortal:GetPlacement()
-      local portalPos = portal:GetPlacement()
-      messengerPortal:SetPlacement(portalPos)
-      portal:SetPlacement(messengerPos)
+
+      local pos = worldGlobals.Randomizer.portal:GetPlacement()
+      worldGlobals.Randomizer.portal:SetPlacement(messengerPortal:GetPlacement())
+      messengerPortal:SetPlacement(pos)
+      worldGlobals.Randomizer.portal = messengerPortal
+
       if DEBUG then
         print("Goal achieved, replacing portal '" .. portal:GetName() .. "' with '" .. messengerPortal:GetName() .. "'")
       end
