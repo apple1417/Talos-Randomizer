@@ -3,8 +3,8 @@ import shutil
 import sys
 
 BLACKLIST = shutil.ignore_patterns(
-  ".git*", "Plaintext Scripts*","*.py", "Randomizer.nfo",
-  "MarkerNames.txt", "README.md", "Startup Scripts*"
+  ".git*", "Plaintext Scripts*", "Startup Scripts*", "246 Patch*", "326 Patch*",
+  "Randomizer.nfo", "README.md", "*.py"
 )
 
 if os.path.exists("Randomizer.gro"):
