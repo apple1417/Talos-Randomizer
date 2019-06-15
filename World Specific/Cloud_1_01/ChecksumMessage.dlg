@@ -1,0 +1,58 @@
+terminal when (Randomizer_Overlay_Start) {
+  text: [[TTRS:notrans=
+Randomizer Checksum: %e2]]
+}
+
+terminal when (Randomizer_Overlay_Hex_0) {
+  text: "TTRS:notrans=0%e2"
+}
+terminal when (Randomizer_Overlay_Hex_1) {
+  text: "TTRS:notrans=1%e2"
+}
+terminal when (Randomizer_Overlay_Hex_2) {
+  text: "TTRS:notrans=2%e2"
+}
+terminal when (Randomizer_Overlay_Hex_3) {
+  text: "TTRS:notrans=3%e2"
+}
+terminal when (Randomizer_Overlay_Hex_4) {
+  text: "TTRS:notrans=4%e2"
+}
+terminal when (Randomizer_Overlay_Hex_5) {
+  text: "TTRS:notrans=5%e2"
+}
+terminal when (Randomizer_Overlay_Hex_6) {
+  text: "TTRS:notrans=6%e2"
+}
+terminal when (Randomizer_Overlay_Hex_7) {
+  text: "TTRS:notrans=7%e2"
+}
+terminal when (Randomizer_Overlay_Hex_8) {
+  text: "TTRS:notrans=8%e2"
+}
+terminal when (Randomizer_Overlay_Hex_9) {
+  text: "TTRS:notrans=9%e2"
+}
+terminal when (Randomizer_Overlay_Hex_A) {
+  text: "TTRS:notrans=A%e2"
+}
+terminal when (Randomizer_Overlay_Hex_B) {
+  text: "TTRS:notrans=B%e2"
+}
+terminal when (Randomizer_Overlay_Hex_C) {
+  text: "TTRS:notrans=C%e2"
+}
+terminal when (Randomizer_Overlay_Hex_D) {
+  text: "TTRS:notrans=D%e2"
+}
+terminal when (Randomizer_Overlay_Hex_E) {
+  text: "TTRS:notrans=E%e2"
+}
+terminal when (Randomizer_Overlay_Hex_F) {
+  text: "TTRS:notrans=F%e2"
+}
+
+terminal when (Randomizer_Overlay_End) {
+  text: [[TTRS:notrans=
+%w9%w9%w9%w9%e2]]
+}

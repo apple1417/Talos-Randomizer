@@ -308,7 +308,8 @@ Randomizer.MiscFlags = {
   generated = "Randomizer_Generated",
   jetpackState = "Randomizer_JetpackState",
   mobiusDone = "Randomizer_MobiusDone",
-  mobiusInterlude = "Randomizer_MobiusAfterInterlude"
+  mobiusInterlude = "Randomizer_MobiusAfterInterlude",
+  shownChecksum = "Randomizer_ShownChecksum"
 }
 
 Randomizer.MiscOptions = {

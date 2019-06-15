@@ -1,4 +1,7 @@
-Wait(CustomEvent("Randomizer_Finished"))
+local event = Wait(All(Event(worldInfo.PlayerBorn),
+                       CustomEvent("Randomizer_Finished")))
+-- player : CPlayerPuppetEntity
+local player = event.all[1]:GetBornPlayer()
 
 worldInfo:ActivateTimer(10000000)
 local ANIMATION_LENGTH = 3
@@ -26,9 +29,10 @@ end
 
 local lowered = {}
 for i = 1, #arrangers do
-  if arrangers[i]:IsSolved() then
+  if arrangers[i]:IsSolved() or sigils[i]:IsPicked() then
     lowerDoor(i, LOWER_DISTANCE)
     lowered[i] = true
+    barriers[i]:Disable()
     sigils[i]:EnablePicking()
   end
 end
@@ -42,6 +46,7 @@ RunHandled(WaitForever,
         return
       end
 
+      lowered[index] = true
       barriers[index]:Disable()
       sigils[index]:EnablePicking()
 
@@ -62,5 +67,19 @@ RunHandled(WaitForever,
         Wait(CustomEvent("OnStep"))
       end
     end)
+  end,
+  OnEvery(Any(Events(Cheater.Activated))),
+  function(event)
+    local index = event.any.signaledIndex
+    if lowered[index] then
+      return
+    end
+
+    cheaterSound:PlayOnce()
+    while Cheater[index]:IsPointInArea(player:GetPlacement():GetVect(), 1) do
+      Wait(CustomEvent("OnStep"))
+    end
+
+    Cheater[index]:Recharge()
   end
 )
