@@ -60,7 +60,7 @@ Randomizer.printLog = function(...)
 end
 
 Randomizer.currentWorld = worldInfo:GetWorldFileName()
-Randomizer.version = "b20.0.2"
+Randomizer.version = "b20.0.3"
 
 Randomizer.Arrangers = {
   A1Gate = {

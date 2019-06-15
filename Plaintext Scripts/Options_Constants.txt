@@ -5,15 +5,18 @@ versionText:SetText(
   worldGlobals.Randomizer.version,
   true
 )
-
-worldInfo:AddToWorldCache_AsHighPriority("Content/Talos/Levels/Randomizer/Cloud_1_01.wld")
+-- talosProgress : CTalosProgress
+local talosProgress = nexGetTalosProgress(worldInfo)
+if talosProgress:IsVarSet(worldGlobals.Randomizer.MiscFlags.debug) or corIsAppEditor() then
+  worldGlobals.Randomizer.printWarning("Disabling Precaching")
+else
+  worldInfo:AddToWorldCache_AsHighPriority("Content/Talos/Levels/Randomizer/Cloud_1_01.wld")
+end
 
 --[[
   If you somehow get vars saved before you load into the map (e.g.) editor
    then signs break, so this bit resets it
 ]]--
--- talosProgress : CTalosProgress
-local talosProgress = nexGetTalosProgress(worldInfo)
 local options = worldGlobals.Randomizer.MiscOptions.AsArray
 for i = 1, #options do
   talosProgress:ClearVar(options[i].talosProgress)
