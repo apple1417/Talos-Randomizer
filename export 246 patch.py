@@ -13,7 +13,7 @@ if os.path.exists("Randomizer.gro"):
 
 print("Copying files")
 shutil.copytree("246 Patch", "temp/Content/Talos/Levels/Randomizer", ignore=BLACKLIST)
-shutil.copytree("Startup Scripts", "temp/Content/Talos/Scripts/Startup")
+shutil.copytree("246 Patch/Startup Scripts", "temp/Content/Talos/Scripts/Startup")
 shutil.copy2("Randomizer.nfo", "temp/Content/Talos/Levels/Randomizer.nfo")
 print("Zipping")
 shutil.make_archive("Randomizer_246", 'zip', "temp")
