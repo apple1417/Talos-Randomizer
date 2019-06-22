@@ -1,12 +1,12 @@
 Wait(CustomEvent("Randomizer_Finished"))
-local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
-local sigilNum = talosProgress:GetCodeValue("015_SRT_SPM_000_PM_018")
-local ABTU = worldGlobals.allTetros[sigilNum]
-sigilNum = talosProgress:GetCodeValue("020_SPM_000_PM_014")
-local SwallowedKey = worldGlobals.allTetros[sigilNum]
+local talosProgress = nexGetTalosProgress(worldInfo)
+local sigilNum = talosProgress:GetCodeValue(worldGlobals.Randomizer.Puzzles.A3.ABTU.talosProgress)
+local ABTU = worldGlobals.Randomizer.allTetros[sigilNum]
+sigilNum = talosProgress:GetCodeValue(worldGlobals.Randomizer.Puzzles.A3.LMUStK.talosProgress)
+local LMUStK = worldGlobals.Randomizer.allTetros[sigilNum]
 
 RunHandled(WaitForever,
-  On(Any(Event(ABTU.Picked), Event(SwallowedKey.Picked))),
+  On(Any(Event(ABTU.Picked), Event(LMUStK.Picked))),
   function()
     detectors_015_020_Exit:Recharge()
     Wait(Any(Events(detectors_015_020_Exit.Activated)))

@@ -1,0 +1,23 @@
+--[[
+  This script lets you skip the options world with specific options
+   set via console command
+
+  This clears a few vars, need to make sure it's done before we set them again
+  We also just need to delay a bit to be able to load the next world
+]]--
+Wait(CustomEvent("Randomizer_OptionsConstantsLoaded"))
+Wait(CustomEvent("OnStep"))
+
+local occasion = prjGetCustomOccasion()
+local args = string.match(occasion, "Randomizer_AutoStart={(.-)};")
+if args ~= nil then
+  talClearTalosProgress(worldInfo)
+
+  -- talosProgress : CTalosProgress
+  local talosProgress = nexGetTalosProgress(worldInfo)
+  for tal, val in string.gmatch(args, "'(.-)'=(%d+)") do
+    talosProgress:SetVarValue(tal, val)
+  end
+
+  exitChapter:Start()
+end

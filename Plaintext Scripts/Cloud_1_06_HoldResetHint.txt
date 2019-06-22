@@ -1,7 +1,7 @@
 Wait(CustomEvent("Randomizer_Finished"))
-local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
-local sigilNum = talosProgress:GetCodeValue("303_SPM_000_PM_010")
-local Bichromatic = worldGlobals.allTetros[sigilNum]
+local talosProgress = nexGetTalosProgress(worldInfo)
+local sigilNum = talosProgress:GetCodeValue(worldGlobals.Randomizer.Puzzles.A6.Bichromatic.talosProgress)
+local bichromatic = worldGlobals.Randomizer.allTetros[sigilNum]
 
 
 local bDoorOpen=0 -- 0 door is closed, 1 door is open

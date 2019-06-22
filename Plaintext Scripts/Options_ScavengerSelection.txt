@@ -1,0 +1,79 @@
+Wait(CustomEvent("Randomizer_OptionsConstantsLoaded"))
+local Scavenger = worldGlobals.Randomizer.Scavenger
+
+local offset = GreenButtons[1]:GetPlacement():GetVect() - GrayButtons[1]:GetPlacement():GetVect()
+offset = offset / 2
+
+local buttonIndex = 1
+for i = 1, #Scavenger.AsArray do
+  if Scavenger.AsArray[i] ~= Scavenger.Values.Off then
+    GrayButtons[buttonIndex]:EnableUsage()
+    GrayTexts[buttonIndex]:SetText(
+      GrayTexts[buttonIndex]:GetTextConfig(),
+      Scavenger.AsArray[i].name,
+      true
+    )
+    GreenTexts[buttonIndex]:SetText(
+      GreenTexts[buttonIndex]:GetTextConfig(),
+      Scavenger.AsArray[i].name,
+      true
+    )
+    buttonIndex = buttonIndex + 1
+  end
+end
+
+local emptyButton = {}
+for i = #Scavenger.AsArray + 1, #GrayButtons do
+  emptyButton[i] = true
+  GrayButtons[i]:EnableUsage()
+end
+
+-- talosProgress : CTalosProgress
+local talosProgress = nexGetTalosProgress(worldInfo)
+
+local currentIndex = 0
+RunHandled(WaitForever,
+  OnEvery(Any(Events(GrayButtons.Used))),
+  function(event)
+    local index = event.any.signaledIndex
+    if emptyButton[index] then
+      worldGlobals.Randomizer.pressButton(GrayButtons[index], nil, offset, true)
+    else
+      worldGlobals.Randomizer.pressButton(
+        GrayButtons[index], GreenButtons[index],
+        offset, false,
+        function()
+          talosProgress:SetVarValue(
+            Scavenger.talosProgress,
+            Scavenger.AsArray[index].id
+          )
+          if currentIndex ~= 0 then
+            GrayButtons[currentIndex]:EnableUsage()
+            worldGlobals.Randomizer.swapPos(GrayButtons[currentIndex], GreenButtons[currentIndex])
+          end
+          currentIndex = index
+          talosProgress:SetVarValue(
+            Scavenger.talosProgress,
+            Scavenger.AsArray[index].id
+          )
+          SignalEvent("Randomizer_ScavengerOn")
+        end
+      )
+    end
+  end,
+  OnEvery(Any(Events(GreenButtons.Used))),
+  function()
+    SignalEvent("Randomizer_ScavengerOff")
+  end,
+  OnEvery(CustomEvent("Randomizer_ScavengerOff")),
+  function()
+    worldGlobals.Randomizer.pressButton(
+      GreenButtons[currentIndex], GrayButtons[currentIndex],
+      offset, false,
+      function()
+        currentIndex = 0
+        talosProgress:ClearVar(Scavenger.talosProgress)
+      end
+    )    
+  end
+)

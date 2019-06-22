@@ -1,11 +1,13 @@
 Wait(CustomEvent("Randomizer_Finished"))
 local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
 local Sigils = {}
-for k, v in pairs({"201_SPM_000_PM_013", "204_SPM_000_PM_004",
-                   "202e_SPM_000_PM_004", "207_SPM_000_PM_005",
-                   "244_SPM_000_PM_008"}) do
-  local sigilNum = talosProgress:GetCodeValue(v)
-  Sigils[k] = worldGlobals.allTetros[sigilNum]
+for k, v in pairs(worldGlobals.Randomizer.Puzzles.A5) do
+  if not (k == "talosProgress"
+          or v == worldGlobals.Randomizer.Puzzles.A5.FCStar
+          or v == worldGlobals.Randomizer.Puzzles.A5.TwoBoxesStar) then
+    local sigilNum = talosProgress:GetCodeValue(v.talosProgress)
+    table.insert(Sigils, worldGlobals.Randomizer.allTetros[sigilNum])
+  end
 end
 
 BackgroundRotator:PlayAnimLoop("Default")
@@ -77,7 +79,7 @@ RunHandled(
       worldInfo:SetMusic("Ambient", resRainyAmbient)
       fNextLightning = 15
     end
-    
+
     -- if it is raining
     if bRaining then
       fNextLightning = fNextLightning-1
@@ -88,7 +90,7 @@ RunHandled(
         Lighting()
       end
     end
-    
+
     bLastRaining = bRaining
   end,
   OnEvery(Any(Event(Sigils[1].Picked), Event(Sigils[2].Picked),

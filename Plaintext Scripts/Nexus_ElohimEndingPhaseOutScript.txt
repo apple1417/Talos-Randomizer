@@ -23,37 +23,34 @@ RunHandled(
         worldGlobals.worldInfo:AwardAchievementToAllPlayers("ChangedMyMind")
       end
       Wait(Delay(2.5))
+
       -- Copy randomizer options before we delete them
-      local Mode = talosProgress:GetCodeValue("Randomizer_Mode")
-      local NoGates = talosProgress:IsVarSet("Randomizer_NoGates")
-      local UnlockItems = talosProgress:IsVarSet("Randomizer_UnlockItems")
-      local ShowAll = talosProgress:IsVarSet("Randomizer_ShowAll")
-      local Debug = talosProgress:IsVarSet("Randomizer_Debug")
-      local Portals = talosProgress:IsVarSet("Randomizer_Portals")
-      local Scavenger = talosProgress:GetCodeValue("Randomizer_Scavenger")
+      local settings = {}
+      for k, v in pairs(worldGlobals.Randomizer.EternalizeSave) do
+        table.insert(settings, {
+          tal = v,
+          val = talosProgress:GetCodeValue(v)
+        })
+      end
+
       -- This one is redundant, but I don't want to leave options out
       local Loop = talosProgress:GetCodeValue("Randomizer_Loop")
       local Moody = talosProgress:GetCodeValue("Randomizer_Moody")
       local Jetpack = talosProgress:IsVarSet("Randomizer_Jetpack")
-      
+
       -- clear the talos progress (so we can start the game anew)
       talClearTalosProgress(exitPortal)
-      -- set the variable saying that we've already finished the 
+      -- set the variable saying that we've already finished the
       -- game so the new beginning can be a little bit different
       local talosProgress = nexGetTalosProgress(worldInfo)
       talosProgress:SetVar("AlreadyFinishedGame")
-      
+
       -- Set randomizer options again
-      talosProgress:SetVarValue("Randomizer_Mode", Mode)
-      if NoGates then talosProgress:SetVar("Randomizer_NoGates") end
-      if UnlockItems then talosProgress:SetVar("Randomizer_UnlockItems") end
-      if ShowAll then talosProgress:SetVar("Randomizer_ShowAll") end
-      if Debug then talosProgress:SetVar("Randomizer_Debug") end
-      if Portals then talosProgress:SetVar("Randomizer_Portals") end
-      talosProgress:SetVarValue("Randomizer_Scavenger", Scavenger)
-      talosProgress:SetVarValue("Randomizer_Loop", Loop)
-      talosProgress:SetVarValue("Randomizer_Moody", Moody)
-      if Jetpack then talosProgress:SetVar("Randomizer_Jetpack") end
+      for _, v in pairs(settings) do
+        if v.val ~= -1 then
+          talosProgress:SetVarValue(v.tal, v.val)
+        end
+      end
 
       exitPortal:Enable(true)
     end

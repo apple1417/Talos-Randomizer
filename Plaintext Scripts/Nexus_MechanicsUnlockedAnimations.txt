@@ -1,18 +1,18 @@
--- talosProgress : CTalosProgress
-local talosProgress = nexGetTalosProgress(worldGlobals.worldInfo)
-
 --[[
   If scavenger hunt mode is on we want to hide all arrangers except
    for the necessary ones
 ]]--
 Wait(CustomEvent("Randomizer_Finished"))
+-- talosProgress : CTalosProgress
+local talosProgress = nexGetTalosProgress(worldInfo)
 local scavengerOverride = false
-if talosProgress:GetCodeValue("Randomizer_Scavenger") ~= 0 then
-  local modes = {"Connector Clip", "F2 Clip", "F3 Clip", "F1+F6"}
-  local scavengerMode = modes[talosProgress:GetCodeValue("Randomizer_ScavengerMode")]
-  if scavengerMode == "Connector Clip" then
+if talosProgress:GetCodeValue(worldGlobals.Randomizer.Scavenger.talosProgress) ~= 0 then
+  local ending = worldGlobals.Randomizer.Scavenger.Endings.AsArray[
+    talosProgress:GetCodeValue(worldGlobals.Randomizer.Scavenger.Endings.talosProgress)
+  ]
+  if ending == worldGlobals.Randomizer.Scavenger.Endings.Values.Conn then
     scavengerOverride = thisScript:GetName() ~= "Connector"
-  elseif scavengerMode == "F2 Clip" then
+  elseif worldGlobals.Randomizer.Scavenger.Endings.Values.F2 then
     scavengerOverride = thisScript:GetName() ~= "Cube"
   else
     scavengerOverride = true
@@ -71,7 +71,7 @@ EffectAnimator:StartAnimation("Off")
 SpotLightAnimator:StartAnimation("Off")
 FlareAnimator:StartAnimation("Off")
 
-Arranger:DontUpdateMechanicsWhenSolved()      
+Arranger:DontUpdateMechanicsWhenSolved()
 Wait(Event(Arranger.Solved))
 Wait(Delay(1))
 SetRotatorDesiredVelocity(6000, 150)
