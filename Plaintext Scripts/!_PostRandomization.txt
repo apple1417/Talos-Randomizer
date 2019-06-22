@@ -368,7 +368,7 @@ if talosProgress:GetCodeValue(Randomizer.Mobius.talosProgress) ~= 0 and currentW
         we don't need to do it every time we get a sigil
     ]]--
     local floorCombos = {}
-    if Randomizer.checkBit(mobius, Randomizer.Mobius.Values.RandomArrangers.id) then
+    if Randomizer.checkBit(mobius, Randomizer.Mobius.Values.TwoTower.id) then
       local floors = {
         Randomizer.Hints.Values.F1,
         Randomizer.Hints.Values.F2,
@@ -533,7 +533,7 @@ if talosProgress:GetCodeValue(Randomizer.Mobius.talosProgress) ~= 0 and currentW
         if Randomizer.checkBit(mobius, Randomizer.Mobius.Values.TwoTower.id) then
           for i = 1, #floorCombos do
             local complete = true
-            for shape, requiredCount in pairs(requirement) do
+            for shape, requiredCount in pairs(floorCombos[i]) do
               local _, actualCount = string.gsub(collected, shape .. "%d+;", "")
               if actualCount < requiredCount then
                 complete = false
@@ -542,7 +542,7 @@ if talosProgress:GetCodeValue(Randomizer.Mobius.talosProgress) ~= 0 and currentW
             end
 
             if complete then
-              finished("Collected all sigils for Floors " .. i .. " & " .. j)
+              finished("Collected all sigils for two different Tower Floors")
             end
           end
         end
