@@ -1,3 +1,10 @@
+terminal when (Randomizer_Overlay_Timeout) {
+  text: [[TTRS:notrans=
+Randomizer generation timed out!%w1
+This does not necessarily mean that it didn't generate.
+%w9%w9%w9%w9%e2]]
+}
+
 terminal when (Randomizer_Overlay_Start) {
   text: [[TTRS:notrans=
 Randomizer Checksum: %e2]]

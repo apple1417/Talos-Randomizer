@@ -1515,6 +1515,9 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
       for i=1, #sigils do
         local index = rand(1, availableMarkers)
         for j=1, #openMarkers do
+          if #openMarkers == 0 then
+            printError("Ran out of space for sigils - some spots will be empty")
+          end
           if index > #markers[openMarkers[j]][2] then
             index = index - #markers[openMarkers[j]][2]
           else
@@ -1545,7 +1548,7 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
     if RandomizationMode == Randomizer.Modes.Values.Intended
         and Scavenger == Randomizer.Scavenger.Values.Off then
       local sigil = ""
-      local marker = Randomizer.Puzzles.Nexus.F3.talosProgress
+      local marker = Randomizer.Puzzles.Nexus.F3
       -- Weighted based on the amount of sigils of each type
       local sigilIndex = rand(1, 39)
       if sigilIndex <= 9 then
@@ -1555,13 +1558,13 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
         -- Place a star (30/39)
         sigil = table.remove(locked.AStar, 1)
       end
-      talosProgress:SetCode(marker, tetroIndexes[sigil])
+      talosProgress:SetCode(marker.talosProgress, tetroIndexes[sigil])
       tetroIndexes[sigil] = nil
       if DEBUG then
         printWarning(string.format("Placed %s in %s", sigil, marker.full))
       end
       -- Also while we're here fix A1 gate
-      locked.A1Gate = Randomizer.Arrangers.A1.Sigils
+      locked.A1Gate = Randomizer.Arrangers.A1Gate.Sigils
     end
 
     --[[
@@ -1654,7 +1657,7 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
             accessableArrangers = {
               Randomizer.Arrangers.Fan,
               Randomizer.Arrangers.Recorder,
-              Randomizer.Arrangers.Cube
+              Randomizer.Arrangers.Platform
             }
             arrangerStage = 5
           elseif arrangerStage == 5 and #accessableArrangers == 0 then
@@ -1881,6 +1884,9 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.generated) then
             for i=1, #uniqueSigils do
               local index = rand(1, tempAvailableMarkers)
               for j=1, #tempOpenMarkers do
+                if #tempOpenMarkers == 0 then
+                  printError("Ran out of space for sigils - some spots will be empty")
+                end
                 if index > #markers[tempOpenMarkers[j]][2] then
                   index = index - #markers[tempOpenMarkers[j]][2]
                 else

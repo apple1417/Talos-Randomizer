@@ -1,4 +1,36 @@
+-- The first cutscene is weird so this makes it safer
+Wait(Event(worldInfo.PlayerBorn))
+
+--[[
+  Quick failsafe so you know if something went wrong
+  Doesn't check talosProgress cause it's also useful to know after generation
+]]--
+local usingTerminal = false
+RunAsync(function()
+  Wait(Delay(1))
+  if not usingTerminal then
+    usingTerminal = true
+    terminal:EnableOverlayRendering(true)
+    terminal:ClearTexts()
+
+    terminal:AddTerminalText("Randomizer_Overlay_Timeout")
+    Wait(CustomEvent(terminal, "TerminalEvent_2"))
+
+    terminal:ClearTexts()
+    terminal:EnableOverlayRendering(false)
+    usingTerminal = false
+  end
+end)
+
 Wait(CustomEvent("Randomizer_Finished"))
+
+-- Incase we finish generation while showing the timeout message
+while usingTerminal do
+  Wait(CustomEvent("OnStep"))
+end
+Wait(CustomEvent("OnStep"))
+-- We never un-set this now so that we won't show timeout if we get here first
+usingTerminal = true
 
 local Randomizer = worldGlobals.Randomizer
 local talosProgress = nexGetTalosProgress(worldInfo)
@@ -23,6 +55,7 @@ if not talosProgress:IsVarSet(Randomizer.MiscFlags.shownChecksum) then
   table.insert(textOrder, "Randomizer_Overlay_End")
 
   terminal:EnableOverlayRendering(true)
+  terminal:ClearTexts()
   for _, text in pairs(textOrder) do
     terminal:AddTerminalText(text)
     Wait(CustomEvent(terminal, "TerminalEvent_2"))
