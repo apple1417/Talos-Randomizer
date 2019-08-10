@@ -11,8 +11,25 @@ for i=1, #GrayButtons do
   GrayButtons[i]:EnableUsage()
 end
 
-local currentHints = 0
-talosProgress:SetVarValue(Hints.talosProgress, 0)
+
+local currentHints = 3584
+
+local val = string.match(prjGetCustomOccasion(), "Randomizer_AutoHints=(%d-);")
+if val ~= nil then
+  currentHints = tonumber(val)
+end
+
+for i=1, #GrayButtons do
+  if worldGlobals.Randomizer.checkBit(currentHints, i - 1) then
+    worldGlobals.Randomizer.swapPos(GrayButtons[i], GreenButtons[i])
+
+    GrayButtons[i]:DisableUsage()
+    GreenButtons[i]:EnableUsage()
+  end
+end
+
+talosProgress:SetVarValue(Hints.talosProgress, currentHints)
+
 RunHandled(WaitForever,
   OnEvery(Any(Events(GrayButtons.Used))),
   function(event)
