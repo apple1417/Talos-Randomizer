@@ -11,7 +11,7 @@ for i=1, #GrayButtons do
   GrayButtons[i]:EnableUsage()
 end
 
-
+-- Default hints value, make sure to update in Randomizer_Startup.lua
 local currentHints = 3584
 
 local val = string.match(prjGetCustomOccasion(), "Randomizer_AutoHints=(%d-);")

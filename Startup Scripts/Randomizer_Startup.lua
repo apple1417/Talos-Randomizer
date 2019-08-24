@@ -78,8 +78,8 @@ globals.Randomizer.AutoHints.clear = function()
 end
 
 local function adjustHint(arranger, add)
-  if type(arranger) ~= "string"then
-    print("Invalid argument, expected a string")
+  if type(arranger) ~= "string" then
+    print("Invalid argument '" .. arranger .. "', expected a string")
     return
   end
 
@@ -123,7 +123,8 @@ local function adjustHint(arranger, add)
 
   local hintsVal = string.match(prj_strCustomOccasion, "Randomizer_AutoHintsO?f?f?=(%d-);")
   if hintsVal == nil then
-    prj_strCustomOccasion = prj_strCustomOccasion .. "Randomizer_AutoHints=" .. mthPow2F(selectedHint.offset) .. ";"
+    -- Add the default hints - make sure to update in Options_Hints.lua too
+    prj_strCustomOccasion = prj_strCustomOccasion .. "Randomizer_AutoHints=" .. 3584 + mthPow2F(selectedHint.offset) .. ";"
     return
   else
     hintsVal = tonumber(hintsVal)
@@ -152,12 +153,24 @@ local function adjustHint(arranger, add)
   )
 end
 
-globals.Randomizer.AutoHints.add = function(arranger)
-  adjustHint(arranger, true)
+globals.Randomizer.AutoHints.add = function(...)
+  if arg.n == 0 then
+    print("Valid Values: 'A1G', 'AG', 'BG', 'CG', 'C', 'H', 'F', 'R', 'P', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6'")
+    return
+  end
+  for i=1, arg.n do
+    adjustHint(arg[i], true)
+  end
 end
 
-globals.Randomizer.AutoHints.remove = function(arranger)
-  adjustHint(arranger, false)
+globals.Randomizer.AutoHints.remove = function(...)
+  if arg.n == 0 then
+    print("Valid Values: 'A1G', 'AG', 'BG', 'CG', 'C', 'H', 'F', 'R', 'P', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6'")
+    return
+  end
+  for i=1, arg.n do
+    adjustHint(arg[i], false)
+  end
 end
 
 globals.Randomizer.AutoHints.setRaw = function(val)
