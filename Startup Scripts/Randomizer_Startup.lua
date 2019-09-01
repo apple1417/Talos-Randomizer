@@ -1,6 +1,17 @@
 print("Loaded Randomizer_Startup.lua")
 
+--[[
+  We have to use prj_strCustomOccasion to communicate with world scripts, but unfortunatly it
+   doesn't get saved between sessions, so we use a second var for that
+]]--
+prj_strCustomOccasion = ser_strBanList
+
 globals.Randomizer = {}
+globals.Randomizer._Descriptions = {
+  AutoHints = "Change the default hint settings when you load into the options world",
+  AutoStart = "Lets you skip the options world and start straight in A1, pre-specificing the options",
+  Debug = "Turn debug mode on or odd"
+}
 
 local allHints = {
   {code = "a1g", name = "A1 Gate", offset = 0},
@@ -21,6 +32,14 @@ local allHints = {
 }
 
 globals.Randomizer.AutoHints = {}
+globals.Randomizer.AutoHints._Descriptions = {
+  add = "Adds a hint that should be automatically selected",
+  default = "Revert to default AutoHints settings",
+  list = "Show all hints currently set to be automatically selected",
+  remove = "Removes a hint from being automatically selected",
+  setRaw = "Overwrite the raw value for what hints are selected",
+  toggle = "Turn on or off AutoHints, while saving all your settings"
+}
 globals.Randomizer.AutoHints.toggle = function()
   local m = string.match(prj_strCustomOccasion, "Randomizer_AutoHints(O?f?f?)=%d-;")
   if m == nil then
@@ -44,12 +63,13 @@ globals.Randomizer.AutoHints.toggle = function()
     )
     print("Enabled Auto Hints")
   end
+  ser_strBanList = prj_strCustomOccasion
 end
 
 globals.Randomizer.AutoHints.list = function()
   local o, m = string.match(prj_strCustomOccasion, "Randomizer_AutoHints(O?f?f?)=(%d-);")
   if o == nil or m == nil then
-    print("No Auto Hints options specified")
+    print("No Auto Hints options specified - will use defaults")
     return
   end
   if #o == 0 then
@@ -68,13 +88,14 @@ globals.Randomizer.AutoHints.list = function()
   print()
 end
 
-globals.Randomizer.AutoHints.clear = function()
+globals.Randomizer.AutoHints.default = function()
   prj_strCustomOccasion = string.gsub(
     prj_strCustomOccasion,
     "Randomizer_AutoHintsO?f?f?=%d-;",
     "",
     1
   )
+  ser_strBanList = prj_strCustomOccasion
 end
 
 local function adjustHint(arranger, add)
@@ -125,6 +146,7 @@ local function adjustHint(arranger, add)
   if hintsVal == nil then
     -- Add the default hints - make sure to update in Options_Hints.lua too
     prj_strCustomOccasion = prj_strCustomOccasion .. "Randomizer_AutoHints=" .. 3584 + mthPow2F(selectedHint.offset) .. ";"
+    ser_strBanList = prj_strCustomOccasion
     return
   else
     hintsVal = tonumber(hintsVal)
@@ -151,6 +173,7 @@ local function adjustHint(arranger, add)
     "%1=" .. hintsVal .. ";",
     1
   )
+  ser_strBanList = prj_strCustomOccasion
 end
 
 globals.Randomizer.AutoHints.add = function(...)
@@ -185,6 +208,7 @@ globals.Randomizer.AutoHints.setRaw = function(val)
 
   if string.match(prj_strCustomOccasion, "Randomizer_AutoHintsO?f?f?=(%d-);") == nil then
     prj_strCustomOccasion = prj_strCustomOccasion .. "Randomizer_AutoHints=" .. val .. ";"
+    ser_strBanList = prj_strCustomOccasion
     return
   end
 
@@ -194,9 +218,17 @@ globals.Randomizer.AutoHints.setRaw = function(val)
     "%1=" .. val .. ";",
     1
   )
+  ser_strBanList = prj_strCustomOccasion
 end
 
 globals.Randomizer.AutoStart = {}
+globals.Randomizer.AutoStart._Descriptions = {
+  add = "Adds an option and it's value that should be set before the run starts",
+  clear = "Clears all AutoStart settings",
+  list = "Show all options that are currently set, and their values",
+  remove = "Removes an option from being set before the run starts",
+  toggle = "Turn on or off AutoStart, while saving all your settings"
+}
 globals.Randomizer.AutoStart.toggle = function()
   local m = string.match(prj_strCustomOccasion, "Randomizer_AutoStart(O?f?f?)={.-};")
   if m == nil then
@@ -220,6 +252,7 @@ globals.Randomizer.AutoStart.toggle = function()
     )
     print("Enabled Auto Start")
   end
+  ser_strBanList = prj_strCustomOccasion
 end
 
 globals.Randomizer.AutoStart.list = function()
@@ -247,6 +280,7 @@ globals.Randomizer.AutoStart.clear = function()
     "",
     1
   )
+  ser_strBanList = prj_strCustomOccasion
 end
 
 globals.Randomizer.AutoStart.add = function(tal, val)
@@ -261,6 +295,7 @@ globals.Randomizer.AutoStart.add = function(tal, val)
   local m = string.match(prj_strCustomOccasion, "Randomizer_AutoStartO?f?f?={(.-)};")
   if m == nil then
     prj_strCustomOccasion = prj_strCustomOccasion .. "Randomizer_AutoStart={'" .. tal .. "'=" .. val .. "};"
+    ser_strBanList = prj_strCustomOccasion
     return
   end
   m = string.gsub(m, "'" .. tal .. "'=%d+,?", "", 1)
@@ -275,6 +310,7 @@ globals.Randomizer.AutoStart.add = function(tal, val)
     "%1={" .. m .. "};",
     1
   )
+  ser_strBanList = prj_strCustomOccasion
 end
 
 globals.Randomizer.AutoStart.remove = function(tal)
@@ -301,9 +337,14 @@ globals.Randomizer.AutoStart.remove = function(tal)
     "%1={" .. new .. "};",
     1
   )
+  ser_strBanList = prj_strCustomOccasion
 end
 
 globals.Randomizer.Debug = {}
+globals.Randomizer.Debug._Descriptions = {
+  off = "Turns debug mode on",
+  on = "Turns debug mode on"
+}
 globals.Randomizer.Debug.on = function()
   if cht_bEnableCheats == 0 then
     print("Cheats must be enabled")
@@ -328,7 +369,15 @@ end
 local function printSubValues(base, name)
   print("Subvalues of '" .. name .. "'")
   for k, v in pairs(base) do
-    print(k .. ": " ..type(v))
+    local output = k .. ": " ..type(v)
+    if base._Descriptions ~= nil and base._Descriptions[k] ~= nil then
+      output = output .. "  - " .. base._Descriptions[k]
+    elseif k == "help" then
+      output = output .. "  - Show this message"
+    end
+    if string.sub(k, 1, 1) ~= "_" then
+      print(output)
+    end
   end
   print()
 end
@@ -337,7 +386,7 @@ end
 local function setupHelp(base, prefix)
   prefix = prefix or ""
   for k, sub in pairs(base) do
-    if type(sub) == "table" then
+    if type(sub) == "table" and string.sub(k, 1, 1) ~= "_" then
       local name = prefix .. "." .. k
       sub.help = function()
         printSubValues(sub, name)
