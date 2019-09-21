@@ -31,6 +31,56 @@ local allHints = {
   {code = "f6", name = "Floor 6", offset = 14}
 }
 
+-- It's better to store a table of hints and only convert in one place
+local selectedHints = nil
+local function loadHints()
+  local o, m = string.match(prj_strCustomOccasion, "Randomizer_AutoHints(O?f?f?)=(%d-);")
+  if o == nil or m == nil then
+    selectedHints = nil
+    return
+  end
+  local hintsVal = tonumber(m)
+  selectedHints = {}
+  for i = 1, #allHints do
+    if hintsVal % 2 == 1 then
+      selectedHints[allHints[i].code] = allHints[i]
+    end
+    hintsVal = mthFloorF(hintsVal / 2)
+  end
+end
+local function saveHints()
+  if selectedHints == nil then
+    prj_strCustomOccasion = string.gsub(
+      prj_strCustomOccasion,
+      "Randomizer_AutoHintsO?f?f?=%d-;",
+      "",
+      1
+    )
+    ser_strBanList = prj_strCustomOccasion
+    return
+  end
+
+  local hintsVal = 0
+  for _, i in pairs(selectedHints) do
+    hintsVal = hintsVal + mthPow2F(i.offset)
+  end
+
+  if string.match(prj_strCustomOccasion, "Randomizer_AutoHintsO?f?f?=(%d-);") == nil then
+    prj_strCustomOccasion = prj_strCustomOccasion .. "Randomizer_AutoHints=" .. hintsVal .. ";"
+    ser_strBanList = prj_strCustomOccasion
+    return
+  end
+
+  prj_strCustomOccasion = string.gsub(
+    prj_strCustomOccasion,
+    "(Randomizer_AutoHintsO?f?f?)=%d-;",
+    "%1=" .. hintsVal .. ";",
+    1
+  )
+  ser_strBanList = prj_strCustomOccasion
+end
+loadHints()
+
 globals.Randomizer.AutoHints = {}
 globals.Randomizer.AutoHints._Descriptions = {
   add = "Adds a hint that should be automatically selected",
@@ -67,44 +117,36 @@ globals.Randomizer.AutoHints.toggle = function()
 end
 
 globals.Randomizer.AutoHints.list = function()
-  local o, m = string.match(prj_strCustomOccasion, "Randomizer_AutoHints(O?f?f?)=(%d-);")
-  if o == nil or m == nil then
+  local o = string.match(prj_strCustomOccasion, "Randomizer_AutoHints(O?f?f?)=%d-;")
+  if o == nil or selectedHints == nil then
     print("No Auto Hints options specified - will use defaults")
     return
   end
   if #o == 0 then
     print("Auto Hints are currently on")
   else
-    print("Auto Hints are currently off")
+    print("Auto Hints are currently off - will use defaults")
   end
   print("Selected hints:")
-  local hintsVal = tonumber(m)
-  for i = 1, #allHints do
-    if hintsVal % 2 == 1 then
-      print(allHints[i].name)
-    end
-    hintsVal = mthFloorF(hintsVal / 2)
+  for _, i in pairs(selectedHints) do
+    print(i.name)
   end
   print()
 end
 
 globals.Randomizer.AutoHints.default = function()
-  prj_strCustomOccasion = string.gsub(
-    prj_strCustomOccasion,
-    "Randomizer_AutoHintsO?f?f?=%d-;",
-    "",
-    1
-  )
-  ser_strBanList = prj_strCustomOccasion
+  selectedHints = nil
+  saveHints()
 end
 
-local function adjustHint(arranger, add)
+local validHints = "Valid Values: 'A1G', 'AG', 'BG', 'CG', 'C', 'H', 'F', 'R', 'P', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6'"
+local function eachHint(arranger, add)
   if type(arranger) ~= "string" then
-    print("Invalid argument '" .. arranger .. "', expected a string")
-    return
+    return "Invalid argument '" .. arranger .. "', expected a string"
   end
 
   -- Process the input a bit to allow multiple input forms
+  local original = arranger
   arranger = string.gsub(
     string.gsub(
       string.gsub(
@@ -129,71 +171,63 @@ local function adjustHint(arranger, add)
     arranger = "p"
   end
 
-  local selectedHint = nil
-  for _, hint in pairs(allHints) do
-    if hint.code == arranger then
-      selectedHint = hint
+  -- Actually add the hint
+  local hint = nil
+  for _, h in pairs(allHints) do
+    if h.code == arranger then
+      hint = h
       break
     end
   end
-  if selectedHint == nil then
-    print("Unrecognised Hint")
-    print("Valid Values: 'A1G', 'AG', 'BG', 'CG', 'C', 'H', 'F', 'R', 'P', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6'")
-    return
+  if hint == nil then
+    return "Unrecognised Hint '".. original .. "' \n" .. validHints
   end
 
-  local hintsVal = string.match(prj_strCustomOccasion, "Randomizer_AutoHintsO?f?f?=(%d-);")
-  if hintsVal == nil then
-    -- Add the default hints - make sure to update in Options_Hints.lua too
-    prj_strCustomOccasion = prj_strCustomOccasion .. "Randomizer_AutoHints=" .. 3584 + mthPow2F(selectedHint.offset) .. ";"
-    ser_strBanList = prj_strCustomOccasion
-    return
-  else
-    hintsVal = tonumber(hintsVal)
+  if selectedHints == nil then
+    selectedHints = {
+      f1 = allHints[10],
+      f2 = allHints[11],
+      f3 = allHints[12]
+    }
   end
 
-  local offsetVal = mthPow2F(selectedHint.offset)
-  if hintsVal/offsetVal % 2 == 1 and add then
-    print("Hint has already been added")
-    return
-  elseif (hintsVal < offsetVal or hintsVal/offsetVal % 2 == 0) and not add then
-    print("Hint has already been removed")
-    return
+  if selectedHints[hint.code] and add then
+    return "Hint '" .. original .. "' has already been added"
+  elseif not selectedHints[hint.code] and not add then
+    return "Hint '" .. original .. "' has already been removed"
   end
 
   if add then
-    hintsVal = hintsVal + mthPow2F(selectedHint.offset)
+    selectedHints[hint.code] = hint
   else
-    hintsVal = hintsVal - mthPow2F(selectedHint.offset)
+    selectedHints[hint.code] = nil
+  end
+  saveHints()
+end
+
+local function adjustHints(arg, add)
+  if arg.n == 0 then
+    print(validHints)
+    return
   end
 
-  prj_strCustomOccasion = string.gsub(
-    prj_strCustomOccasion,
-    "(Randomizer_AutoHintsO?f?f?)=%d-;",
-    "%1=" .. hintsVal .. ";",
-    1
-  )
-  ser_strBanList = prj_strCustomOccasion
+  for i=1, arg.n do
+    local output = eachHint(arg[i], add)
+    if output ~= nil then
+      print(output)
+      loadHints()
+      return
+    end
+  end
+  saveHints()
 end
 
 globals.Randomizer.AutoHints.add = function(...)
-  if arg.n == 0 then
-    print("Valid Values: 'A1G', 'AG', 'BG', 'CG', 'C', 'H', 'F', 'R', 'P', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6'")
-    return
-  end
-  for i=1, arg.n do
-    adjustHint(arg[i], true)
-  end
+  adjustHints(arg, true)
 end
 
 globals.Randomizer.AutoHints.remove = function(...)
-  if arg.n == 0 then
-    print("Valid Values: 'A1G', 'AG', 'BG', 'CG', 'C', 'H', 'F', 'R', 'P', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6'")
-    return
-  end
-  for i=1, arg.n do
-    adjustHint(arg[i], false)
-  end
+  adjustHints(arg, false)
 end
 
 globals.Randomizer.AutoHints.setRaw = function(val)
@@ -219,6 +253,8 @@ globals.Randomizer.AutoHints.setRaw = function(val)
     1
   )
   ser_strBanList = prj_strCustomOccasion
+
+  loadHints()
 end
 
 globals.Randomizer.AutoStart = {}
